@@ -1,0 +1,27 @@
+{
+  "id": "unknown",
+  "name": "Unknown / Generic",
+  "countries": [],
+  "tldHints": [],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 20,
+    "maxSeverity": "medium",
+    "notes": "Default conservative behavior."
+  },
+  "nationalId": {
+    "enabled": false,
+    "idType": "Unknown",
+    "description": "National ID detection disabled for unknown locale",
+    "baseSeverity": "medium",
+    "maxSeverity": "medium",
+    "notes": "Without locale context, national ID patterns have high false positive risk."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  },
+  "notes": "Conservative defaults when locale cannot be determined."
+}

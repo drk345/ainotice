@@ -1,0 +1,90 @@
+{
+  "$schema": "./selection-rules.schema.json",
+  "description": "Priority-ordered rules for awareness frame selection",
+  "notes": "Rules are evaluated in order; first match wins. This is deterministic selection logic.",
+  "rules": [
+    {
+      "ruleId": "AWF-001-select-medical",
+      "frameId": "FRAME_MEDICAL",
+      "condition": {
+        "documentClass": "doc.medical_record"
+      },
+      "priority": 1,
+      "notes": "Medical records always get FRAME_MEDICAL"
+    },
+    {
+      "ruleId": "AWF-002-select-payroll",
+      "frameId": "FRAME_PAYROLL",
+      "condition": {
+        "documentClass": "doc.payroll"
+      },
+      "priority": 2,
+      "notes": "Payroll documents get FRAME_PAYROLL"
+    },
+    {
+      "ruleId": "AWF-003-select-hr",
+      "frameId": "FRAME_HR",
+      "condition": {
+        "documentClass": "doc.hr_record"
+      },
+      "priority": 3,
+      "notes": "HR records get FRAME_HR"
+    },
+    {
+      "ruleId": "AWF-004-select-legal",
+      "frameId": "FRAME_LEGAL",
+      "condition": {
+        "hasLegalSignals": true
+      },
+      "priority": 4,
+      "notes": "Legal signals detected in driving signals"
+    },
+    {
+      "ruleId": "AWF-005-select-regulated",
+      "frameId": "FRAME_REGULATED_SENSITIVE",
+      "condition": {
+        "severityAtLeast": "high",
+        "documentClass": null,
+        "anyOf": ["ontologyDriven", "hasRegulatedSignals"]
+      },
+      "priority": 5,
+      "notes": "AG-PROMPT-056: High severity + ontology/regulated signals but no document class"
+    },
+    {
+      "ruleId": "AWF-007-select-personal-data",
+      "frameId": "FRAME_PERSONAL_DATA_AWARENESS",
+      "condition": {
+        "singleStrongAwareness": true,
+        "documentClass": null
+      },
+      "priority": 6,
+      "notes": "AG-PROMPT-061: Single strong regulated signal awareness"
+    },
+    {
+      "ruleId": "AWF-006-select-general",
+      "frameId": "FRAME_GENERAL_SENSITIVE",
+      "condition": {
+        "default": true
+      },
+      "priority": 7,
+      "notes": "Default fallback when no other rule matches"
+    }
+  ],
+  "suppressionRules": [
+    {
+      "ruleId": "AWF-010-suppress-ontology",
+      "condition": {
+        "ontologyDriven": true
+      },
+      "notes": "Ontology-driven classifications should not expose internal details (ICD codes, units)"
+    },
+    {
+      "ruleId": "AWF-011-suppress-doc-class",
+      "condition": {
+        "documentClass": "any",
+        "drivenByDocClass": true
+      },
+      "notes": "Document class baseline is sufficient explanation"
+    }
+  ]
+}

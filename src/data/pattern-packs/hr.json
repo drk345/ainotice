@@ -1,0 +1,55 @@
+{
+  "id": "hr",
+  "name": "HR Pattern Pack",
+  "description": "Detection patterns for human resources and personnel data",
+  "version": "1.0.0",
+  "domain": "hr",
+  "requiredLicenseFeature": "hr",
+  "lastUpdated": "2025-01-08T00:00:00Z",
+  "patterns": [
+    {
+      "id": "hr-001",
+      "name": "Social Security Numbers",
+      "description": "US Social Security Numbers",
+      "category": "hr",
+      "severity": "critical",
+      "regulatoryBasis": "SSA Regulations",
+      "type": "regex",
+      "config": {
+        "regex": "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+        "caseSensitive": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "hr-002",
+      "name": "Salary Information",
+      "description": "Compensation and salary data",
+      "category": "hr",
+      "severity": "high",
+      "regulatoryBasis": "Employment Law",
+      "type": "keyword",
+      "config": {
+        "keywords": ["salary", "compensation", "bonus structure", "stock options"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "hr-003",
+      "name": "Performance Reviews",
+      "description": "Employee performance evaluations",
+      "category": "hr",
+      "severity": "medium",
+      "regulatoryBasis": "Employment Privacy Law",
+      "type": "keyword",
+      "config": {
+        "keywords": ["performance review", "performance evaluation", "employee assessment"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    }
+  ]
+}

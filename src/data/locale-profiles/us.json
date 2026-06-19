@@ -1,0 +1,25 @@
+{
+  "id": "US",
+  "name": "United States",
+  "countries": ["US"],
+  "tldHints": [".us", ".gov", ".mil"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 20,
+    "maxSeverity": "medium"
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "SSN",
+    "description": "Social Security Number",
+    "baseSeverity": "critical",
+    "maxSeverity": "critical",
+    "notes": "SSN is the primary US identifier. Always critical severity."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  }
+}

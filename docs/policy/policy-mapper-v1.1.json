@@ -1,0 +1,66 @@
+{
+  "version": "1.1",
+  "name": "AgentGuard Rosetta Stone",
+  "matchingPrecedence": "signalType -> department -> intent -> localeGroup -> localeProfile -> destination -> default",
+  "mappings": [
+    {
+      "signalType": "secret.api_key",
+      "default": { "explanationId": "secret.api_key", "uiEscalation": "modal" },
+      "overrides": [
+        { "condition": { "destination": "internal_ai" }, "uiEscalation": "inline" }
+      ]
+    },
+    { "signalType": "secret.aws_key", "default": { "explanationId": "secret.api_key", "uiEscalation": "modal" } },
+    { "signalType": "secret.password", "default": { "explanationId": "secret.generic_pass", "uiEscalation": "modal" } },
+
+    {
+      "signalType": "code_block",
+      "default": { "explanationId": "gen.code.block", "uiEscalation": "inline" },
+      "overrides": [
+        { "condition": { "department": "engineering", "intent": "refactor" }, "uiEscalation": "none" },
+        { "condition": { "department": "marketing" }, "uiEscalation": "modal" }
+      ]
+    },
+
+    {
+      "signalType": "pii.ssn",
+      "default": { "explanationId": "pii.ssn.generic", "uiEscalation": "modal" },
+      "overrides": [
+        { "condition": { "localeGroup": "US" }, "explanationId": "pii.ssn.us", "uiEscalation": "modal" }
+      ]
+    },
+
+    {
+      "signalType": "pii.iban",
+      "default": { "explanationId": "dict.finance.banking", "uiEscalation": "inline" },
+      "overrides": [
+        { "condition": { "localeGroup": "EU" }, "uiEscalation": "modal" }
+      ]
+    },
+
+    {
+      "signalType": "pii.phone",
+      "default": { "explanationId": "pii.phone.generic", "uiEscalation": "none" },
+      "overrides": [
+        { "condition": { "localeGroup": "EU", "localeProfile": "EU-NORDICS" }, "explanationId": "pii.phone.nordics", "uiEscalation": "inline" }
+      ]
+    },
+
+    { "signalType": "pii.contact_batch", "default": { "explanationId": "pii.contact_list", "uiEscalation": "inline" } },
+
+    {
+      "signalType": "dict.legal.privilege",
+      "default": { "explanationId": "dict.legal.privileged", "uiEscalation": "modal" },
+      "overrides": [
+        { "condition": { "department": "legal", "destination": "internal_ai" }, "uiEscalation": "none" }
+      ]
+    },
+
+    { "signalType": "dict.legal.language", "default": { "explanationId": "dict.legal.generic", "uiEscalation": "inline" } },
+    { "signalType": "dict.hr.medical", "default": { "explanationId": "dict.hr.sensitive", "uiEscalation": "modal" } },
+    { "signalType": "dict.hr.salary", "default": { "explanationId": "dict.hr.sensitive", "uiEscalation": "modal" } },
+    { "signalType": "dict.finance.projections", "default": { "explanationId": "dict.finance.revenue", "uiEscalation": "modal" } },
+    { "signalType": "dict.finance.banking", "default": { "explanationId": "dict.finance.banking", "uiEscalation": "inline" } },
+    { "signalType": "pii.email_batch", "default": { "explanationId": "pii.contact_list", "uiEscalation": "inline" } }
+  ]
+}

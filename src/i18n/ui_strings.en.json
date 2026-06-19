@@ -1,0 +1,58 @@
+{
+  "$schema": "ui_strings",
+  "$locale": "en",
+  "$description": "AG-PROMPT-168/WS-02: Externalized UI strings for Ai Notice modal. Source of truth for all user-visible copy in uiComponents.ts and decisionQualityBlocks.ts.",
+
+  "brand": "Ai Notice",
+  "modal.uploadingTo": "Uploading to",
+  "modal.scanningFile": "Scanning file\u2026",
+  "modal.dropToInspect": "Drop to inspect",
+
+  "header.severitySrOnly": "Severity: {severity}",
+
+  "footer.goBack": "Go back",
+  "footer.continue": "Continue",
+  "footer.continueAnyway": "Continue anyway",
+  "footer.reviewedCheckbox": "I\u2019ve reviewed this",
+  "footer.blocked": "This action is paused for review.",
+
+  "toast.cancelled": "Decision applied. File was not shared.",
+  "toast.proceeded": "Decision applied. Logged locally.",
+
+  "saferMove.label": "Safer move",
+  "evidence.whatDidWeFind": "What did we find?",
+  "evidence.foundIn": "(found in {source})",
+  "evidence.noPatterns": "No patterns detected",
+  "evidence.detectedPatterns": "Detected patterns",
+  "evidence.detectedPatternsCount": "Detected patterns ({visible} of {total})",
+  "evidence.nMore": "{count} more",
+  "evidence.patternMatchDeterministic": "Pattern matching is deterministic.",
+  "evidence.accordionLabel": "What\u2019s the risk?",
+
+  "extractionLimited.note": "This file could not be fully analyzed. The AI tool you\u2019re uploading to may be able to read more than we could.",
+  "evidence.destination": "Destination:",
+  "evidence.sources": "Sources:",
+
+  "dq.whatWeFound": "What we found",
+  "dq.whyToPause": "Why to pause",
+  "dq.confidence": "Confidence",
+
+  "confidence.confirmed.label": "Confirmed",
+  "confidence.confirmed.note": "Multiple strong indicators support this assessment.",
+  "confidence.inferred.label": "Inferred",
+  "confidence.inferred.note": "Some indicators suggest this, but the evidence is mixed.",
+  "confidence.limitedAnalysis.label": "Reduced",
+  "confidence.limitedAnalysis.note": "This file could not be fully read. The AI tool you\u2019re uploading to may be able to read more than we could analyze.",
+
+  "license.courtesyMode": "Ai Notice is operating in Courtesy Mode. The license could not be verified. Please contact your administrator.",
+
+  "metadata.properties": "Properties",
+  "metadata.title": "Title:",
+  "metadata.author": "Author:",
+  "metadata.company": "Company:",
+  "metadata.modifiedBy": "Modified by:",
+  "metadata.manager": "Manager:",
+  "metadata.subject": "Subject:",
+
+  "notice.details": "Details"
+}

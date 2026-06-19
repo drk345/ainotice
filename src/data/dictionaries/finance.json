@@ -1,0 +1,63 @@
+{
+  "id": "finance",
+  "name": "Finance",
+  "description": "Financial terms and sensitive business data",
+  "enabled": true,
+  "entries": [
+    {
+      "id": "finance-banking",
+      "label": "Banking details",
+      "values": [
+        "bank account number",
+        "routing number",
+        "wire transfer",
+        "swift code",
+        "account balance"
+      ],
+      "severity": "high",
+      "signalType": "financial",
+      "matchType": "phrase"
+    },
+    {
+      "id": "finance-confidential",
+      "label": "Confidential financial data",
+      "values": [
+        "profit margin",
+        "revenue forecast",
+        "quarterly earnings",
+        "budget allocation",
+        "cost reduction"
+      ],
+      "severity": "high",
+      "signalType": "financial",
+      "matchType": "phrase"
+    },
+    {
+      "id": "finance-transactions",
+      "label": "Transaction records",
+      "values": [
+        "invoice",
+        "purchase order",
+        "payment receipt",
+        "expense report"
+      ],
+      "severity": "medium",
+      "signalType": "financial",
+      "matchType": "keyword",
+      "maxSeverity": "medium"
+    },
+    {
+      "id": "finance-tax",
+      "label": "Tax information",
+      "values": [
+        "tax return",
+        "tax id",
+        "ein number",
+        "tax filing"
+      ],
+      "severity": "high",
+      "signalType": "financial",
+      "matchType": "phrase"
+    }
+  ]
+}

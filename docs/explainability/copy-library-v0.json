@@ -1,0 +1,190 @@
+{
+  "version": "0.3.0",
+  "description": "Human-authored explainability copy for AgentGuard risk signals",
+  "copyPrinciples": {
+    "AG-PROMPT-083": "Supportive co-pilot tone",
+    "AG-PROMPT-089": "Calm seatbelt principle - inform without alarming",
+    "rules": [
+      "No legalese or jargon",
+      "Plain language: 'password' not 'credentials'",
+      "Non-judgmental: user decides what to do",
+      "Actionable: tell them what they can do"
+    ]
+  },
+  "entries": {
+    "secret.api_key": {
+      "id": "secret.api_key",
+      "title": "API key",
+      "why": "API keys let programs access services on your behalf. If shared, someone could use your accounts.",
+      "suggestedAction": "Remove or rotate the key before uploading."
+    },
+    "secret.aws_key": {
+      "id": "secret.aws_key",
+      "title": "AWS access key",
+      "why": "AWS keys give access to cloud resources. Sharing could lead to unexpected usage or charges.",
+      "suggestedAction": "Rotate this key if it may have been shared."
+    },
+    "secret.password": {
+      "id": "secret.password",
+      "title": "Password",
+      "why": "Passwords give direct access to accounts. Sharing them externally is risky.",
+      "suggestedAction": "Remove password references before uploading."
+    },
+    "secret.private_key": {
+      "id": "secret.private_key",
+      "title": "Private key",
+      "why": "Private keys are used for secure login and encryption. If shared, they could be misused.",
+      "suggestedAction": "Don't share private key files. Generate new keys if needed."
+    },
+    "pii.ssn": {
+      "id": "pii.ssn",
+      "title": "Social Security Number",
+      "why": "SSNs are critical personal identifiers. Sharing them could enable identity theft.",
+      "suggestedAction": "Remove or redact SSNs before uploading."
+    },
+    "pii.ssn.locale_gated": {
+      "id": "pii.ssn.locale_gated",
+      "title": "Number pattern",
+      "why": "This looks like a US Social Security Number format, but could be a different type of reference number in other regions.",
+      "suggestedAction": "Check if this is actually sensitive for your region."
+    },
+    "pii.credit_card": {
+      "id": "pii.credit_card",
+      "title": "Payment card number",
+      "why": "Card numbers are financial data. Sharing them externally could create compliance issues.",
+      "suggestedAction": "Remove or mask card numbers before uploading."
+    },
+    "pii.phone": {
+      "id": "pii.phone",
+      "title": "Phone number",
+      "why": "Phone numbers are personal contact information that may be subject to privacy rules.",
+      "suggestedAction": "Consider whether phone numbers need to be included."
+    },
+    "pii.phone.density": {
+      "id": "pii.phone.density",
+      "title": "Multiple phone numbers",
+      "why": "This file has many phone numbers. It might be a contact list or directory.",
+      "suggestedAction": "Review whether this contact information should be shared externally."
+    },
+    "pii.email": {
+      "id": "pii.email",
+      "title": "Email address",
+      "why": "Email addresses are personal contact information that may be subject to privacy rules.",
+      "suggestedAction": "Consider whether email addresses need to be included."
+    },
+    "pii.email.density": {
+      "id": "pii.email.density",
+      "title": "Multiple email addresses",
+      "why": "This file has multiple email addresses. It might be a mailing list or directory.",
+      "suggestedAction": "Review whether sharing this contact information is appropriate."
+    },
+    "pii.employee": {
+      "id": "pii.employee",
+      "title": "Employee information",
+      "why": "Employee data is usually confidential and protected by internal policies.",
+      "suggestedAction": "HR data generally shouldn't be shared externally."
+    },
+    "pii.compensation": {
+      "id": "pii.compensation",
+      "title": "Salary information",
+      "why": "Salary and compensation details are typically confidential.",
+      "suggestedAction": "This probably shouldn't be shared externally."
+    },
+    "financial.iban": {
+      "id": "financial.iban",
+      "title": "Bank account (IBAN)",
+      "why": "IBANs identify bank accounts. Sharing them could be risky.",
+      "suggestedAction": "Check if sharing banking information externally is appropriate."
+    },
+    "financial.banking": {
+      "id": "financial.banking",
+      "title": "Banking information",
+      "why": "Banking details like routing numbers should be protected.",
+      "suggestedAction": "Consider removing banking information before uploading."
+    },
+    "financial.data": {
+      "id": "financial.data",
+      "title": "Financial data",
+      "why": "Financial projections and budgets are often confidential.",
+      "suggestedAction": "Review whether this should be shared externally."
+    },
+    "legal.contract": {
+      "id": "legal.contract",
+      "title": "Legal agreement",
+      "why": "Legal documents often contain confidential terms.",
+      "suggestedAction": "Check if sharing this externally is permitted."
+    },
+    "legal.nda": {
+      "id": "legal.nda",
+      "title": "Non-disclosure agreement",
+      "why": "NDAs may restrict sharing information with third parties.",
+      "suggestedAction": "Review the NDA terms before sharing."
+    },
+    "confidential.marker": {
+      "id": "confidential.marker",
+      "title": "Marked as confidential",
+      "why": "This document is explicitly marked as confidential.",
+      "suggestedAction": "Check with the document owner if you're unsure."
+    },
+    "confidential.ma": {
+      "id": "confidential.ma",
+      "title": "M&A content",
+      "why": "Merger and acquisition information is highly confidential and market-sensitive.",
+      "suggestedAction": "Get explicit authorization before sharing."
+    },
+    "ip.content": {
+      "id": "ip.content",
+      "title": "Intellectual property",
+      "why": "This may contain proprietary information or trade secrets.",
+      "suggestedAction": "Have legal review before sharing externally."
+    },
+    "dictionary.finance": {
+      "id": "dictionary.finance",
+      "title": "Finance-related content",
+      "why": "This contains financial terms that may be sensitive.",
+      "suggestedAction": "Review whether this should be shared externally."
+    },
+    "dictionary.hr": {
+      "id": "dictionary.hr",
+      "title": "HR-related content",
+      "why": "This contains HR terms that may involve personal data.",
+      "suggestedAction": "HR content often shouldn't be shared externally."
+    },
+    "dictionary.legal": {
+      "id": "dictionary.legal",
+      "title": "Legal-related content",
+      "why": "This contains legal terms that may be privileged.",
+      "suggestedAction": "Consult with Legal before sharing."
+    },
+    "dictionary.match": {
+      "id": "dictionary.match",
+      "title": "Flagged by policy",
+      "why": "This contains terms flagged by your organization's policy.",
+      "suggestedAction": "Review why this was flagged."
+    },
+    "overall.critical": {
+      "id": "overall.critical",
+      "title": "Highly sensitive content",
+      "why": "This file contains information that needs careful review before sharing.",
+      "suggestedAction": "Review each item and consider whether this upload is necessary."
+    },
+    "overall.high": {
+      "id": "overall.high",
+      "title": "Sensitive content",
+      "why": "This file contains information that may be protected.",
+      "suggestedAction": "Consider removing sensitive details before uploading."
+    },
+    "overall.medium": {
+      "id": "overall.medium",
+      "title": "Some details to review",
+      "why": "This file contains some personal or internal information.",
+      "suggestedAction": "Make sure you're comfortable sharing this externally."
+    },
+    "overall.low": {
+      "id": "overall.low",
+      "title": "Minor details found",
+      "why": "Only minor patterns were found. This file will be shared with an external service.",
+      "suggestedAction": "Proceed if you're comfortable sharing this."
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "UK",
+  "name": "United Kingdom",
+  "countries": ["GB"],
+  "tldHints": [".uk", ".co.uk"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 20,
+    "maxSeverity": "medium"
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "NI Number",
+    "description": "National Insurance Number",
+    "baseSeverity": "high",
+    "maxSeverity": "high",
+    "notes": "UK NI number format differs from US SSN. SSN pattern is likely false positive."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "LATAM",
+  "name": "Latin America",
+  "countries": ["MX", "AR", "CO", "CL", "PE", "BR"],
+  "tldHints": [".mx", ".ar", ".co", ".cl", ".pe", ".br"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 25,
+    "maxSeverity": "medium"
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "CPF/CURP/CUIL",
+    "description": "Brazilian CPF, Mexican CURP, or Argentine CUIL",
+    "baseSeverity": "high",
+    "maxSeverity": "high"
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  }
+}

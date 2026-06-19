@@ -1,0 +1,46 @@
+{
+  "$schema": "./forbidden-words.schema.json",
+  "description": "Words that must NEVER appear in user-facing explanations",
+  "notes": "These words are alarming, technical, or inappropriate for awareness framing",
+  "categories": {
+    "alarming": {
+      "description": "Alarming language that causes unnecessary anxiety",
+      "words": [
+        "breach",
+        "violation",
+        "illegal",
+        "leak",
+        "incident",
+        "attack",
+        "threat",
+        "danger",
+        "emergency",
+        "alert"
+      ]
+    },
+    "technical": {
+      "description": "Technical/internal implementation terms",
+      "words": [
+        "icd",
+        "ontology",
+        "anchor",
+        "heuristic",
+        "regex",
+        "algorithm",
+        "proximity",
+        "cluster"
+      ],
+      "notes": "AG-PROMPT-SURFACE-PROBABILISTIC-LANGUAGE-017: 'pattern' removed - common in everyday language ('weather patterns', 'behavior patterns')"
+    },
+    "dlpStyle": {
+      "description": "DLP-style blocking language (we are NOT DLP)",
+      "words": [
+        "block",
+        "prevent",
+        "deny",
+        "quarantine",
+        "intercept"
+      ]
+    }
+  }
+}

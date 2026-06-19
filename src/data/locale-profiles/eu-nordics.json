@@ -1,0 +1,27 @@
+{
+  "id": "EU-NORDICS",
+  "name": "Nordic Countries",
+  "countries": ["DK", "NO", "SE", "FI", "IS"],
+  "tldHints": [".dk", ".no", ".se", ".fi", ".is"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 50,
+    "maxSeverity": "medium",
+    "notes": "Nordic documents often contain IKEA codes, order numbers, and price formats that look like phones."
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "CPR",
+    "description": "Danish CPR or similar Nordic personal ID",
+    "baseSeverity": "high",
+    "maxSeverity": "high",
+    "notes": "Format: DDMMYY-XXXX. US SSN pattern (XXX-XX-XXXX) is likely a false positive in Nordic context."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  },
+  "notes": "Conservative detection to avoid false positives from transactional documents."
+}

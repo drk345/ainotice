@@ -1,0 +1,324 @@
+/**
+ * AgentGuard Modal Styles
+ * AG-PROMPT-SURFACE-A11Y-VISUAL-REFINEMENT-020
+ *
+ * WCAG AA compliant visual design
+ * Color palette: muted navy→slate spectrum (no red/orange per BRAND_DOCTRINE)
+ * CRITICAL = Indigo (regulatory importance, not alarm)
+ * HIGH/MEDIUM = Slate-based
+ */
+
+:root {
+  /* --- AG-PROMPT-030: Forensic Calm Design Tokens --- */
+
+  /* Surfaces & Backgrounds */
+  --ag-bg-page: #f8fafc;        /* Soft off-white page surface */
+  --ag-bg-card: #ffffff;        /* Clean card surface */
+  --ag-border: #e2e8f0;         /* Slate 200 - deterministic boundaries */
+
+  /* Typography (High Contrast / Low Fatigue) */
+  --ag-text-primary: #0f172a;   /* Slate 900 - soft black, 15.4:1 on white */
+  --ag-text-secondary: #475569; /* Slate 600 - body/descriptions, 7:1 */
+  --ag-text-label: #64748b;     /* Slate 500 - labels/provenance, 4.6:1 */
+
+  /* Severity (Non-alarmist authority) */
+  --ag-crit-bg: #eef2ff;        /* Indigo 50 */
+  --ag-crit-text: #3730a3;      /* Indigo 800 - 4.7:1 on eef2ff */
+
+  --ag-high-bg: #f1f5f9;
+  --ag-high-text: #334155;      /* Slate 700 - 7:1 on f1f5f9 */
+
+  --ag-med-bg: #f1f5f9;
+  --ag-med-text: #475569;       /* Slate 600 - 5.5:1 on f1f5f9 */
+
+  --ag-low-bg: #f8fafc;
+  --ag-low-text: #64748b;       /* Slate 500 - 4.5:1 on f8fafc */
+
+  /* Neutral (general-purpose non-severity surfaces) */
+  --ag-neutral-bg: #f1f5f9;     /* Slate 100 */
+  --ag-neutral-text: #334155;   /* Slate 700 */
+
+  /* Typography Scale */
+  --ag-font-headline: 1.125rem; /* 18px */
+  --ag-font-body: 0.875rem;     /* 14px */
+  --ag-font-meta: 0.75rem;      /* 12px */
+  --ag-line-height-calm: 1.6;
+
+  /* Effects */
+  --ag-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  --ag-radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: transparent;
+  color: var(--ag-text-primary);
+  font-size: var(--ag-font-body);
+  line-height: 1.6;
+}
+
+.agentguard-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+}
+
+.agentguard-modal {
+  background: var(--ag-bg-page);
+  border-radius: var(--ag-radius);
+  box-shadow: var(--ag-shadow);
+  max-width: 520px;
+  width: 94%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.agentguard-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--ag-border);
+}
+
+.agentguard-modal-title {
+  font-size: var(--ag-font-headline);
+  font-weight: 600;
+  color: var(--ag-text-primary);
+  margin-bottom: 8px;
+  line-height: 1.5; /* AG-PROMPT-022: Doctrine minimum */
+}
+
+.agentguard-modal-summary {
+  font-size: var(--ag-font-body);
+  color: var(--ag-text-secondary);
+  line-height: 1.6;
+}
+
+.agentguard-modal-body {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.agentguard-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ag-border);
+  background: var(--ag-bg-card);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Severity badges: CRITICAL=Indigo, HIGH/MEDIUM=Slate (WCAG AA) */
+.agentguard-severity {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.agentguard-severity-critical {
+  background: var(--ag-crit-bg);
+  color: var(--ag-crit-text);
+}
+
+.agentguard-severity-high {
+  background: var(--ag-high-bg);
+  color: var(--ag-high-text);
+}
+
+.agentguard-severity-medium {
+  background: var(--ag-med-bg);
+  color: var(--ag-med-text);
+}
+
+.agentguard-severity-low {
+  background: var(--ag-low-bg);
+  color: var(--ag-low-text);
+}
+
+/* Pattern Cards */
+.agentguard-signals {
+  list-style: none;
+  margin: 16px 0;
+}
+
+.agentguard-signal-item {
+  padding: 12px 16px;
+  background: var(--ag-bg-card);
+  border: 1px solid var(--ag-border);
+  border-radius: var(--ag-radius);
+  margin-bottom: 8px;
+}
+
+.agentguard-signal-item:last-child {
+  margin-bottom: 0;
+}
+
+.agentguard-signal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agentguard-signal-title {
+  font-size: var(--ag-font-body);
+  font-weight: 500;
+  color: var(--ag-text-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Provenance tag (CONTENT / METADATA) */
+.agentguard-signal-source {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ag-text-label);
+  background: var(--ag-bg-card);
+  border: 1px solid var(--ag-border);
+  padding: 2px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.agentguard-signal-detail {
+  font-size: var(--ag-font-meta);
+  color: var(--ag-text-secondary);
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* Buttons */
+.agentguard-btn {
+  padding: 10px 20px;
+  border-radius: var(--ag-radius);
+  font-size: var(--ag-font-body);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--ag-border);
+  background: var(--ag-bg-card);
+  color: var(--ag-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.agentguard-btn:hover:not(:disabled) {
+  background: var(--ag-bg-card);
+  border-color: #cbd5e1;
+}
+
+.agentguard-btn:focus-visible {
+  outline: 2px solid var(--ag-crit-text);
+  outline-offset: 2px;
+}
+
+.agentguard-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.agentguard-btn-primary {
+  background: var(--ag-text-primary);
+  border-color: var(--ag-text-primary);
+  color: #ffffff;
+}
+
+.agentguard-btn-primary:hover:not(:disabled) {
+  background: #1e293b;
+  border-color: #1e293b;
+}
+
+.agentguard-btn-secondary {
+  background: var(--ag-bg-card);
+  color: var(--ag-text-label);
+  border: 1px solid var(--ag-border);
+}
+
+.agentguard-btn-secondary:hover:not(:disabled) {
+  background: var(--ag-bg-card);
+  border-color: #cbd5e1;
+}
+
+/* Friction checkbox - shown only for CRITICAL/HIGH */
+.agentguard-checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--ag-bg-card);
+  border: 1px solid var(--ag-border);
+  border-radius: var(--ag-radius);
+  margin-bottom: 16px;
+}
+
+.agentguard-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--ag-crit-text);
+}
+
+.agentguard-checkbox-label {
+  font-size: var(--ag-font-body);
+  font-weight: 500;
+  color: var(--ag-text-primary);
+  cursor: pointer;
+}
+
+/* Drawer toggle */
+.agentguard-drawer-toggle {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--ag-bg-card);
+  border: 1px solid var(--ag-border);
+  border-radius: var(--ag-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--ag-font-meta);
+  font-weight: 600;
+  color: var(--ag-text-secondary);
+}
+
+.agentguard-drawer-toggle:hover {
+  background: var(--ag-high-bg);
+  border-color: #cbd5e1;
+}
+
+.agentguard-drawer-toggle:focus-visible {
+  outline: 2px solid var(--ag-crit-text);
+  outline-offset: 2px;
+}
+
+.agentguard-drawer-content {
+  display: none;
+  padding: 16px;
+  background: var(--ag-bg-card);
+  border: 1px solid var(--ag-border);
+  border-radius: var(--ag-radius);
+  margin-top: 16px;
+}
+
+.agentguard-drawer-content.open {
+  display: block;
+}

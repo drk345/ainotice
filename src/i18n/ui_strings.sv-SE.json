@@ -1,0 +1,56 @@
+{
+  "$schema": "ui_strings",
+  "$locale": "sv-SE",
+  "$description": "AG-PROMPT-168/WS-02: Swedish (Sweden) stub. Translators: replace English values with Swedish equivalents.",
+
+  "brand": "Ai Notice",
+  "modal.uploadingTo": "Laddar upp till",
+  "modal.scanningFile": "Skannar fil\u2026",
+  "modal.dropToInspect": "Sl\u00e4pp f\u00f6r att granska",
+
+  "header.severitySrOnly": "Allvarlighetsgrad: {severity}",
+
+  "footer.goBack": "G\u00e5 tillbaka",
+  "footer.continue": "Forts\u00e4tt",
+  "footer.continueAnyway": "Forts\u00e4tt \u00e4nd\u00e5",
+  "footer.reviewedCheckbox": "Jag har granskat detta",
+  "footer.blocked": "Denna \u00e5tg\u00e4rd \u00e4r pausad f\u00f6r granskning.",
+
+  "toast.cancelled": "Uppladdning avbruten \u2014 filen delades inte.",
+  "toast.proceeded": "Uppladdning fortsatte \u2014 du valde att forts\u00e4tta.",
+
+  "saferMove.label": "S\u00e4krare alternativ",
+  "evidence.whatWasFound": "Vad som hittades",
+  "evidence.foundIn": "(hittad i {source})",
+  "evidence.noPatterns": "Inga m\u00f6nster identifierade",
+  "evidence.detectedPatterns": "Identifierade m\u00f6nster",
+  "evidence.detectedPatternsCount": "Identifierade m\u00f6nster ({visible} av {total})",
+  "evidence.nMore": "{count} till",
+  "evidence.patternMatchDeterministic": "M\u00f6nstermatchning \u00e4r deterministisk.",
+  "evidence.accordionLabel": "Bevis & detaljer",
+  "evidence.destination": "Destination:",
+  "evidence.sources": "K\u00e4llor:",
+
+  "dq.whatWeFound": "Vad vi hittade",
+  "dq.whyToPause": "Varf\u00f6r pausa",
+  "dq.confidence": "Konfidens",
+
+  "confidence.confirmed.label": "Bekr\u00e4ftad",
+  "confidence.confirmed.note": "Flera starka indikatorer st\u00f6djer denna bed\u00f6mning.",
+  "confidence.inferred.label": "H\u00e4rledd",
+  "confidence.inferred.note": "N\u00e5gra indikatorer tyder p\u00e5 detta, men bevisen \u00e4r blandade.",
+  "confidence.limitedAnalysis.label": "Reducerad",
+  "confidence.limitedAnalysis.note": "Denna fil kunde inte l\u00e4sas helt. AI-verktyget du laddar upp till kan kanske l\u00e4sa mer \u00e4n vi kunde analysera.",
+
+  "license.courtesyMode": "Ai Notice k\u00f6rs i artighets-l\u00e4ge. Licensen kunde inte verifieras. Kontakta din administrat\u00f6r.",
+
+  "metadata.properties": "Egenskaper",
+  "metadata.title": "Titel:",
+  "metadata.author": "F\u00f6rfattare:",
+  "metadata.company": "F\u00f6retag:",
+  "metadata.modifiedBy": "\u00c4ndrad av:",
+  "metadata.manager": "Chef:",
+  "metadata.subject": "\u00c4mne:",
+
+  "notice.details": "Detaljer"
+}

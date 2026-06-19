@@ -1,0 +1,56 @@
+{
+  "id": "ma",
+  "name": "M&A Pattern Pack",
+  "description": "Detection patterns for mergers and acquisitions",
+  "version": "1.0.0",
+  "domain": "ma",
+  "requiredLicenseFeature": "ma",
+  "lastUpdated": "2025-01-08T00:00:00Z",
+  "patterns": [
+    {
+      "id": "ma-001",
+      "name": "Deal Structures",
+      "description": "M&A deal structures and terms",
+      "category": "ma",
+      "severity": "critical",
+      "regulatoryBasis": "Securities Law",
+      "type": "keyword",
+      "config": {
+        "keywords": ["acquisition agreement", "merger terms", "purchase price", "earn-out"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "ma-002",
+      "name": "Valuation Data",
+      "description": "Company valuations and financial projections",
+      "category": "ma",
+      "severity": "critical",
+      "regulatoryBasis": "Material Non-Public Information",
+      "type": "keyword",
+      "config": {
+        "keywords": ["valuation", "enterprise value", "EBITDA multiple", "discounted cash flow"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "ma-003",
+      "name": "Due Diligence",
+      "description": "Confidential due diligence materials",
+      "category": "ma",
+      "severity": "high",
+      "regulatoryBasis": "Confidentiality Agreements",
+      "type": "keyword",
+      "config": {
+        "keywords": ["due diligence", "data room", "confidential information memorandum"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    }
+  ]
+}

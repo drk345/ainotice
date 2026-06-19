@@ -1,0 +1,56 @@
+{
+  "id": "sales",
+  "name": "Sales Pattern Pack",
+  "description": "Detection patterns for sales and customer data",
+  "version": "1.0.0",
+  "domain": "sales",
+  "requiredLicenseFeature": "sales",
+  "lastUpdated": "2025-01-08T00:00:00Z",
+  "patterns": [
+    {
+      "id": "sales-001",
+      "name": "Customer Lists",
+      "description": "Confidential customer lists",
+      "category": "sales",
+      "severity": "high",
+      "regulatoryBasis": "Trade Secret Protection",
+      "type": "keyword",
+      "config": {
+        "keywords": ["customer list", "client roster", "prospect database"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "sales-002",
+      "name": "Pricing Strategy",
+      "description": "Confidential pricing and discount structures",
+      "category": "sales",
+      "severity": "high",
+      "regulatoryBasis": "Competitive Intelligence",
+      "type": "keyword",
+      "config": {
+        "keywords": ["pricing strategy", "discount structure", "margin analysis", "competitive pricing"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "sales-003",
+      "name": "Sales Pipeline",
+      "description": "Confidential sales pipeline and forecasts",
+      "category": "sales",
+      "severity": "medium",
+      "regulatoryBasis": "Business Confidentiality",
+      "type": "keyword",
+      "config": {
+        "keywords": ["sales pipeline", "revenue forecast", "deal flow", "quota attainment"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    }
+  ]
+}

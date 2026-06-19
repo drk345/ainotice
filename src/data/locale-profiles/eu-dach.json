@@ -1,0 +1,25 @@
+{
+  "id": "EU-DACH",
+  "name": "Germany, Austria, Switzerland",
+  "countries": ["DE", "AT", "CH"],
+  "tldHints": [".de", ".at", ".ch"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 30,
+    "maxSeverity": "medium"
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "Personalausweis",
+    "description": "German ID / Tax ID",
+    "baseSeverity": "high",
+    "maxSeverity": "high",
+    "notes": "SSN pattern (XXX-XX-XXXX) does not apply to DACH region."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  }
+}

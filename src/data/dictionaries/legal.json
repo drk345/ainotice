@@ -1,0 +1,63 @@
+{
+  "id": "legal",
+  "name": "Legal",
+  "description": "Legal terms and privileged communications",
+  "enabled": true,
+  "entries": [
+    {
+      "id": "legal-privilege",
+      "label": "Privileged communication",
+      "values": [
+        "attorney client privilege",
+        "privileged and confidential",
+        "work product doctrine",
+        "legal hold"
+      ],
+      "severity": "critical",
+      "signalType": "legal",
+      "matchType": "phrase"
+    },
+    {
+      "id": "legal-litigation",
+      "label": "Litigation matters",
+      "values": [
+        "litigation hold",
+        "settlement agreement",
+        "court filing",
+        "deposition transcript",
+        "discovery request"
+      ],
+      "severity": "high",
+      "signalType": "legal",
+      "matchType": "phrase"
+    },
+    {
+      "id": "legal-contracts",
+      "label": "Contract terms",
+      "values": [
+        "non disclosure agreement",
+        "non compete clause",
+        "intellectual property assignment",
+        "indemnification clause"
+      ],
+      "severity": "medium",
+      "signalType": "legal",
+      "matchType": "phrase",
+      "maxSeverity": "high"
+    },
+    {
+      "id": "legal-regulatory",
+      "label": "Regulatory matters",
+      "values": [
+        "regulatory filing",
+        "compliance audit",
+        "sec filing",
+        "gdpr breach",
+        "data breach notification"
+      ],
+      "severity": "high",
+      "signalType": "legal",
+      "matchType": "phrase"
+    }
+  ]
+}

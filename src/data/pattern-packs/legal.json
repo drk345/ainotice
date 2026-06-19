@@ -1,0 +1,56 @@
+{
+  "id": "legal",
+  "name": "Legal Pattern Pack",
+  "description": "Detection patterns for legal documents and attorney-client privileged communications",
+  "version": "1.0.0",
+  "domain": "legal",
+  "requiredLicenseFeature": "legal",
+  "lastUpdated": "2025-01-08T00:00:00Z",
+  "patterns": [
+    {
+      "id": "legal-001",
+      "name": "Attorney-Client Privilege",
+      "description": "Communications protected by attorney-client privilege",
+      "category": "legal",
+      "severity": "critical",
+      "regulatoryBasis": "Attorney-Client Privilege Doctrine",
+      "type": "keyword",
+      "config": {
+        "keywords": ["attorney-client privilege", "privileged and confidential", "work product"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "legal-002",
+      "name": "Litigation Hold",
+      "description": "Documents under litigation hold",
+      "category": "legal",
+      "severity": "critical",
+      "regulatoryBasis": "FRCP Rule 37(e)",
+      "type": "keyword",
+      "config": {
+        "keywords": ["litigation hold", "legal hold", "preservation notice"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "legal-003",
+      "name": "Contract Terms",
+      "description": "Confidential contract terms and negotiations",
+      "category": "legal",
+      "severity": "high",
+      "regulatoryBasis": "Contract Confidentiality Clauses",
+      "type": "keyword",
+      "config": {
+        "keywords": ["confidentiality agreement", "non-disclosure", "proprietary terms"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    }
+  ]
+}

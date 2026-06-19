@@ -1,0 +1,34 @@
+{
+  "extensionName": {
+    "message": "Ai Notice",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Enterprise-grade risk awareness for AI tool uploads",
+    "description": "Description of the extension"
+  },
+  "riskDetected": {
+    "message": "Risk Detected",
+    "description": "Title for risk dialog"
+  },
+  "proceedAnyway": {
+    "message": "Proceed Anyway",
+    "description": "Button to continue with upload"
+  },
+  "cancelUpload": {
+    "message": "Cancel Upload",
+    "description": "Button to cancel upload"
+  },
+  "highRisk": {
+    "message": "High Risk",
+    "description": "High risk severity label"
+  },
+  "mediumRisk": {
+    "message": "Medium Risk",
+    "description": "Medium risk severity label"
+  },
+  "lowRisk": {
+    "message": "Low Risk",
+    "description": "Low risk severity label"
+  }
+}

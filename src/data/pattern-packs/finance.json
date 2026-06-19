@@ -1,0 +1,54 @@
+{
+  "id": "finance",
+  "name": "Finance Pattern Pack",
+  "description": "Detection patterns for financial data and regulatory compliance",
+  "version": "1.0.0",
+  "domain": "finance",
+  "requiredLicenseFeature": "finance",
+  "lastUpdated": "2025-01-08T00:00:00Z",
+  "patterns": [
+    {
+      "id": "finance-001",
+      "name": "Credit Card Numbers",
+      "description": "Payment card information",
+      "category": "finance",
+      "severity": "critical",
+      "regulatoryBasis": "PCI DSS",
+      "type": "regex",
+      "config": {
+        "regex": "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b",
+        "caseSensitive": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "finance-002",
+      "name": "Bank Account Numbers",
+      "description": "Banking account information",
+      "category": "finance",
+      "severity": "critical",
+      "regulatoryBasis": "GLBA",
+      "type": "regex",
+      "config": {
+        "regex": "\\b\\d{8,17}\\b",
+        "caseSensitive": false
+      },
+      "enabled": true
+    },
+    {
+      "id": "finance-003",
+      "name": "Financial Statements",
+      "description": "Confidential financial statements",
+      "category": "finance",
+      "severity": "high",
+      "regulatoryBasis": "SOX Section 302",
+      "type": "keyword",
+      "config": {
+        "keywords": ["balance sheet", "income statement", "cash flow statement", "confidential financial"],
+        "caseSensitive": false,
+        "wholeWord": false
+      },
+      "enabled": true
+    }
+  ]
+}

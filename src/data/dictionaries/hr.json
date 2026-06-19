@@ -1,0 +1,66 @@
+{
+  "id": "hr",
+  "name": "Human Resources",
+  "description": "Employee data and HR-sensitive information",
+  "enabled": true,
+  "entries": [
+    {
+      "id": "hr-medical",
+      "label": "Medical information",
+      "values": [
+        "medical certificate",
+        "health record",
+        "diagnosis",
+        "medical leave",
+        "disability accommodation",
+        "workers compensation"
+      ],
+      "severity": "high",
+      "signalType": "pii",
+      "matchType": "phrase"
+    },
+    {
+      "id": "hr-compensation",
+      "label": "Compensation data",
+      "values": [
+        "salary band",
+        "compensation package",
+        "bonus structure",
+        "stock options",
+        "pay grade"
+      ],
+      "severity": "high",
+      "signalType": "sensitive",
+      "matchType": "phrase"
+    },
+    {
+      "id": "hr-performance",
+      "label": "Performance data",
+      "values": [
+        "performance review",
+        "performance improvement plan",
+        "disciplinary action",
+        "termination notice",
+        "exit interview"
+      ],
+      "severity": "medium",
+      "signalType": "sensitive",
+      "matchType": "phrase",
+      "maxSeverity": "high"
+    },
+    {
+      "id": "hr-recruiting",
+      "label": "Recruiting data",
+      "values": [
+        "background check",
+        "reference check",
+        "offer letter",
+        "employment contract"
+      ],
+      "severity": "medium",
+      "signalType": "sensitive",
+      "matchType": "phrase",
+      "maxSeverity": "medium"
+    }
+  ]
+}

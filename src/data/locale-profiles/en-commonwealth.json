@@ -1,0 +1,25 @@
+{
+  "id": "EN-COMMONWEALTH",
+  "name": "English Commonwealth",
+  "countries": ["CA", "AU", "NZ", "IE"],
+  "tldHints": [".ca", ".au", ".nz", ".ie"],
+  "phone": {
+    "enabled": true,
+    "minCount": 1,
+    "escalationThreshold": 20,
+    "maxSeverity": "medium"
+  },
+  "nationalId": {
+    "enabled": true,
+    "idType": "SIN/TFN",
+    "description": "Canadian SIN, Australian TFN, or similar",
+    "baseSeverity": "high",
+    "maxSeverity": "high",
+    "notes": "US SSN format does not apply."
+  },
+  "email": {
+    "enabled": true,
+    "minCount": 5,
+    "maxSeverity": "medium"
+  }
+}

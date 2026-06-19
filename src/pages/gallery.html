@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ai Notice — Modal Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 32px;
+    }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .gallery-subtitle { color: #64748b; margin-bottom: 32px; font-size: 14px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+    .gallery-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .gallery-card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gallery-card-title { font-size: 13px; font-weight: 600; color: #334155; }
+    .gallery-card-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag-critical { background: #3730a3; color: #fff; }
+    .tag-high { background: #f1f5f9; color: #334155; }
+    .tag-medium { background: #eef2ff; color: #4338ca; }
+    .tag-review { background: #f1f5f9; color: #64748b; }
+    .gallery-card-body { padding: 16px; min-height: 120px; }
+    .gallery-card-body p { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+    .gallery-card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .gallery-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #475569;
+    }
+    .gallery-btn:hover { border-color: #cbd5e1; }
+    .gallery-btn-primary {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
+    }
+    .gallery-btn-primary:hover { background: #1e293b; }
+    .gallery-btn-outline { background: #fff; color: #475569; }
+    .gallery-admin-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #4338ca;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .gallery-section { margin-top: 40px; }
+    .gallery-section h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #334155; }
+    /* Gallery-only: severity capsules are ANNOTATED here, not used in runtime */
+    .gallery-annotation {
+      font-size: 11px;
+      color: #94a3b8;
+      font-style: italic;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ai Notice Modal Gallery</h1>
+  <p class="gallery-subtitle">Visual reference for all modal states. Gallery-only — not part of the runtime extension.</p>
+
+  <div class="gallery-section">
+    <h2>Detection States</h2>
+    <div class="gallery-grid">
+
+      <!-- CRITICAL: API Key -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Critical — API Key Detected</span>
+          <span class="gallery-card-tag tag-critical">Critical</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>Headline:</strong> API key detected in this file</p>
+          <p><strong>Safer move:</strong> Remove the credential before uploading.</p>
+          <p><strong>Evidence:</strong> API key (found in content)</p>
+          <p><strong>Confidence:</strong> Confirmed</p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn gallery-btn-primary" onclick="alert('Demo: Go back')">Go back</button>
+          <button class="gallery-btn gallery-btn-outline" onclick="alert('Demo: Continue anyway')">Continue anyway</button>
+        </div>
+        <p class="gallery-annotation" style="padding: 0 16px 12px;">Gallery-only severity capsule above; runtime uses top color bar + left accent</p>
+      </div>
+
+      <!-- HIGH: SSN -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">High — SSN Detected</span>
+          <span class="gallery-card-tag tag-high">High</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>Headline:</strong> Government-issued identifier detected</p>
+          <p><strong>Safer move:</strong> Remove or redact the identifier before uploading.</p>
+          <p><strong>Evidence:</strong> Social Security Number (found in content)</p>
+          <p><strong>Confidence:</strong> Confirmed</p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn gallery-btn-primary" onclick="alert('Demo: Go back')">Go back</button>
+          <button class="gallery-btn gallery-btn-outline" onclick="alert('Demo: Continue anyway')">Continue anyway</button>
+        </div>
+      </div>
+
+      <!-- MEDIUM: Legal -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Medium — Legal Content</span>
+          <span class="gallery-card-tag tag-medium">Review</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>Headline:</strong> Legal agreement content detected</p>
+          <p><strong>Safer move:</strong> Describe the clause or paste only the relevant section.</p>
+          <p><strong>Evidence:</strong> Legal Information (found in content)</p>
+          <p><strong>Confidence:</strong> Inferred</p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn" onclick="alert('Demo: Go back')">Go back</button>
+          <button class="gallery-btn gallery-btn-outline" onclick="alert('Demo: Continue')">Continue</button>
+        </div>
+      </div>
+
+      <!-- REVIEW: Extraction-Limited -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Review — Extraction Limited</span>
+          <span class="gallery-card-tag tag-review">Reduced</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>Headline:</strong> We couldn't fully read this file</p>
+          <p><strong>Safer move:</strong> Try exporting a text-readable version of the PDF.</p>
+          <p><strong>Note:</strong> This file could not be fully analyzed. The AI tool you're uploading to may be able to read more than we could.</p>
+          <p><em>Evidence section suppressed.</em></p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn" onclick="alert('Demo: Go back')">Go back</button>
+          <button class="gallery-btn gallery-btn-outline" onclick="alert('Demo: Continue')">Continue</button>
+        </div>
+      </div>
+
+      <!-- Courtesy Mode -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Courtesy Mode</span>
+          <span class="gallery-card-tag tag-review">Courtesy</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>Banner:</strong> Ai Notice is operating in Courtesy Mode. The license could not be verified.</p>
+          <span class="gallery-admin-link" onclick="alert('Demo: Contact admin')">Contact your administrator</span>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn" onclick="alert('Demo: Go back')">Go back</button>
+          <button class="gallery-btn gallery-btn-outline" onclick="alert('Demo: Continue')">Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="gallery-section">
+    <h2>Component States</h2>
+    <div class="gallery-grid">
+
+      <!-- Post-Decision Toast -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Post-Decision Toast</span>
+        </div>
+        <div class="gallery-card-body">
+          <p>After Go back: "Decision applied. File was not shared."</p>
+          <p>After Continue: "Decision applied. Logged locally."</p>
+          <p>Duration: 2 seconds, fade-out exit.</p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn" onclick="alert('Toast: Decision applied. File was not shared.')">Demo: Go back toast</button>
+          <button class="gallery-btn" onclick="alert('Toast: Decision applied. Logged locally.')">Demo: Proceed toast</button>
+        </div>
+      </div>
+
+      <!-- Button Policy -->
+      <div class="gallery-card">
+        <div class="gallery-card-header">
+          <span class="gallery-card-title">Button Policy</span>
+        </div>
+        <div class="gallery-card-body">
+          <p><strong>HIGH/CRITICAL:</strong> "Go back" = primary filled, "Continue anyway" = outline</p>
+          <p><strong>MEDIUM/LOW:</strong> "Go back" = secondary, "Continue" = neutral outline</p>
+        </div>
+        <div class="gallery-card-footer">
+          <button class="gallery-btn gallery-btn-primary">Go back (HIGH)</button>
+          <button class="gallery-btn gallery-btn-outline">Continue anyway</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
