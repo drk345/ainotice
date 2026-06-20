@@ -237,6 +237,37 @@ console.log('\nTest Suite: Popup License Display');
       assert(!hasCountdown, `Popup contains countdown language: ${str}`);
     }
   });
+
+  test('Popup does not contain Enterprise consumer-facing string', () => {
+    const lines = popupContent.split('\n');
+    const codeLines = lines.filter(line => {
+      const trimmed = line.trim();
+      return !trimmed.startsWith('//') && !trimmed.startsWith('*') && !trimmed.startsWith('/*');
+    });
+    const codeOnly = codeLines.join('\n');
+    const stringLiterals = codeOnly.match(/'[^']*'|"[^"]*"|`[^`]*`/g) || [];
+    for (const str of stringLiterals) {
+      assert(!/Enterprise/i.test(str), `Popup contains consumer-facing Enterprise wording: ${str}`);
+    }
+  });
+}
+
+console.log('\nTest Suite: Consumer-Facing Manifest Description');
+{
+  const chromeManifestPath = path.join(rootDir, 'public', 'manifest.chrome.json');
+  const firefoxManifestPath = path.join(rootDir, 'public', 'manifest.firefox.json');
+  const chromeManifest = JSON.parse(fs.readFileSync(chromeManifestPath, 'utf-8'));
+  const firefoxManifest = JSON.parse(fs.readFileSync(firefoxManifestPath, 'utf-8'));
+
+  test('Chrome manifest description does not contain Enterprise', () => {
+    assert(!/Enterprise/i.test(chromeManifest.description ?? ''),
+      `Chrome manifest description contains Enterprise wording: "${chromeManifest.description}"`);
+  });
+
+  test('Firefox manifest description does not contain Enterprise', () => {
+    assert(!/Enterprise/i.test(firefoxManifest.description ?? ''),
+      `Firefox manifest description contains Enterprise wording: "${firefoxManifest.description}"`);
+  });
 }
 
 // Summary

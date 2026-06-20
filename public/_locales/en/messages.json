@@ -4,7 +4,7 @@
     "description": "Name of the extension"
   },
   "extensionDescription": {
-    "message": "Enterprise-grade risk awareness for AI tool uploads",
+    "message": "Privacy-first local warnings before sharing files with AI platforms.",
     "description": "Description of the extension"
   },
   "riskDetected": {

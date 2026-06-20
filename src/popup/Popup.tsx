@@ -104,7 +104,7 @@ export const Popup: React.FC = () => {
           fontSize: '14px',
           color: '#475569'
         }}>
-          Enterprise risk awareness
+          Privacy-first local warnings for AI sharing
         </p>
       </div>
 
