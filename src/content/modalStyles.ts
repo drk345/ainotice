@@ -4,12 +4,7 @@
  * Injects the singleton #agentguard-styles <style> element into document.head.
  */
 
-export function createStyles(): void {
-  if (document.getElementById('agentguard-styles')) return;
-
-  const style = document.createElement('style');
-  style.id = 'agentguard-styles';
-  style.textContent = `
+export const MODAL_CSS = `
     /* ============================================================
        AG-PROMPT-SURFACE-A11Y-VISUAL-REFINEMENT-020
        WCAG AA compliant visual refinements
@@ -17,7 +12,9 @@ export function createStyles(): void {
        ============================================================ */
 
     /* --- DESIGN TOKENS (AG-PROMPT-030: Forensic Calm) --- */
-    :root {
+    /* AG-292: :host makes tokens resolve inside the modal's open shadow root;
+       :root keeps them working for head-injected surfaces (drag overlay/banner/notice). */
+    :host, :root {
       /* Surfaces & Backgrounds */
       --ag-bg-page: #f8fafc;        /* Soft off-white page surface */
       --ag-bg-card: #ffffff;        /* Clean card surface */
@@ -1138,5 +1135,24 @@ export function createStyles(): void {
       -moz-osx-font-smoothing: grayscale;
     }
   `;
+
+/**
+ * AG-PROMPT-292: Build a fresh <style> element containing the modal CSS.
+ * Used to inject styles INSIDE the warning modal's open shadow root, so host-page
+ * CSS cannot override modal styling and a removed/pre-clobbered head <style> cannot
+ * suppress it. Not given the singleton id (the shadow scopes it).
+ */
+export function buildModalStyleEl(): HTMLStyleElement {
+  const style = document.createElement('style');
+  style.textContent = MODAL_CSS;
+  return style;
+}
+
+export function createStyles(): void {
+  if (document.getElementById('agentguard-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'agentguard-styles';
+  style.textContent = MODAL_CSS;
   document.head.appendChild(style);
 }

@@ -176,7 +176,7 @@ import {
 } from './uiComponents';
 import { el, setChildren } from '../lib/safeDom';
 // AG-PROMPT-214: extracted modal CSS + render/format helpers
-import { createStyles } from './modalStyles';
+import { createStyles, buildModalStyleEl } from './modalStyles';
 import {
   formatFileSize,
   formatScannedSources,
@@ -228,45 +228,20 @@ function runStartupValidation(): void {
 // DEPARTMENT OVERRIDE (TEST/PREMIUM)
 // ============================================================================
 
-const VALID_DEPARTMENTS: DepartmentId[] = ['default', 'finance', 'hr', 'legal', 'engineering'];
-
 /**
- * Get department override for testing/premium features.
- * Priority: URL query param > localStorage > 'default'
+ * Resolve the department context.
  *
- * Usage:
- *   - localStorage.setItem('ainotice.department', 'finance')  (preferred)
- *   - localStorage.setItem('agentguard.department', 'finance')  (legacy alias)
- *   - URL: ?ag_department=hr
+ * AG-PROMPT-300 (security): the department context must NOT be controllable by the host
+ * page. Previously this read a URL query param (`?ag_department=`) and page-origin
+ * localStorage (`ainotice.department` / `agentguard.department`) — both of which a hostile
+ * page can set, letting the page influence department-scoped detection/policy. Those
+ * page-controlled sources are removed; production always uses the default department.
+ * Any future per-department mechanism must be extension-owned (managed policy / extension
+ * settings), never derived from page-controllable URL or localStorage.
  *
- * @returns Valid DepartmentId or 'default'
+ * @returns Always 'default'
  */
 function getDepartmentOverride(): DepartmentId {
-  // 1. Check URL query param (highest priority)
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlDept = urlParams.get('ag_department');
-    if (urlDept && VALID_DEPARTMENTS.includes(urlDept as DepartmentId)) {
-      console.log(`[AgentGuard] Department override active: ${urlDept} (from URL)`);
-      return urlDept as DepartmentId;
-    }
-  } catch {
-    // URL parsing failed, continue to localStorage
-  }
-
-  // 2. Check localStorage (current key first, then legacy alias)
-  try {
-    const storedDept = localStorage.getItem('ainotice.department') ??
-                       localStorage.getItem('agentguard.department');
-    if (storedDept && VALID_DEPARTMENTS.includes(storedDept as DepartmentId)) {
-      console.log(`[AgentGuard] Department override active: ${storedDept} (from localStorage)`);
-      return storedDept as DepartmentId;
-    }
-  } catch {
-    // localStorage access failed (e.g., privacy mode)
-  }
-
-  // 3. Default
   return 'default';
 }
 
@@ -299,6 +274,12 @@ interface FileRiskAssessment {
   decisionExplanation?: DecisionExplanation;
   /** AG-PROMPT-073: PDF extraction status for awareness frame selection */
   pdfExtractionFailed?: boolean;
+  /**
+   * AG-PROMPT-303: true when extraction caps truncated/sampled the content (only part of the
+   * file was inspected). Drives reduced-confidence ("limited inspection") in the decision-quality
+   * block so a partially-inspected file is not presented as a full clean scan. Non-content fact.
+   */
+  partialInspection?: boolean;
   /** Encryption readability classification for encrypted-PDF edge cases */
   pdfEncryptionReadability?: PdfEncryptionReadability;
   /** AG-PROMPT-196: What user action triggered this scan — drives modal copy selection */
@@ -312,6 +293,35 @@ interface FileRiskAssessment {
 let overlayElement: HTMLDivElement | null = null;
 let modalElement: HTMLDivElement | null = null;
 let bannerElement: HTMLDivElement | null = null;  // AG-PROMPT-067: Awareness banner
+// AG-PROMPT-292: warning-modal tamper-resistance. The risk modal now renders inside an
+// OPEN shadow root on a containment host (CSS isolation + harder host-JS tampering),
+// with a bounded self-heal observer that re-asserts the host or fails safe on removal.
+let modalHostElement: HTMLDivElement | null = null;
+let modalShadowRoot: ShadowRoot | null = null;
+let modalSelfHealObserver: MutationObserver | null = null;
+let modalHostStyleObserver: MutationObserver | null = null;
+let modalSelfHealCount = 0;
+const MODAL_SELF_HEAL_CAP = 5;
+let modalFailSafeCancel: (() => void) | null = null;
+// Critical containment styles applied inline-!important on the host so host-page CSS
+// (even author !important) cannot hide the warning. AG-PROMPT-292.
+const MODAL_HOST_CONTAINMENT_STYLE =
+  'position: fixed !important;' +
+  'inset: 0 !important;' +
+  'width: auto !important;' +
+  'height: auto !important;' +
+  'margin: 0 !important;' +
+  'max-width: none !important;' +
+  'max-height: none !important;' +
+  'z-index: 2147483646 !important;' +
+  'display: block !important;' +
+  'visibility: visible !important;' +
+  'opacity: 1 !important;' +
+  'pointer-events: auto !important;' +
+  'transform: none !important;' +
+  'filter: none !important;' +
+  'clip: auto !important;' +
+  'clip-path: none !important;';
 let isProcessingUpload = false;
 let recentlyInjectedFiles: Set<string> = new Set();
 
@@ -747,6 +757,11 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
   const scannedSources = new Set<SignalSource>();
   let bodyText: string | undefined;  // Track for locale detection + policy
   let pdfExtractionFailed = false;  // AG-PROMPT-073: Track PDF extraction failure
+  // AG-PROMPT-303: true when extraction caps truncated/sampled document content (partial
+  // inspection). 500_000 is the shared output cap used by the PDF/DOCX/XLSX extractors; a doc
+  // body at/over it was truncated. Text files (< 1MB, scanned in full) are NOT subject to this.
+  let partialInspection = false;
+  const PARTIAL_INSPECTION_OUTPUT_CAP = 500_000;
   let pdfEncryptionReadability: PdfEncryptionReadability = 'NOT_ENCRYPTED';
   let degradedFallbackResult: FallbackClassificationResult | null = null;  // AG-PHASE-5E-058: Degraded PDF fallback
 
@@ -832,6 +847,22 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
             pdfExtractionFailed = true;
             console.log(`[AgentGuard] PDF extraction failed: ${result.pdfExtractionStatus.reasonCode}`);
           }
+          // AG-PROMPT-303: PDF byte-window / output-cap truncation = partial inspection.
+          if (result.pdfExtractionStatus.truncated) {
+            partialInspection = true;
+          }
+        }
+
+        // AG-PROMPT-303: any supported-document body at/over the shared output cap was
+        // truncated → only part of the file was inspected (covers DOCX/XLSX + PDF output cap).
+        if (result.bodyText && result.bodyText.length >= PARTIAL_INSPECTION_OUTPUT_CAP) {
+          partialInspection = true;
+        }
+
+        // AG-PROMPT-304: DOCX/XLSX budget/entry/sample truncation that yields sub-cap body text
+        // (extractor-reported non-content fact) also surfaces as partial inspection.
+        if (result.partialInspection) {
+          partialInspection = true;
         }
 
         if (result.bodyText && result.bodyText.length > 0) {
@@ -1498,6 +1529,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
     explanations,
     decisionExplanation: finalDecisionExplanation,
     pdfExtractionFailed,
+    partialInspection,  // AG-PROMPT-303
     pdfEncryptionReadability,
     triggerSource: 'file',
   };
@@ -1666,10 +1698,15 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
   
   // AG-PROMPT-134: Derive decision quality blocks from existing primitives
   const anyPdfExtractionFailedForDQ = assessments.some(a => a.pdfExtractionFailed === true);
-  const decisionQuality = firstExplanation.severity !== 'none'
+  // AG-PROMPT-303: surface partial inspection (cap-truncated content) as reduced confidence,
+  // even when no signals were found (severity 'none'), so a truncated file is not shown as a
+  // full clean scan.
+  const anyPartialInspection = assessments.some(a => a.partialInspection === true);
+  const decisionQuality = (firstExplanation.severity !== 'none' || anyPartialInspection)
     ? deriveDecisionQualityBlocks({
         decisionExplanation: firstExplanation,
         pdfExtractionFailed: anyPdfExtractionFailedForDQ,
+        partialInspection: anyPartialInspection,
       })
     : undefined;
 
@@ -1730,7 +1767,17 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
     isExtractionLimited: decisionQuality?.confidence.label === 'Reduced',
     triggerSource,
     onCancel: () => { removeFocusTrap(); hideRiskModal(); onCancel(); showPostDecisionToast('cancel', triggerSource); },
-    onProceed: () => { removeFocusTrap(); hideRiskModal(); onProceed(); showPostDecisionToast('proceed', triggerSource); },
+    onProceed: () => {
+      // AG-PROMPT-292 fail-safe: never treat the warning as acknowledged unless the real
+      // modal is currently present and actually visible. If a hostile page removed or hid
+      // it, route proceed to cancel — do not silently proceed as if the user was warned.
+      if (!isWarningActuallyVisible()) {
+        if (isDebugMode()) console.warn('[AgentGuard:SEC-MODAL] proceed blocked — warning not verifiably visible; failing safe to cancel');
+        removeFocusTrap(); hideRiskModal(); onCancel(); showPostDecisionToast('cancel', triggerSource);
+        return;
+      }
+      removeFocusTrap(); hideRiskModal(); onProceed(); showPostDecisionToast('proceed', triggerSource);
+    },
   });
 
   const escHandler = (e: KeyboardEvent) => {
@@ -1743,8 +1790,41 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
   };
   document.addEventListener('keydown', escHandler);
 
-  document.body.appendChild(overlay);
+  // AG-PROMPT-292: render the modal inside an OPEN shadow root on a containment host.
+  // Open shadow isolates the modal from host-page CSS (and makes host-JS tampering harder)
+  // while remaining pierceable by Playwright/e2e. Styles live INSIDE the shadow, not in a
+  // removable/pre-clobberable head <style>. Containment styles are inline-!important on the
+  // host so host-page CSS cannot hide the warning.
+  const host = document.createElement('div');
+  host.id = 'agentguard-shadow-host';
+  host.setAttribute('style', MODAL_HOST_CONTAINMENT_STYLE);
+  const shadow = host.attachShadow({ mode: 'open' });
+  shadow.appendChild(buildModalStyleEl());
+  shadow.appendChild(overlay);
+  document.body.appendChild(host);
   modalElement = overlay as HTMLDivElement;
+  modalHostElement = host;
+  modalShadowRoot = shadow;
+  modalFailSafeCancel = () => { removeFocusTrap(); hideRiskModal(); onCancel(); };
+
+  // AG-292: block synthetic (untrusted) clicks on the proceed button. Real user / input-device
+  // clicks (and Playwright's CDP-driven clicks) are isTrusted=true; page-script .click() is
+  // isTrusted=false. Capture phase on the host runs before the button's own bubble handler.
+  host.addEventListener('click', (e) => {
+    if (e.isTrusted) return;
+    const hitProceed = e.composedPath().some(
+      n => n instanceof HTMLElement && n.getAttribute?.('data-action') === 'proceed'
+    );
+    if (hitProceed) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      if (isDebugMode()) console.warn('[AgentGuard:SEC-MODAL] blocked untrusted (synthetic) proceed click');
+    }
+  }, true);
+
+  // AG-292: bounded self-heal — re-assert the host if a hostile page removes it (up to a cap),
+  // re-apply containment styles if tampered, and fail safe (cancel) if it cannot be kept present.
+  startModalSelfHeal();
 
   // UIR-01: Focus trap — Tab and Shift+Tab cycle within modal while it is open.
   // Selector covers all standard interactive elements; excludes disabled ones.
@@ -1758,10 +1838,13 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
     if (els.length === 0) return;
     const first = els[0];
     const last = els[els.length - 1];
+    // AG-292: focus lives inside the open shadow root, so compare against the shadow's
+    // activeElement (document.activeElement would report the host, not the inner element).
+    const active = modalShadowRoot?.activeElement ?? document.activeElement;
     if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      if (active === first) { e.preventDefault(); last.focus(); }
     } else {
-      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      if (active === last) { e.preventDefault(); first.focus(); }
     }
   };
   document.addEventListener('keydown', focusTrapHandler);
@@ -1782,8 +1865,77 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
 }
 
 function hideRiskModal(): void {
+  // AG-292: stop self-heal BEFORE removing so our own teardown isn't treated as tampering.
+  stopModalSelfHeal();
+  modalHostElement?.remove();
+  // Fallbacks: host by id, and legacy light-DOM overlay id (pre-AG-292 callers / safety).
+  document.getElementById('agentguard-shadow-host')?.remove();
   document.getElementById('agentguard-modal-overlay')?.remove();
+  modalHostElement = null;
+  modalShadowRoot = null;
+  modalFailSafeCancel = null;
   modalElement = null;
+}
+
+/**
+ * AG-PROMPT-292: Is the real warning currently present and actually visible to the user?
+ * Used as the proceed-time fail-safe gate. Checks the containment host is connected and not
+ * hidden, and that the modal overlay (inside the shadow) renders with non-trivial size.
+ */
+function isWarningActuallyVisible(): boolean {
+  const host = modalHostElement;
+  if (!host || !host.isConnected) return false;
+  const cs = window.getComputedStyle(host);
+  if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') < 0.1) {
+    return false;
+  }
+  const overlay = (modalShadowRoot?.querySelector('.agentguard-overlay') as HTMLElement | null) ?? host;
+  const rect = overlay.getBoundingClientRect();
+  return rect.width > 40 && rect.height > 40;
+}
+
+/**
+ * AG-PROMPT-292: Bounded self-heal. Re-asserts the modal host if a hostile page removes it
+ * (capped to avoid infinite loops / page DoS) and re-applies containment styles if tampered.
+ * If the host cannot be kept present beyond the cap, fails safe by cancelling the flow.
+ */
+function startModalSelfHeal(): void {
+  modalSelfHealCount = 0;
+  modalSelfHealObserver = new MutationObserver(() => {
+    const host = modalHostElement;
+    if (!host) return;
+    if (!host.isConnected) {
+      if (modalSelfHealCount < MODAL_SELF_HEAL_CAP) {
+        modalSelfHealCount++;
+        try { document.body.appendChild(host); } catch (_) { /* ignore */ }
+      } else {
+        const failSafe = modalFailSafeCancel;
+        if (failSafe) { try { failSafe(); } catch (_) { /* ignore */ } }
+      }
+    }
+  });
+  modalSelfHealObserver.observe(document.body, { childList: true });
+
+  const host = modalHostElement;
+  if (host) {
+    modalHostStyleObserver = new MutationObserver(() => {
+      const h = modalHostElement;
+      if (!h) return;
+      // Re-assert containment if host style/class was tampered. Guard prevents self-trigger loop.
+      if (h.getAttribute('style') !== MODAL_HOST_CONTAINMENT_STYLE) {
+        h.setAttribute('style', MODAL_HOST_CONTAINMENT_STYLE);
+      }
+    });
+    modalHostStyleObserver.observe(host, { attributes: true, attributeFilter: ['style', 'class'] });
+  }
+}
+
+function stopModalSelfHeal(): void {
+  modalSelfHealObserver?.disconnect();
+  modalHostStyleObserver?.disconnect();
+  modalSelfHealObserver = null;
+  modalHostStyleObserver = null;
+  modalSelfHealCount = 0;
 }
 
 // ============================================================================
@@ -2043,6 +2195,12 @@ function determineAggregateVisibility(
       return 'interrupt';
     }
 
+    // AG-PROMPT-303: partial inspection (extraction caps truncated/sampled content) => interrupt.
+    // Only part of the file was inspected, so it must not be presented as a full clean scan.
+    if (a.partialInspection) {
+      return 'interrupt';
+    }
+
     // Invariant A: severity >= medium => interrupt
     if (severity === 'medium' || severity === 'high' || severity === 'critical') {
       return 'interrupt';
@@ -2137,7 +2295,8 @@ function showLoadingModal(): void {
 function isAgentGuardElement(el: HTMLElement): boolean {
   return el.classList.contains('agentguard-overlay') ||
     el.classList.contains('agentguard-drag-overlay') ||
-    el.id === 'agentguard-modal-overlay';
+    el.id === 'agentguard-modal-overlay' ||
+    el.id === 'agentguard-shadow-host'; // AG-292: warning-modal containment host
 }
 
 function isLikelyDragOverlay(el: HTMLElement): boolean {
@@ -2550,6 +2709,15 @@ function handlePromptSend(event: KeyboardEvent): void {
 }
 
 async function handlePaste(event: ClipboardEvent): Promise<void> {
+  // AG-PROMPT-295: Target-activation gate for ALL paste handling (text AND files).
+  // On non-target (non-AI) HTTPS pages we must NOT inspect, read, scan, interrupt, or log
+  // clipboard/file content. The raw-text path was already destination-gated (DEST-02);
+  // this extends the SAME gate to the file-paste path, which previously ran on every site.
+  // Placed first (before any logging or clipboard read) so nothing is touched off-target.
+  if (deriveDestination(getEffectiveHostname()) === 'unknown') {
+    return;
+  }
+
   // PASTE-RC6: Privacy-safe paste observability (no content logged).
   // Logs only event metadata so a tester can verify the handler fires.
   console.log('[AgentGuard] handlePaste fired',
@@ -2638,7 +2806,8 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   if (files.length === 0) {
     // DEST-02: Only intercept raw clipboard text on monitored AI destinations.
     // Non-AI sites (banks, email, docs) must paste normally with no interception.
-    // File-paste interception (below) remains active on all sites — unchanged.
+    // AG-PROMPT-295: file-paste is now gated by the same target check at the top of
+    // handlePaste, so this inner re-check is defense-in-depth (non-AI already returned).
     const destinationType = deriveDestination(getEffectiveHostname());
     // PASTE-RC6/RC7: Privacy-safe decision trace (no content logged — length bucket only)
     const textLenBucket = rawText.length === 0 ? '0' : rawText.length < 20 ? '<20' : rawText.length < 100 ? '20-99' : '100+';
@@ -2807,9 +2976,16 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
 // INIT
 // ============================================================================
 
+// AG-PROMPT-297 (G4): extension-owned dedup for attached file inputs. Previously a
+// page-visible `dataset.agentguardAttached` attribute was used — a hostile page could
+// pre-set it to suppress handler attachment. A WeakSet is not reachable or settable by
+// page script, so attachment can no longer be pre-clobbered. WeakSet keys are GC'd with
+// the input, so this leaks nothing.
+const attachedFileInputs = new WeakSet<HTMLInputElement>();
+
 function attachFileInputHandler(input: HTMLInputElement): void {
-  if (input.dataset.agentguardAttached) return;
-  input.dataset.agentguardAttached = 'true';
+  if (attachedFileInputs.has(input)) return;
+  attachedFileInputs.add(input);
   input.addEventListener('change', handleFileInputChange, { capture: true });
 }
 
@@ -2877,6 +3053,7 @@ function init(): void {
   let shadowRootObserverCount = 0;
 
   function observeOpenShadowRoot(host: HTMLElement): void {
+    if (host.id === 'agentguard-shadow-host') return; // AG-292: never observe our own modal shadow
     const root = host.shadowRoot; // null if closed or absent
     if (!root) return;
     if (observedShadowRoots.has(root)) return; // dedup
@@ -3030,10 +3207,10 @@ async function gatedInit(): Promise<void> {
 // window-level capture paste handler — ours fired SECOND, after Lexical's
 // handler had already called stopImmediatePropagation().
 //
-// handlePaste itself has destination gating (DEST-02) for raw text, so
-// registering early does NOT enable interception on non-target pages. The
-// raw-text path checks deriveDestination() and returns immediately if unknown.
-// The file-paste path has no destination gate (intentional — existing behavior).
+// handlePaste itself has a target-activation gate, so registering early does NOT enable
+// interception on non-target pages. AG-PROMPT-295: BOTH the raw-text and file-paste paths
+// now return immediately when deriveDestination() is 'unknown' — no clipboard/file content
+// is read, scanned, interrupted, or logged on non-target pages.
 window.addEventListener('paste', handlePaste as unknown as EventListener, { capture: true });
 
 // Start the gated initialization

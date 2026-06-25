@@ -21,7 +21,8 @@
       "matches": ["https://*/*"],
       "js": ["content.js"],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
   "permissions": [
@@ -29,12 +30,6 @@
   ],
   "host_permissions": [
     "https://*/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["warning-modal.html", "warning-modal.css"],
-      "matches": ["https://*/*"]
-    }
   ],
   "action": {
     "default_popup": "popup.html",

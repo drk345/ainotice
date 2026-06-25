@@ -7,11 +7,15 @@
  * Privacy: Only logs lengths, hashes, counts, and small bounded snippets
  * (<= 80 chars) when explicitly enabled. NEVER logs full content.
  *
- * Debug mode can be enabled via:
- * 1. localStorage: localStorage.setItem('ainotice.debug', 'true')  (preferred)
- *    or legacy alias: localStorage.setItem('agentguard.debug', 'true')
- * 2. URL param: ?ag_debug=true
- * 3. Compile-time: DEBUG_DIAGNOSTICS constant below
+ * Debug mode can be enabled via (extension-owned sources only — AG-PROMPT-300):
+ * 1. Compile-time: the DEBUG_DIAGNOSTICS constant below.
+ * 2. In-context runtime toggle: enableDebugMode() / disableDebugMode() (callable only from
+ *    within the extension/test context — a host page cannot invoke these).
+ *
+ * SECURITY (AG-PROMPT-300): debug is intentionally NOT enableable via page-controllable
+ * inputs. The former URL-param (?ag_debug=true) and page-origin localStorage
+ * (ainotice.debug / agentguard.debug) paths were removed so a hostile host page cannot
+ * toggle extension diagnostics/logging.
  *
  * @see docs/DEBUGGING.md for usage instructions
  */
@@ -79,36 +83,13 @@ export function isDebugMode(): boolean {
     return debugModeCache;
   }
 
-  // 1. Compile-time constant (highest priority)
-  if (DEBUG_DIAGNOSTICS) {
-    debugModeCache = true;
-    return true;
-  }
-
-  // 2. URL param
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('ag_debug') === 'true') {
-      debugModeCache = true;
-      return true;
-    }
-  } catch {
-    // URL parsing failed (e.g., not in browser context)
-  }
-
-  // 3. localStorage (current key first, then legacy alias)
-  try {
-    if (localStorage.getItem('ainotice.debug') === 'true' ||
-        localStorage.getItem('agentguard.debug') === 'true') {
-      debugModeCache = true;
-      return true;
-    }
-  } catch {
-    // localStorage not available
-  }
-
-  debugModeCache = false;
-  return false;
+  // AG-PROMPT-300 (security): debug mode is enabled ONLY via the compile-time constant
+  // (extension-owned) or the in-context runtime toggle (enableDebugMode, below) — NEVER via
+  // page-controllable inputs. The previous URL-param (`?ag_debug=true`) and page-origin
+  // localStorage (`ainotice.debug` / `agentguard.debug`) paths were removed because a hostile
+  // host page can set both, which would let the page toggle extension diagnostics/logging.
+  debugModeCache = DEBUG_DIAGNOSTICS;
+  return debugModeCache;
 }
 
 /**
@@ -119,30 +100,21 @@ export function resetDebugModeCache(): void {
 }
 
 /**
- * Enable debug mode via localStorage
+ * Enable debug mode for the current extension context (cache-only).
+ * AG-PROMPT-300: does NOT write page-origin localStorage — a host page cannot enable debug.
+ * Only callable from within the extension/test context (the page cannot invoke this).
  */
 export function enableDebugMode(): void {
-  try {
-    localStorage.setItem('ainotice.debug', 'true');
-    debugModeCache = true;
-    console.log(`${LOG_PREFIX} Debug mode ENABLED. Reload page for full effect.`);
-  } catch {
-    console.warn(`${LOG_PREFIX} Could not enable debug mode (localStorage unavailable)`);
-  }
+  debugModeCache = true;
+  console.log(`${LOG_PREFIX} Debug mode ENABLED (extension context).`);
 }
 
 /**
- * Disable debug mode
+ * Disable debug mode for the current extension context (cache-only).
  */
 export function disableDebugMode(): void {
-  try {
-    localStorage.removeItem('ainotice.debug');
-    localStorage.removeItem('agentguard.debug'); // legacy alias cleanup
-    debugModeCache = false;
-    console.log(`${LOG_PREFIX} Debug mode DISABLED.`);
-  } catch {
-    // Ignore
-  }
+  debugModeCache = false;
+  console.log(`${LOG_PREFIX} Debug mode DISABLED.`);
 }
 
 // ============================================================================

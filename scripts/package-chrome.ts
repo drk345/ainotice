@@ -95,6 +95,16 @@ async function main(): Promise<void> {
     zip.file(relativePath, fs.readFileSync(filePath));
   }
 
+  // AG-PROMPT-311: deterministic packaging. JSZip defaults every entry (and every auto-created
+  // folder) to the current wall-clock time, which made the ZIP SHA-256 non-reproducible across runs
+  // (broke the release integrity chain). Pin every entry's timestamp to a fixed epoch so identical
+  // dist/chrome content always yields an identical ZIP. This changes ONLY ZIP metadata timestamps —
+  // file CONTENT is untouched; file ordering is already stable (walkDir() sorts).
+  const FIXED_ZIP_DATE = new Date('2000-01-01T00:00:00Z');
+  for (const entryName of Object.keys(zip.files)) {
+    zip.files[entryName].date = FIXED_ZIP_DATE;
+  }
+
   const buffer = await zip.generateAsync({
     type: 'nodebuffer',
     compression: 'DEFLATE',

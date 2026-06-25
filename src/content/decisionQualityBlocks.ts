@@ -55,13 +55,17 @@ const CONFIRMED_SCENARIO_FRAMES = new Set([
 export function deriveDisplayConfidence(
   decisionExplanation: DecisionExplanation,
   pdfExtractionFailed?: boolean,
+  partialInspection?: boolean,
 ): DisplayConfidence {
   const frameId = decisionExplanation.frameId || '';
   const reasonCodes = decisionExplanation.reasonCodes || [];
 
-  // Extraction failures → limited analysis
+  // Extraction failures OR cap-truncated partial inspection → limited analysis.
+  // AG-PROMPT-303: when extraction caps truncated/sampled the content (only part of the file
+  // was inspected), the result must not present as a full-confidence clean scan.
   if (
     pdfExtractionFailed ||
+    partialInspection ||
     reasonCodes.includes('PDF_EXTRACTION_FAILED') ||
     reasonCodes.includes('PDF_ENCRYPTED_PASSWORD_REQUIRED') ||
     EXTRACTION_LIMITED_FRAMES.has(frameId)
@@ -206,6 +210,12 @@ export interface DecisionQualityBlocks {
 export interface DecisionQualityInput {
   decisionExplanation: DecisionExplanation;
   pdfExtractionFailed?: boolean;
+  /**
+   * AG-PROMPT-303: true when extraction caps truncated/sampled the content, so only part of
+   * the file was inspected. Forces 'limited_analysis' (Reduced) confidence — a clean verdict on
+   * a partially-inspected file must not be presented as full confidence.
+   */
+  partialInspection?: boolean;
 }
 
 /**
@@ -219,7 +229,7 @@ export interface DecisionQualityInput {
 export function deriveDecisionQualityBlocks(
   input: DecisionQualityInput,
 ): DecisionQualityBlocks {
-  const { decisionExplanation, pdfExtractionFailed } = input;
+  const { decisionExplanation, pdfExtractionFailed, partialInspection } = input;
   const frameId = decisionExplanation.frameId || 'FRAME_GENERAL_SENSITIVE';
 
   // Top signal ID from decision details (driving signal)
@@ -246,7 +256,7 @@ export function deriveDecisionQualityBlocks(
 
   // Confidence derived from explanation semantics
   const confidence = getConfidenceDisplay(
-    deriveDisplayConfidence(decisionExplanation, pdfExtractionFailed),
+    deriveDisplayConfidence(decisionExplanation, pdfExtractionFailed, partialInspection),
   );
 
   return { primaryConcern, whyThisMatters, confidence, saferOption };

@@ -1,6 +1,6 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: aba0ed6e96ed2babb2e9694eef4c82d39ae18b61
-# generated_at:  2026-06-19T16:39:08.326Z
+# source_commit: 987c3cc04109a78455e64867861bfc9cb8f1e9ae
+# generated_at:  2026-06-25T08:15:31.151Z
 # prompt_id:     AG-PROMPT-270
 
 ## Copied (allow-listed):

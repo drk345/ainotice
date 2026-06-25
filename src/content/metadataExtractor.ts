@@ -83,6 +83,12 @@ export interface ExtractionResult {
   error?: string;
   /** AG-PROMPT-073: PDF extraction status for awareness frame selection */
   pdfExtractionStatus?: PdfExtractionStatusInfo;
+  /**
+   * AG-PROMPT-304: true when a DOCX/XLSX budget/entry/sample/output cap truncated content, so
+   * only part of the document was inspected. Non-content fact threaded into the AG-303
+   * partial-inspection / reduced-confidence path. (PDF uses pdfExtractionStatus.truncated.)
+   */
+  partialInspection?: boolean;
 }
 
 /** AG-PROMPT-073: PDF extraction status for UI awareness */
@@ -101,6 +107,11 @@ export interface PdfExtractionStatusInfo {
   finalMethod: 'primary' | 'fallback-ascii' | 'fallback-btj' | 'pdfjs' | 'none';
   /** AG-PHASE-5E-058: Extraction quality level for fallback classification */
   quality?: 'clean' | 'partial' | 'degraded' | 'blocked' | 'empty';
+  /**
+   * AG-PROMPT-303: true when only part of the file was inspected (byte-window read and/or
+   * output-cap truncation). Non-content fact used to surface partial inspection; never persisted.
+   */
+  truncated?: boolean;
   /** Encryption readability classification for owner-password / blank-password edge cases */
   encryptionReadability: PdfEncryptionReadability;
 }
@@ -145,6 +156,12 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Pro
 interface PdfBodyExtractionResult {
   text: string;
   quality: 'clean' | 'partial' | 'degraded' | 'blocked' | 'empty';
+  /**
+   * AG-PROMPT-303: true when only part of the file was inspected — either fewer bytes than the
+   * full file were read (byte-window) or the extracted text was truncated at the output cap.
+   * Non-content fact used to surface partial inspection (reduced confidence), never persisted.
+   */
+  truncated?: boolean;
 }
 
 async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> {
@@ -196,18 +213,24 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
       // Use extended result if it's better
       if (extendedResult.text.length > initialResult.text.length) {
         console.log(`[AgentGuard] PDF scan complete: ${extendedResult.text.length} chars, quality=${extendedResult.quality} (extended)`);
+        // AG-PROMPT-303: partial inspection if not all bytes were read, or output was capped.
+        const truncated = file.size > extendedReadBytes || extendedResult.text.length > MAX_BODY_TEXT_LENGTH;
         return {
           text: extendedResult.text.substring(0, MAX_BODY_TEXT_LENGTH),
           quality: extendedResult.quality,
+          truncated,
         };
       }
     }
 
     // Return initial result
     console.log(`[AgentGuard] PDF scan complete: ${initialResult.text.length} chars, quality=${initialResult.quality}`);
+    // AG-PROMPT-303: partial inspection if not all bytes were read, or output was capped.
+    const truncated = file.size > initialReadBytes || initialResult.text.length > MAX_BODY_TEXT_LENGTH;
     return {
       text: initialResult.text.substring(0, MAX_BODY_TEXT_LENGTH),
       quality: initialResult.quality,
+      truncated,
     };
 
   } catch (e) {
@@ -350,7 +373,8 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
       }
     }
     
-    console.log('[AgentGuard] Extracted PDF metadata:', metadata);
+    // AG-PROMPT-294: removed console.log of the PDF metadata object (title/author/creator =
+    // derived identity). Never log document metadata.
 
     // --- Body text extraction with fallback (AG-PROMPT-073) ---
     let bodyText: string | undefined;
@@ -366,6 +390,7 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
       let reasonCode: PdfExtractionReasonCode = PDF_EXTRACTION_REASON_CODES.PRIMARY_SUCCESS;
       // AG-PHASE-5E-058: Track extraction quality for fallback classification
       let extractionQuality: PdfExtractionStatusInfo['quality'] = 'empty';
+      let bodyTruncated = false;  // AG-PROMPT-303: partial inspection (byte-window/output-cap)
       let encryptionReadability: PdfEncryptionReadability = hasEncryptMarker
         ? 'ENCRYPTED_PASSWORD_REQUIRED'
         : 'NOT_ENCRYPTED';
@@ -380,6 +405,7 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
         bodyText = primaryResult.text;
         extractionQuality = primaryResult.quality;
         primaryTextLength = bodyText?.length ?? 0;
+        bodyTruncated = primaryResult.truncated ?? false;  // AG-PROMPT-303
 
         // Step 2: If primary returns empty, try fallback (AG-PROMPT-073)
         if (!bodyText || bodyText.length === 0) {
@@ -467,6 +493,7 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
         fallbackAttempted,
         finalMethod,
         quality: extractionQuality,  // AG-PHASE-5E-058
+        truncated: bodyTruncated,  // AG-PROMPT-303
         encryptionReadability,
       };
 
@@ -582,8 +609,8 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
       if (application) metadata.creator = application;
     }
 
-    console.log('[AgentGuard] Extracted Office metadata:', metadata);
-
+    // AG-PROMPT-294: removed console.log of the Office metadata object (title/author/
+    // company/manager/creator = derived identity). Never log document metadata.
     const bodyText = docxResult.bodyText || undefined;
     if (bodyText) {
       console.log(`[AgentGuard] Extracted ${bodyText.length} chars of body text`);
@@ -598,6 +625,7 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
       bodyText,
       fileType: 'docx',
       error: !success ? (docxResult.error ?? 'DOCX extraction failed') : undefined,
+      partialInspection: docxResult.partialInspection,  // AG-PROMPT-304
     };
   } catch (e) {
     console.warn('[AgentGuard] DOCX extraction failed:', e);
@@ -665,6 +693,8 @@ async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResul
       bodyText: xlsxResult.bodyText || undefined,
       fileType: 'xlsx',
       error: xlsxResult.success ? undefined : (xlsxResult.metrics.failure_reason ?? 'XLSX extraction failed'),
+      // AG-PROMPT-304: thread existing XLSX budget/sample facts into partial-inspection.
+      partialInspection: xlsxResult.metrics.budget_exceeded || xlsxResult.metrics.sampling_applied,
     };
   } catch (e) {
     console.warn('[AgentGuard] XLSX selective extraction failed:', e);
@@ -725,8 +755,8 @@ async function extractPptxMetadataSelective(file: File): Promise<ExtractionResul
       if (application) metadata.creator = application;
     }
 
-    console.log('[AgentGuard] Extracted Office metadata:', metadata);
-
+    // AG-PROMPT-294: removed console.log of the Office metadata object (title/author/
+    // company/manager/creator = derived identity). Never log document metadata.
     const bodyText = pptxResult.bodyText || undefined;
     if (bodyText) {
       console.log(`[AgentGuard] Extracted ${bodyText.length} chars of body text`);
@@ -740,6 +770,7 @@ async function extractPptxMetadataSelective(file: File): Promise<ExtractionResul
       bodyText,
       fileType: 'pptx',
       error: !success ? (pptxResult.error ?? 'PPTX extraction failed') : undefined,
+      partialInspection: pptxResult.partialInspection,  // AG-PROMPT-305
     };
   } catch (e) {
     console.warn('[AgentGuard] PPTX extraction failed:', e);

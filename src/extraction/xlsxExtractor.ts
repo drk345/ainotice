@@ -337,6 +337,14 @@ export async function extractXlsxWithBudgets(buffer: Buffer): Promise<XlsxExtrac
 
     const entry = zip.file(commentFile);
     if (!entry) continue;
+    // AG-PROMPT-307: declared-size pre-check before decompressing (mirrors sheet handling, reuses
+    // XLSX_MAX_ENTRY_BYTES; records budget/sample facts on skip). No new threshold.
+    const rawSize: number = (entry as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize ?? 0;
+    if (rawSize > XLSX_MAX_ENTRY_BYTES) {
+      metrics.budget_exceeded = true;
+      metrics.sampling_applied = true;
+      continue; // Skip oversized comments entry pre-inflate
+    }
     const content = await entry.async('text');
     metrics.total_xml_bytes_read += content.length;
     coverage.scanned_comments = true;
@@ -350,6 +358,14 @@ export async function extractXlsxWithBudgets(buffer: Buffer): Promise<XlsxExtrac
 
     const entry = zip.file(drawingFile);
     if (!entry) continue;
+    // AG-PROMPT-307: declared-size pre-check before decompressing (mirrors sheet handling, reuses
+    // XLSX_MAX_ENTRY_BYTES; records budget/sample facts on skip). No new threshold.
+    const rawSize: number = (entry as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize ?? 0;
+    if (rawSize > XLSX_MAX_ENTRY_BYTES) {
+      metrics.budget_exceeded = true;
+      metrics.sampling_applied = true;
+      continue; // Skip oversized drawing entry pre-inflate
+    }
     const content = await entry.async('text');
     metrics.total_xml_bytes_read += content.length;
     coverage.scanned_drawings = true;

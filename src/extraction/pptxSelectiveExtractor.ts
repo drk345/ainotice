@@ -134,6 +134,12 @@ export interface PptxSelectiveResult {
   success: boolean;
   /** Error message if failed */
   error?: string;
+  /**
+   * AG-PROMPT-305: true when a budget/entry/output cap truncated content — only part of the
+   * presentation was inspected. Non-content fact (derived from existing metrics + caps); drives the
+   * AG-303 partial-inspection / reduced-confidence surfacing. Never carries document content.
+   */
+  partialInspection: boolean;
 }
 
 // ============================================================================
@@ -243,11 +249,24 @@ export async function extractPptxSelective(
 
   const makeResult = (partial: Partial<PptxSelectiveResult>): PptxSelectiveResult => {
     metrics.timings.total_pptx_ms = performance.now() - totalStart;
+    const resolvedBodyText = partial.bodyText ?? '';
+    // Use the effective metrics the caller is returning (some paths pass a modified copy via
+    // partial.metrics, e.g. too-many-entries / timeout) rather than only the closure snapshot.
+    const m = partial.metrics ?? metrics;
+    // AG-PROMPT-305: partial inspection if any existing budget/entry/output cap truncated content.
+    // Reuses existing metrics + caps (no new thresholds, no extraction-text change).
+    const partialInspection =
+      m.budget_exceeded ||
+      m.failure_reason !== undefined ||
+      m.total_xml_bytes_read >= PPTX_MAX_XML_BYTES ||
+      m.entries_total > PPTX_MAX_ENTRIES_SCANNED ||
+      resolvedBodyText.length >= PPTX_MAX_TEXT_LENGTH;
     return {
       bodyText: '',
       metrics,
       success: false,
       ...partial,
+      partialInspection,
     };
   };
 
@@ -378,12 +397,23 @@ export async function extractPptxSelective(
     const entry = zip.file(name);
     if (!entry) continue;
 
+    // AG-PROMPT-307: declared-uncompressed-size pre-check BEFORE decompressing, to avoid inflating
+    // an oversized entry into memory before the post-read 2MB guard. Reuses the existing
+    // PPTX_MAX_PER_ENTRY_BYTES bound (no new threshold); records the budget fact on skip so partial
+    // inspection is surfaced. Defeatable by a zip that understates declared size (best-effort).
+    const declaredSize = (entry as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize ?? 0;
+    if (declaredSize > PPTX_MAX_PER_ENTRY_BYTES) {
+      metrics.budget_exceeded = true; // AG-PROMPT-307 / R1: record the skip as a budget fact
+      continue; // Skip oversized entry pre-inflate
+    }
+
     try {
       const content = await entry.async('text');
       const contentBytes = new TextEncoder().encode(content).length;
 
       // Per-entry size guard
       if (contentBytes > PPTX_MAX_PER_ENTRY_BYTES) {
+        metrics.budget_exceeded = true; // AG-PROMPT-305/307 R1: post-inflate skip now records the fact
         continue; // Skip oversized entry
       }
 
@@ -466,6 +496,7 @@ export async function extractPptxSelectiveWithTimeout(
     },
     success: false,
     error: `Hard timeout: ${timeoutMs}ms exceeded`,
+    partialInspection: true,  // AG-PROMPT-305: hard timeout = incomplete inspection
   };
 
   const timeoutPromise = new Promise<PptxSelectiveResult>((resolve) => {

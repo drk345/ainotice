@@ -20,16 +20,13 @@
       "matches": ["https://*/*"],
       "js": ["content.js"],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
   "permissions": [
     "storage",
     "https://*/*"
-  ],
-  "web_accessible_resources": [
-    "warning-modal.html",
-    "warning-modal.css"
   ],
   "browser_action": {
     "default_popup": "popup.html",

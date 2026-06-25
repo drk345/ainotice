@@ -115,26 +115,24 @@ if (manifestExists) {
     const sha256 = crypto.createHash('sha256').update(content).digest('hex');
     console.log(`  [attestation] manifest_version=${manifest.manifest_version} sha256:${sha256.substring(0, 16)} name=${manifest.name} version=${manifest.version}`);
 
-    // A.11/A.12: web_accessible_resources — modal resources declared; WAR↔disk consistency
-    // A.11 asserts the required modal resources are declared.
-    // A.12 asserts every non-glob WAR entry actually exists on disk (catches vestigial declarations).
+    // A.11/A.12: web_accessible_resources — AG-PROMPT-299 de-exposure.
+    // The warning modal renders in-page (open shadow root, AG-292); nothing must be exposed
+    // to web pages. A.11 asserts WAR is empty/absent (closes spoof-markup-harvest/fingerprint).
+    // A.12 asserts any declared WAR entry (none expected) exists on disk.
     const war = manifest.web_accessible_resources;
-    if (Array.isArray(war)) {
-      const allResources = war.flatMap((entry: any) =>
-        Array.isArray(entry?.resources) ? entry.resources : []
-      );
-      assert('A.11', allResources.includes('warning-modal.html') && allResources.includes('warning-modal.css'),
-        'web_accessible_resources declares warning-modal.html and warning-modal.css');
-      const nonGlobResources = allResources.filter((r: string) => !r.includes('*'));
-      const missingOnDisk = nonGlobResources.filter((r: string) => !fs.existsSync(path.join(distDir, r)));
-      assert('A.12', missingOnDisk.length === 0,
-        missingOnDisk.length === 0
-          ? 'all non-glob WAR resources exist on disk'
-          : `WAR declares resources not present in dist/chrome/: ${missingOnDisk.join(', ')}`);
-    } else {
-      assert('A.11', false, 'web_accessible_resources is an array');
-      skip('A.12', 'web_accessible_resources missing');
-    }
+    const allResources = Array.isArray(war)
+      ? war.flatMap((entry: any) => (Array.isArray(entry?.resources) ? entry.resources : []))
+      : [];
+    assert('A.11', allResources.length === 0,
+      allResources.length === 0
+        ? 'web_accessible_resources is empty (modal renders in-page; AG-299)'
+        : `unexpected web_accessible_resources declared: ${allResources.join(', ')}`);
+    const nonGlobResources = allResources.filter((r: string) => !r.includes('*'));
+    const missingOnDisk = nonGlobResources.filter((r: string) => !fs.existsSync(path.join(distDir, r)));
+    assert('A.12', missingOnDisk.length === 0,
+      missingOnDisk.length === 0
+        ? 'all non-glob WAR resources exist on disk'
+        : `WAR declares resources not present in dist/chrome/: ${missingOnDisk.join(', ')}`);
   }
 
   // A.13: Source parity — dist manifest matches public/manifest.chrome.json

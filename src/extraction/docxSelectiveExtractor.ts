@@ -124,6 +124,12 @@ export interface DocxSelectiveResult {
   success: boolean;
   /** Error message if failed */
   error?: string;
+  /**
+   * AG-PROMPT-304: true when a budget/entry/output cap truncated content — only part of the
+   * document was inspected. Non-content fact (derived from existing metrics + caps); drives the
+   * AG-303 partial-inspection / reduced-confidence surfacing. Never carries document content.
+   */
+  partialInspection: boolean;
 }
 
 // ============================================================================
@@ -239,11 +245,24 @@ export async function extractDocxSelective(
 
   const makeResult = (partial: Partial<DocxSelectiveResult>): DocxSelectiveResult => {
     metrics.timings.total_docx_ms = performance.now() - totalStart;
+    const resolvedBodyText = partial.bodyText ?? '';
+    // AG-PROMPT-307 (R2): use the effective metrics the caller is returning (some paths pass a
+    // modified copy via partial.metrics, e.g. too-many-entries / timeout) rather than only the
+    // closure snapshot, so a budget fact set on the returned copy is not under-reported.
+    const m = partial.metrics ?? metrics;
+    // AG-PROMPT-304: partial inspection if any existing budget/entry/output cap truncated content.
+    // Reuses existing metrics + caps (no new thresholds, no extraction-text change).
+    const partialInspection =
+      m.failure_reason !== undefined ||
+      m.total_xml_bytes_read >= DOCX_MAX_XML_BYTES ||
+      m.entries_total > DOCX_MAX_ENTRIES_SCANNED ||
+      resolvedBodyText.length >= DOCX_MAX_TEXT_LENGTH;
     return {
       bodyText: '',
       metrics,
       success: false,
       ...partial,
+      partialInspection,
     };
   };
 
@@ -329,6 +348,14 @@ export async function extractDocxSelective(
     const entry = zip.file(name);
     if (!entry) continue;
 
+    // AG-PROMPT-307: declared-size pre-check before decompressing metadata entries (same guard as
+    // the text-entry loop; reuses DOCX_MAX_XML_BYTES as the per-entry bound, no new threshold).
+    const declaredSize = (entry as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize ?? 0;
+    if (declaredSize > DOCX_MAX_XML_BYTES) {
+      metrics.failure_reason = 'DOCX_XML_TOO_LARGE';
+      continue;
+    }
+
     try {
       const content = await entry.async('text');
       metrics.entries_read_xml++;
@@ -373,6 +400,16 @@ export async function extractDocxSelective(
 
     const entry = zip.file(name);
     if (!entry) continue;
+
+    // AG-PROMPT-307: declared-uncompressed-size pre-check BEFORE decompressing the entry, to avoid
+    // inflating an oversized entry into memory before the post-read budget catches it. Reuses the
+    // existing DOCX_MAX_XML_BYTES budget as the per-entry bound (no new threshold). Defeatable by a
+    // zip that understates the declared size (best-effort defense-in-depth; bounded inflate deferred).
+    const declaredSize = (entry as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize ?? 0;
+    if (declaredSize > DOCX_MAX_XML_BYTES) {
+      metrics.failure_reason = 'DOCX_XML_TOO_LARGE';
+      continue; // skip oversized entry pre-inflate; partial inspection surfaced via failure_reason
+    }
 
     try {
       const content = await entry.async('text');
@@ -470,6 +507,7 @@ export async function extractDocxSelectiveWithTimeout(
     },
     success: false,
     error: `Hard timeout: ${timeoutMs}ms exceeded`,
+    partialInspection: true,  // AG-PROMPT-304: hard timeout = incomplete inspection
   };
 
   const timeoutPromise = new Promise<DocxSelectiveResult>((resolve) => {

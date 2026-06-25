@@ -79,10 +79,13 @@ console.log('Test Suite: Chrome Manifest (MV3)');
       'Chrome MV3 should use action, not browser_action');
   });
 
-  test('Chrome web_accessible_resources uses MV3 format', () => {
+  test('Chrome web_accessible_resources absent/empty, or valid MV3 format if present', () => {
+    // AG-PROMPT-299: WAR de-exposed (modal renders in-page). Absent/empty is the expected
+    // state; if a WAR is ever re-added it must use the MV3 resources-array format.
     const war = chromeManifest.web_accessible_resources;
-    assert(Array.isArray(war) && war[0]?.resources,
-      'Chrome MV3 web_accessible_resources should have resources array');
+    assert(
+      war === undefined || (Array.isArray(war) && (war.length === 0 || !!war[0]?.resources)),
+      'Chrome web_accessible_resources should be absent/empty (AG-299) or, if present, MV3 resources-array format');
   });
 
   // AG-271: The previous two assertions required pdfjs worker + standard_fonts in
@@ -92,15 +95,16 @@ console.log('Test Suite: Chrome Manifest (MV3)');
   // store-safety manifest checks (name, storage-only, host perms, CSP) that
   // test-chrome-build-artifacts.ts section A does not cover.
 
-  test('Chrome web_accessible_resources contains only warning-modal assets', () => {
+  test('Chrome web_accessible_resources is empty (modal renders in-page; AG-299 de-exposure)', () => {
+    // AG-PROMPT-299: the warning modal renders in-page (open shadow root, AG-292); the
+    // standalone warning-modal.html/.css were never loaded at runtime. They were removed from
+    // web_accessible_resources to eliminate the spoof-markup-harvest / fingerprint surface.
     const war = chromeManifest.web_accessible_resources;
     const allResources = (war || []).flatMap((entry: any) =>
       Array.isArray(entry?.resources) ? entry.resources : []
     );
-    const expected = ['warning-modal.css', 'warning-modal.html'];
-    const sorted = [...allResources].sort();
-    assert(JSON.stringify(sorted) === JSON.stringify(expected),
-      `Chrome WAR should be exactly warning-modal.html + warning-modal.css (got: ${allResources.join(', ') || 'none'})`);
+    assert(allResources.length === 0,
+      `Chrome WAR should be empty after AG-299 de-exposure (got: ${allResources.join(', ') || 'none'})`);
   });
 
   test('Chrome web_accessible_resources has no vestigial pdfjs resources', () => {
@@ -175,10 +179,13 @@ console.log('\nTest Suite: Firefox Manifest (MV2)');
       'Firefox MV2 should use browser_action, not action');
   });
 
-  test('Firefox web_accessible_resources uses MV2 format', () => {
+  test('Firefox web_accessible_resources absent/empty, or valid MV2 format if present', () => {
+    // AG-PROMPT-299: WAR de-exposed (modal renders in-page). Absent/empty is the expected
+    // state; if a WAR is ever re-added it must be a string array (MV2 format).
     const war = firefoxManifest.web_accessible_resources;
-    assert(Array.isArray(war) && typeof war[0] === 'string',
-      'Firefox MV2 web_accessible_resources should be string array');
+    assert(
+      war === undefined || (Array.isArray(war) && (war.length === 0 || typeof war[0] === 'string')),
+      'Firefox web_accessible_resources should be absent/empty (AG-299) or, if present, MV2 string array');
   });
 
   test('Firefox permissions include host patterns (MV2 style)', () => {
