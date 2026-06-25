@@ -40,10 +40,11 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (AG-279/AG-280):
+Current verified package (deterministic; refreshed AG-PROMPT-312):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256: `ab37368a5ba41c012d71007af374f54c34ce611411af6080e5c439cc1a37a269`
-- Rebuild fresh at upload time; per-entry content is byte-identical to the dev build.
+- SHA-256 (deterministic, reproducible): `2b23a6f52750a3cf4aa671952a58638cb96bcdde65978819f4dd697cf27922ca`
+- Release repo commit `83648cf`; provenance source commit `987c3cc` (runtime byte-identical to `b42a578`)
+- Packaging is now deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
 
 ---
 

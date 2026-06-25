@@ -1,11 +1,11 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "987c3cc04109a78455e64867861bfc9cb8f1e9ae",
+  "source_commit": "5206032cac1d110f0104745e0ae60141ef6e0aeb",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-06-25T08:15:31.151Z",
+  "generated_at": "2026-06-25T18:48:19.511Z",
   "prompt_id": "AG-PROMPT-270",
   "promotion_tool": "scripts/release-export.ts (dry-run)",
   "allow_list_version": "AG-269-plan-v1",

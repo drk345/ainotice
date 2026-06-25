@@ -270,6 +270,53 @@ console.log('\nTest Suite: Consumer-Facing Manifest Description');
   });
 }
 
+console.log('\nTest Suite: Consumer-Facing Modal/Popup Copy (AG-PROMPT-315)');
+{
+  // B2: the consumer warning modal must NOT show a trial/admin/license banner.
+  test('buildLicenseNotice renders no consumer license/trial/admin banner', () => {
+    const bnMatch = uiComponents.match(/export function buildLicenseNotice[\s\S]*?\n}/);
+    if (!bnMatch) throw new Error('buildLicenseNotice not found in uiComponents.ts');
+    // strip comment lines so banned phrases in explanatory comments do not false-trip
+    const code = bnMatch[0].split('\n').filter(l => {
+      const t = l.trim();
+      return !t.startsWith('//') && !t.startsWith('*') && !t.startsWith('/*');
+    }).join('\n');
+    assert(/return null/.test(code), 'buildLicenseNotice should return null (consumer: no banner)');
+    for (const phrase of ['Trial mode', 'Contact admin', 'for full license']) {
+      assert(!code.includes(phrase), `buildLicenseNotice still renders forbidden banner copy: "${phrase}"`);
+    }
+  });
+
+  // B3: the SHIPPED popup is public/popup.html (not the unbuilt React Popup.tsx).
+  const shippedPopup = fs.readFileSync(path.join(rootDir, 'public', 'popup.html'), 'utf-8');
+
+  test('Shipped popup (public/popup.html) shows v1.0.0, not stale v0.1.0', () => {
+    assert(/v1\.0\.0/.test(shippedPopup), 'Shipped popup missing v1.0.0');
+    assert(!/v0\.1\.0/.test(shippedPopup), 'Shipped popup still shows stale v0.1.0');
+  });
+
+  test('Shipped popup uses Ai Notice consumer copy', () => {
+    assert(/Ai Notice/.test(shippedPopup), 'Shipped popup missing "Ai Notice"');
+    assert(/Risk awareness notifications are enabled for AI platforms/.test(shippedPopup),
+      'Shipped popup missing consumer status copy');
+  });
+
+  test('Shipped popup has no admin/enterprise/license copy', () => {
+    // Note: "Inactive" is intentionally NOT listed — `.status-inactive` is a leftover (unused) CSS
+    // class name, not visible copy (the static popup hardcodes "Active"). The meaningful forbidden
+    // tokens are the enterprise/admin/license ones below.
+    for (const re of [/administrator/i, /Contact admin/i, /Trial mode/i, /Courtesy Mode/i, /License Status/i, /Enterprise/i]) {
+      assert(!re.test(shippedPopup), `Shipped popup contains forbidden copy matching ${re}`);
+    }
+  });
+
+  test('Shipped popup makes no DLP/firewall/guarantee claims', () => {
+    for (const re of [/\bDLP\b/i, /firewall/i, /compliance/i, /blocks?\s+(all\s+)?leaks/i, /prevents data loss/i, /100% secure/i]) {
+      assert(!re.test(shippedPopup), `Shipped popup contains overclaim matching ${re}`);
+    }
+  });
+}
+
 // Summary
 console.log('\n======================================================================');
 console.log('TEST SUMMARY');

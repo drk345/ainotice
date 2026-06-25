@@ -224,16 +224,14 @@ export function buildLoadingModal(): HTMLDivElement {
 // ============================================================================
 
 export function buildLicenseNotice(state: string): HTMLDivElement | null {
-  if (state === 'valid' || state === 'unknown') {
-    return null;
-  }
-
-  // AG-PROMPT-171/Fix-3: Short banner with interactive "Contact admin"
-  return el('div', { className: 'agentguard-license-status' }, [
-    'Trial mode \u00B7 ',
-    el('button', { className: 'agentguard-license-contact', type: 'button' }, ['Contact admin']),
-    ' for full license',
-  ]) as HTMLDivElement;
+  // AG-PROMPT-315: Consumer Edition shows NO license/trial/admin banner in the warning modal.
+  // The consumer build runs without a license; "Trial mode \u00B7 Contact admin for full license" is
+  // enterprise/admin framing and must not appear in consumer-facing UI. This suppresses only the
+  // (screenshot-visible) modal banner \u2014 license VALIDATION logic is unchanged, and the historical
+  // enterprise notice copy still lives in the (unrendered) getLicenseNoticeHtml() that the
+  // license-UX guardrail statically asserts.
+  void state;
+  return null;
 }
 
 // ============================================================================
