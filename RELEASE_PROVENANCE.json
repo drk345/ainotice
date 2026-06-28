@@ -1,17 +1,18 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "91e07c22988e46c63285ec6e83144799937beede",
+  "source_commit": "1276ed1318551b233a53db86ecfadadb3bf54325",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-06-28T14:46:01.411Z",
-  "prompt_id": "AG-PROMPT-332",
+  "generated_at": "2026-06-28T15:36:54.340Z",
+  "prompt_id": "AG-PROMPT-334",
   "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "6c74369ebb2b1114da246f0e6ed463871f7c677ee674f3fe81f3f73b0e07b0c1",
+  "promoted_zip_sha256": "6ab462f513a5a4bf61531e42d6dd9a80df426d11a7a80ec44c2bd1e1fe45c438",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17",
+  "supersedes_release_zip_sha256": "6c74369ebb2b1114da246f0e6ed463871f7c677ee674f3fe81f3f73b0e07b0c1",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
-  "note": "Governed dev→release re-promotion of the AG-331 deterministic Chrome candidate (AG-PROMPT-332). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 from source_commit 91e07c2. Supersedes the AG-326/AG-327-promoted 2432c09e… ZIP (which carried the FRAME_REVIEW_ADVISED 'Some patterns were found' copy contradiction fixed in AG-331). No store upload; no GitHub Release."
+  "github_release": "NONE — no GitHub Release created by this promotion",
+  "note": "Governed dev→release re-promotion of the AG-333 deterministic Chrome candidate (AG-PROMPT-334). Adds the calm freemium business-routing footer to the shipped popup.html (warning/decision paths remain commerce-free). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 from source_commit 1276ed1 (release gate 10/10). Supersedes the AG-331/332-promoted 6c74369e… ZIP. No store upload; no GitHub Release."
 }
