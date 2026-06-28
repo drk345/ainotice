@@ -1,7 +1,7 @@
 # Ai Notice Release Promotion Manifest
 # source_commit: 0d442a4b82c4251b201661f6fab6d8125e842dd8
 # generated_at:  2026-06-28T07:48:30.989Z
-# prompt_id:     AG-PROMPT-327
+# prompt_id:     AG-PROMPT-329
 
 ## Copied (allow-listed):
 PRIVACY.md
@@ -25,6 +25,7 @@ scripts/copy-manifest.ts
 scripts/package-chrome.ts
 scripts/release-verify.ts
 scripts/test-chrome-build-artifacts.ts
+scripts/test-consumer-modal-no-admin-license-copy.ts
 scripts/test-license-ux-guardrails.ts
 scripts/test-message-handler-safety.ts
 scripts/test-no-consumer-stats-persistence.ts
@@ -180,4 +181,4 @@ PROMOTION_MANIFEST.txt
 README.md
 RELEASE_PROVENANCE.json
 
-## Totals: 168 copied, 5 generated
+## Totals: 169 copied, 5 generated
