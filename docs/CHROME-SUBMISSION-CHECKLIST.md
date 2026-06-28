@@ -40,13 +40,13 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (deterministic; promoted AG-PROMPT-327):
+Current verified package (deterministic; promoted AG-PROMPT-332):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256 (deterministic, reproducible): `2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17` (AG-326 council warning-state clarity: copy/color/Critical+Inferred display cap/invoice propagation)
-- Supersession chain: `2432c09e…6a17` (AG-326, **current promoted**) supersedes intermediate AG-325 `67dcf33f…2b14`, which superseded the prior promoted release ZIP `ae34e757…0bb61` (AG-315). Promotion complete — release repo is now promoted to this candidate.
-- Provenance source commit `0d442a4` (dev HEAD at promotion); release-side build independently reproduced the SHA above.
+- SHA-256 (deterministic, reproducible): `6c74369ebb2b1114da246f0e6ed463871f7c677ee674f3fe81f3f73b0e07b0c1` (AG-331 FRAME_REVIEW_ADVISED decision-quality copy fix — removes the "couldn't determine" + "Some patterns were found" contradiction)
+- Supersession chain: `6c74369e…b0c1` (AG-331, **current promoted**) supersedes `2432c09e…6a17` (AG-326/327), which superseded AG-325 `67dcf33f…2b14`, which superseded prior promoted release ZIP `ae34e757…0bb61` (AG-315).
+- **PROMOTED (AG-332):** governed dev→release re-promotion complete; release repo advanced from `727077d`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above. Provenance source commit `91e07c2` (dev HEAD at promotion).
 - Packaging is deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
-- Build note (AG-327): the release allow-list does not yet include `scripts/test-consumer-modal-no-admin-license-copy.ts` (a read-only consumer-copy guard added to `build:chrome` in AG-326). The deterministic artifact is unaffected; the `npm run build:chrome` wrapper exits non-zero on that missing guard. Follow-up prompt required to add it to `scripts/release-export.ts` + plan §2.4.
+- The release allow-list includes `scripts/test-consumer-modal-no-admin-license-copy.ts` (fixed AG-329), so release-side `npm run build:chrome` runs clean (release gate 10/10).
 
 ---
 

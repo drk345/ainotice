@@ -194,7 +194,11 @@ const FRAME_WHY_MATTERS: Record<string, string> = {
   FRAME_DEGRADED_PAYROLL: 'The document may contain salary or payment data that is typically confidential.',
   FRAME_DEGRADED_HR: 'The document may contain employee records that are typically confidential.',
   FRAME_DEGRADED_INSURANCE: 'The document may contain insurance policy information.',
-  FRAME_REVIEW_ADVISED: 'Some patterns were found that may warrant a brief review before sharing.',
+  // AG-PROMPT-331: FRAME_REVIEW_ADVISED is the no-marker / "couldn't determine" fallback frame
+  // (selected only when signalCount = 0). The prior copy ("Some patterns were found…") asserted a
+  // finding the frame explicitly did not make, contradicting its own headline/summary. Replaced with
+  // honest, non-claiming copy consistent with the frame's uncertainty semantics.
+  FRAME_REVIEW_ADVISED: 'Ai Notice could not confidently classify this file. Review before sharing if unsure.',
   FRAME_BUSINESS_SENSITIVE: 'Business-sensitive content may include material non-public information that could affect transactions or negotiations.',  // AG-PROMPT-188
   FRAME_NOT_SCANNED: 'This file was not fully analyzed locally, so its contents could not be confirmed either way.',  // AG-PROMPT-325
 };

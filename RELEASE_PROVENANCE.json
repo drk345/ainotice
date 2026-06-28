@@ -1,18 +1,17 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "0d442a4b82c4251b201661f6fab6d8125e842dd8",
+  "source_commit": "91e07c22988e46c63285ec6e83144799937beede",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-06-28T07:48:30.989Z",
-  "prompt_id": "AG-PROMPT-327",
+  "generated_at": "2026-06-28T14:46:01.411Z",
+  "prompt_id": "AG-PROMPT-332",
   "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17",
+  "promoted_zip_sha256": "6c74369ebb2b1114da246f0e6ed463871f7c677ee674f3fe81f3f73b0e07b0c1",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "ae34e75755f3e6a27ee021164e3eef04b7d0751025152bd0eb878b7b6ad0bb61",
-  "superseded_intermediate_zip_sha256": "67dcf33fdc4fbfb6e1735efb27321d9e0313d06f66e179e0b367925a803f2b14",
+  "supersedes_release_zip_sha256": "2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
-  "note": "Governed dev→release re-promotion of the AG-326 deterministic Chrome candidate (AG-PROMPT-327). Release-side build (build:content/background:chrome + copy-manifest + package:chrome) independently reproduced promoted_zip_sha256 from source_commit 0d442a4. No git init beyond this repo; no store upload; no GitHub Release."
+  "note": "Governed dev→release re-promotion of the AG-331 deterministic Chrome candidate (AG-PROMPT-332). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 from source_commit 91e07c2. Supersedes the AG-326/AG-327-promoted 2432c09e… ZIP (which carried the FRAME_REVIEW_ADVISED 'Some patterns were found' copy contradiction fixed in AG-331). No store upload; no GitHub Release."
 }
