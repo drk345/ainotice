@@ -58,10 +58,17 @@ function getSeverityLabel(severity: string | undefined): string {
 
 // AG-PROMPT-196/Stage-2: Confidence pill — colored tag per design system §8.2
 // Colors are analysis-quality indicators, orthogonal to severity doctrine.
-function buildConfidenceTag(label: string): HTMLElement {
+// AG-PROMPT-326: in high/critical danger states, "Confirmed" must NOT render green — a green
+// pill reads as "safe/pass" next to a danger warning. Use a neutral slate treatment instead
+// (still legible as "Confirmed", but not a positive green badge). Inferred/Reduced unchanged.
+function buildConfidenceTag(label: string, severity?: string): HTMLElement {
   type C = { color: string; bg: string; border: string };
+  const isDanger = severity === 'high' || severity === 'critical';
+  const confirmedStyle: C = isDanger
+    ? { color: '#334155', bg: '#F1F5F9', border: '#CBD5E1' }   // neutral slate — no green-implies-safe in danger
+    : { color: '#059669', bg: '#D1FAE5', border: '#A7F3D0' };  // green — calm states only
   const cfg: Record<string, C> = {
-    Confirmed: { color: '#059669', bg: '#D1FAE5', border: '#A7F3D0' },
+    Confirmed: confirmedStyle,
     Inferred:  { color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
     Reduced:   { color: '#64748B', bg: '#F8FAFC', border: '#E2E8F0' },
   };
@@ -502,7 +509,7 @@ function buildSaferMovePanel(saferOption: string, overallRisk?: string): HTMLDiv
 // Safer move is promoted to its own hero panel above the card.
 // ============================================================================
 
-function buildDecisionQualityCard(dq: DecisionQualityBlocks): HTMLDivElement {
+function buildDecisionQualityCard(dq: DecisionQualityBlocks, severity?: string): HTMLDivElement {
   // AG-PROMPT-196/Stage-2: Full concern card per design system §9.5.
   // Structure: inner padding (primary concern + why + confidence) + green safer-option footer strip.
   return el('div', { className: 'agentguard-dq-card' }, [
@@ -517,7 +524,7 @@ function buildDecisionQualityCard(dq: DecisionQualityBlocks): HTMLDivElement {
       ]),
       el('div', { className: 'agentguard-dq-confidence-row' }, [
         el('span', { className: 'agentguard-dq-label agentguard-dq-label-inline' }, ['Confidence']),
-        buildConfidenceTag(dq.confidence.label),
+        buildConfidenceTag(dq.confidence.label, severity),
       ]),
     ]),
     // Green advisory footer strip — design system §9.5 safer-option footer
@@ -641,7 +648,7 @@ export function buildRiskModal(options: ModalOptions): HTMLDivElement {
       el('div', { className: 'agentguard-body' }, [
         // AG-PROMPT-196/Stage-2: Unified content card (concern + why + confidence + safer option strip).
         // Suppressed for extraction-limited — reduced confidence makes the card misleading.
-        decisionQuality && !isExtractionLimited ? buildDecisionQualityCard(decisionQuality) : null,
+        decisionQuality && !isExtractionLimited ? buildDecisionQualityCard(decisionQuality, overallRisk) : null,
         // AG-PROMPT-169/WS-03: Extraction-limited — no evidence, distinct guidance
         when(!!isExtractionLimited,
           el('div', { className: 'agentguard-extraction-limited-note' }, [

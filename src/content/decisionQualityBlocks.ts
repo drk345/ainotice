@@ -39,6 +39,8 @@ const EXTRACTION_LIMITED_FRAMES = new Set([
   'FRAME_DEGRADED_PAYROLL',
   'FRAME_DEGRADED_HR',
   'FRAME_DEGRADED_INSURANCE',
+  // AG-PROMPT-325: scan skipped/timed out → reduced ("limited analysis") confidence, never "Confirmed"
+  'FRAME_NOT_SCANNED',
 ]);
 
 /** Frame IDs that reliably confirm a known scenario family */
@@ -124,6 +126,29 @@ export function getConfidenceDisplay(confidence: DisplayConfidence): ConfidenceD
   return CONFIDENCE_DISPLAY[confidence];
 }
 
+/**
+ * AG-PROMPT-326: Resolve the SEVERITY shown in the modal header/dot/bar.
+ *
+ * Critical is reserved for confirmed high-impact findings. A generic, inferred-only finding must
+ * not render as "Critical" — a red Critical paired with an amber "Inferred" confidence overstates
+ * weak evidence and reads incoherently. When confidence is merely 'Inferred' and policy resolved
+ * 'critical', cap the DISPLAYED severity to 'high'.
+ *
+ * This is DISPLAY-ONLY: it does not change policy severity, action, enforcement, or high/critical
+ * friction (both 'high' and 'critical' are danger states that keep the friction checkbox).
+ * Confirmed criticals (secrets, etc.) derive 'Confirmed' confidence and are never capped.
+ */
+export type DisplaySeverity = 'none' | 'low' | 'medium' | 'high' | 'critical';
+export function resolveDisplaySeverity(
+  overallRisk: DisplaySeverity,
+  confidenceLabel?: string,
+): DisplaySeverity {
+  if (overallRisk === 'critical' && confidenceLabel === 'Inferred') {
+    return 'high';
+  }
+  return overallRisk;
+}
+
 // ============================================================================
 // FRAME-BASED FALLBACK COPY TABLES
 // ============================================================================
@@ -139,6 +164,8 @@ const FRAME_PRIMARY_CONCERN: Record<string, string> = {
   FRAME_GENERAL_SENSITIVE: 'Sensitive document content',
   FRAME_PDF_UNREADABLE: 'Unknown content — document could not be fully read',
   FRAME_INSURANCE: 'Insurance-related information',
+  FRAME_INVOICE: 'Invoice or receipt details (billing/payment)',  // AG-PROMPT-326
+  FRAME_HEALTH_CERTIFICATE: 'Health certificate details',  // AG-PROMPT-326
   FRAME_COMPOSITE: 'Multiple sensitive content types',
   FRAME_DISTRIBUTION_RESTRICTION: 'Distribution-restricted document',
   FRAME_DEGRADED_PAYROLL: 'Possible payroll information',
@@ -146,6 +173,7 @@ const FRAME_PRIMARY_CONCERN: Record<string, string> = {
   FRAME_DEGRADED_INSURANCE: 'Possible insurance information',
   FRAME_REVIEW_ADVISED: 'Content that may warrant review',
   FRAME_BUSINESS_SENSITIVE: 'Commercially sensitive information',  // AG-PROMPT-188
+  FRAME_NOT_SCANNED: 'File not fully checked before sharing',  // AG-PROMPT-325
 };
 
 /** Consequence-oriented why-this-matters sentence per frame */
@@ -159,6 +187,8 @@ const FRAME_WHY_MATTERS: Record<string, string> = {
   FRAME_GENERAL_SENSITIVE: 'Some content in this file may not be intended for external sharing.',
   FRAME_PDF_UNREADABLE: 'Text extraction was limited, so the full content of this file could not be assessed.',
   FRAME_INSURANCE: 'Insurance documents may contain personal health or financial information.',
+  FRAME_INVOICE: 'Invoices and receipts often contain billing, payment, or personal contact details.',  // AG-PROMPT-326
+  FRAME_HEALTH_CERTIFICATE: 'Health certificates often contain personal identifiers alongside health information.',  // AG-PROMPT-326
   FRAME_COMPOSITE: 'This document contains multiple types of sensitive information that increase its overall sensitivity.',
   FRAME_DISTRIBUTION_RESTRICTION: 'This document contains language indicating it should not be redistributed.',
   FRAME_DEGRADED_PAYROLL: 'The document may contain salary or payment data that is typically confidential.',
@@ -166,6 +196,7 @@ const FRAME_WHY_MATTERS: Record<string, string> = {
   FRAME_DEGRADED_INSURANCE: 'The document may contain insurance policy information.',
   FRAME_REVIEW_ADVISED: 'Some patterns were found that may warrant a brief review before sharing.',
   FRAME_BUSINESS_SENSITIVE: 'Business-sensitive content may include material non-public information that could affect transactions or negotiations.',  // AG-PROMPT-188
+  FRAME_NOT_SCANNED: 'This file was not fully analyzed locally, so its contents could not be confirmed either way.',  // AG-PROMPT-325
 };
 
 /** Task-preserving safer option per frame */
@@ -179,6 +210,8 @@ const FRAME_SAFER_OPTION: Record<string, string> = {
   FRAME_GENERAL_SENSITIVE: 'Upload only the relevant section, or ask without attaching the file.',
   FRAME_PDF_UNREADABLE: 'Try exporting a text-readable version of the PDF and scan it before sharing.',
   FRAME_INSURANCE: 'Share only the relevant policy section rather than the full document.',
+  FRAME_INVOICE: 'Share only the line items you need, or remove names, addresses, and payment details first.',  // AG-PROMPT-326
+  FRAME_HEALTH_CERTIFICATE: 'Share only the portion you need, or remove personal identifiers first.',  // AG-PROMPT-326
   FRAME_COMPOSITE: 'Split the document and share only the section relevant to your question.',
   FRAME_DISTRIBUTION_RESTRICTION: 'Ask without the attachment or describe the relevant parts instead.',
   FRAME_DEGRADED_PAYROLL: 'Try exporting a text-readable PDF so the content can be assessed before sharing.',
@@ -186,6 +219,7 @@ const FRAME_SAFER_OPTION: Record<string, string> = {
   FRAME_DEGRADED_INSURANCE: 'Try exporting a text-readable PDF so the content can be assessed before sharing.',
   FRAME_REVIEW_ADVISED: 'Upload only the relevant section, or ask your question without the full attachment.',
   FRAME_BUSINESS_SENSITIVE: 'Remove or redact sensitive business terms before uploading, or ask without the attachment.',  // AG-PROMPT-188
+  FRAME_NOT_SCANNED: 'Review the file yourself before sharing, or upload a smaller or text-readable version so it can be checked.',  // AG-PROMPT-325
 };
 
 // ============================================================================

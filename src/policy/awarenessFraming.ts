@@ -51,7 +51,8 @@ export type AwarenessFrame =
   | 'FRAME_INVOICE'  // AG-PROMPT-175: Invoice/receipt documents
   | 'FRAME_HEALTH_CERTIFICATE'  // AG-PROMPT-175: COVID/vaccination certificates
   | 'FRAME_BUSINESS_SENSITIVE'  // AG-PROMPT-188: M&A / commercially sensitive content
-  | 'FRAME_REVIEW_ADVISED';  // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: Fallback for weak/no evidence
+  | 'FRAME_REVIEW_ADVISED'  // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: Fallback for weak/no evidence
+  | 'FRAME_NOT_SCANNED';  // AG-PROMPT-325: Scan skipped/timed out — honest "could not fully check"
 
 /** Severity levels for frame selection */
 export type FrameSeverity = 'low' | 'medium' | 'high' | 'critical' | 'none';
@@ -100,6 +101,13 @@ export interface FrameSelectionInput {
   pdfExtractionFailed?: boolean;  // AG-PHASE-4-052: Route to FRAME_PDF_UNREADABLE
   pdfEncryptionReadability?: PdfEncryptionReadability;
   degradedFallback?: DegradedFallbackInfo;  // AG-PHASE-5E-058: Filename/metadata classification for degraded PDFs
+  /**
+   * AG-PROMPT-325: true when the local scan was skipped or timed out (detection timeout, or an
+   * oversize file whose content was not inspected) — a non-content fact, distinct from parser
+   * failure. Routes to FRAME_NOT_SCANNED so silence is not mistaken for a clean result. Never
+   * carries content; only signals "we did not fully check this".
+   */
+  notScanned?: boolean;
 }
 
 // ============================================================================
@@ -125,6 +133,7 @@ export const AWARENESS_FRAMING_RULE_IDS = {
   SELECT_DEGRADED_HR: 'AWF-016-select-degraded-hr', // AG-PHASE-5E-058
   SELECT_DEGRADED_INSURANCE: 'AWF-017-select-degraded-insurance', // AG-PHASE-5E-058
   SELECT_BUSINESS_SENSITIVE: 'AWF-023-select-business-sensitive', // AG-PROMPT-188
+  SELECT_NOT_SCANNED: 'AWF-024-select-not-scanned', // AG-PROMPT-325
   SUPPRESS_ONTOLOGY: 'AWF-010-suppress-ontology',
   SUPPRESS_DOC_CLASS: 'AWF-011-suppress-doc-class',
   // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: Confidence derivation rules
@@ -163,6 +172,8 @@ export const FRAME_TEMPLATES: Record<AwarenessFrame, { headline: string; inferre
   FRAME_HEALTH_CERTIFICATE: { headline: FRAME_MAP.FRAME_HEALTH_CERTIFICATE?.headline || 'This file appears to be a health certificate', inferredHeadline: FRAME_MAP.FRAME_HEALTH_CERTIFICATE?.inferredHeadline, summary: FRAME_MAP.FRAME_HEALTH_CERTIFICATE?.summary || 'This document contains health-related information that may include personal identifiers.' },
   // AG-PROMPT-188: Business-sensitive / M&A frame
   FRAME_BUSINESS_SENSITIVE: { headline: FRAME_MAP.FRAME_BUSINESS_SENSITIVE?.headline || 'This file may contain commercially sensitive information', inferredHeadline: FRAME_MAP.FRAME_BUSINESS_SENSITIVE?.inferredHeadline, summary: FRAME_MAP.FRAME_BUSINESS_SENSITIVE?.summary || 'Some patterns are consistent with business-sensitive or transaction-related content.' },
+  // AG-PROMPT-325: Honest not-scanned frame (scan skipped/timed out — not a parser failure)
+  FRAME_NOT_SCANNED: { headline: FRAME_MAP.FRAME_NOT_SCANNED?.headline || 'Ai Notice could not fully check this file', summary: FRAME_MAP.FRAME_NOT_SCANNED?.summary || 'This file was not fully analyzed locally, so its contents could not be confirmed before sharing.' },
 };
 
 export const LOW_SEVERITY_SUMMARIES: Record<AwarenessFrame, string> = {
@@ -189,6 +200,8 @@ export const LOW_SEVERITY_SUMMARIES: Record<AwarenessFrame, string> = {
   FRAME_BUSINESS_SENSITIVE: FRAME_MAP.FRAME_BUSINESS_SENSITIVE?.lowSeveritySummary || 'A few patterns may relate to commercially sensitive information.',
   // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: Fallback frame
   FRAME_REVIEW_ADVISED: FRAME_MAP.FRAME_REVIEW_ADVISED?.lowSeveritySummary || 'We could not identify specific sensitive content. Review before sharing if it may contain personal details.',
+  // AG-PROMPT-325: Not-scanned frame
+  FRAME_NOT_SCANNED: FRAME_MAP.FRAME_NOT_SCANNED?.lowSeveritySummary || 'Some of this file may not have been analyzed locally before sharing.',
 };
 
 // AG-PROMPT-090: Export frame guidance for UI display
@@ -216,6 +229,8 @@ export const FRAME_GUIDANCE: Record<AwarenessFrame, string> = {
   FRAME_BUSINESS_SENSITIVE: FRAME_MAP.FRAME_BUSINESS_SENSITIVE?.guidance || 'Business-sensitive documents may contain material non-public information. Review before sharing externally.',
   // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: Fallback frame
   FRAME_REVIEW_ADVISED: FRAME_MAP.FRAME_REVIEW_ADVISED?.guidance || 'Use your judgment based on what you know about this document.',
+  // AG-PROMPT-325: Not-scanned frame
+  FRAME_NOT_SCANNED: FRAME_MAP.FRAME_NOT_SCANNED?.guidance || 'Review it yourself before sharing if it may contain personal or confidential details.',
 };
 
 export const FORBIDDEN_WORDS = FORBIDDEN_WORDS_LIST;
@@ -1019,13 +1034,34 @@ export function generateFramedExplanation(input: FrameSelectionInput): FramedExp
     };
   }
 
+  // AG-PROMPT-325: Not-scanned (scan skipped / detection timed out, NOT a parser failure).
+  // Honest "could not fully check" framing so silence/zero-signal is not read as a clean pass.
+  // Guarded by confidence === 'fallback' so it only applies when no real signals were found
+  // (if filename/metadata signals exist, the normal risk frame still wins). Placed AFTER
+  // pdfExtractionFailed (parser failure is more specific) and BEFORE FRAME_REVIEW_ADVISED.
+  if (input.notScanned && confidence === 'fallback') {
+    const nsTemplate = FRAME_TEMPLATES.FRAME_NOT_SCANNED;
+    const suppression = shouldSuppressDetails(input);
+    return {
+      headline: nsTemplate.headline,
+      summary: nsTemplate.summary,
+      guidance: FRAME_GUIDANCE.FRAME_NOT_SCANNED,
+      frame: 'FRAME_NOT_SCANNED',
+      suppressDetails: suppression.suppress,
+      ruleId: AWARENESS_FRAMING_RULE_IDS.SELECT_NOT_SCANNED,
+      confidence,
+    };
+  }
+
   // AG-PROMPT-SURFACE-UNCERTAINTY-GRADIENT-013: For fallback confidence, use FRAME_REVIEW_ADVISED
   // regardless of other frame selection logic
   // AG-PROMPT-SURFACE-FALLBACK-GUIDANCE-REFINE-014: Add contextual guidance based on filename
   if (confidence === 'fallback') {
     const fallbackTemplate = FRAME_TEMPLATES.FRAME_REVIEW_ADVISED;
     let fallbackGuidance = FRAME_GUIDANCE.FRAME_REVIEW_ADVISED;
-    let fallbackSummary = 'No clear markers of regulated data were found.';
+    // AG-PROMPT-326: plainer consumer wording ("sensitive-data markers" not "regulated data") and
+    // an explicit non-all-clear caveat so zero findings is not read as a safety guarantee.
+    let fallbackSummary = 'No obvious sensitive-data markers were found — but that isn’t a guarantee. Review before sharing if unsure.';
     const suppression = shouldSuppressDetails(input);
 
     // AG-PROMPT-SURFACE-FALLBACK-GUIDANCE-REFINE-014: Add contextual hints from filename

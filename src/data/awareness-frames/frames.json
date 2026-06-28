@@ -205,6 +205,14 @@
       "lowSeveritySummary": "No specific indicators were found. Review if you believe it may contain personal details.",
       "guidance": "Use your judgment based on what you know about this document.",
       "notes": "AG-PROMPT-SURFACE-PROBABILISTIC-LANGUAGE-017: Fallback frame for weak or no evidence. Used when signalCount = 0 or evidence is ambiguous."
+    },
+    {
+      "id": "FRAME_NOT_SCANNED",
+      "headline": "Ai Notice could not fully check this file",
+      "summary": "This file was not fully analyzed locally, so its contents could not be confirmed before sharing.",
+      "lowSeveritySummary": "Some of this file may not have been analyzed locally before sharing.",
+      "guidance": "Review it yourself before sharing if it may contain personal or confidential details.",
+      "notes": "AG-PROMPT-325: Honest signaling when the local scan was skipped or timed out (NOT a parser failure). Distinct from FRAME_PDF_UNREADABLE (could not read) and FRAME_REVIEW_ADVISED (scanned, no clear markers). Must not imply the file is safe/clean."
     }
   ]
 }

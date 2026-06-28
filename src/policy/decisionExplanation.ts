@@ -307,6 +307,8 @@ export const EXTRACTION_LIMITED_FRAMES = new Set([
   'FRAME_DEGRADED_PAYROLL',
   'FRAME_DEGRADED_HR',
   'FRAME_DEGRADED_INSURANCE',
+  // AG-PROMPT-325: scan skipped/timed out — must interrupt (not auto-dismiss "clean" notice)
+  'FRAME_NOT_SCANNED',
 ]);
 
 /**
@@ -745,6 +747,13 @@ export interface BuildDecisionExplanationInput {
   pdfExtractionFailed?: boolean;
 
   /**
+   * AG-PROMPT-325: true when the local scan was skipped or timed out (detection timeout, or an
+   * oversize file whose content was not inspected). Non-content fact. Routes to FRAME_NOT_SCANNED
+   * so a not-scanned file is not presented as clean. Distinct from pdfExtractionFailed (parse fail).
+   */
+  notScanned?: boolean;
+
+  /**
    * Encryption readability classification for encrypted-PDF edge cases.
    */
   pdfEncryptionReadability?: PdfEncryptionReadability;
@@ -813,6 +822,7 @@ export function buildDecisionExplanation(
     documentClass,
     ontologyDriven,
     pdfExtractionFailed,
+    notScanned,
     pdfEncryptionReadability,
     textContent,
     singleStrongAwareness,
@@ -902,6 +912,7 @@ export function buildDecisionExplanation(
     singleStrongAwareness,
     identityConfidence,
     pdfExtractionFailed,  // AG-PHASE-4-052: Route to FRAME_PDF_UNREADABLE
+    notScanned,  // AG-PROMPT-325: Route to FRAME_NOT_SCANNED when scan skipped/timed out
     pdfEncryptionReadability,
     degradedFallback,  // AG-PHASE-5E-058: Degraded document fallback classification
   };

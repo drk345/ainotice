@@ -40,11 +40,13 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (deterministic; refreshed AG-PROMPT-312):
+Current verified package (deterministic; promoted AG-PROMPT-327):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256 (deterministic, reproducible): `2b23a6f52750a3cf4aa671952a58638cb96bcdde65978819f4dd697cf27922ca`
-- Release repo commit `83648cf`; provenance source commit `987c3cc` (runtime byte-identical to `b42a578`)
-- Packaging is now deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
+- SHA-256 (deterministic, reproducible): `2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17` (AG-326 council warning-state clarity: copy/color/Critical+Inferred display cap/invoice propagation)
+- Supersession chain: `2432c09e…6a17` (AG-326, **current promoted**) supersedes intermediate AG-325 `67dcf33f…2b14`, which superseded the prior promoted release ZIP `ae34e757…0bb61` (AG-315). Promotion complete — release repo is now promoted to this candidate.
+- Provenance source commit `0d442a4` (dev HEAD at promotion); release-side build independently reproduced the SHA above.
+- Packaging is deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
+- Build note (AG-327): the release allow-list does not yet include `scripts/test-consumer-modal-no-admin-license-copy.ts` (a read-only consumer-copy guard added to `build:chrome` in AG-326). The deterministic artifact is unaffected; the `npm run build:chrome` wrapper exits non-zero on that missing guard. Follow-up prompt required to add it to `scripts/release-export.ts` + plan §2.4.
 
 ---
 

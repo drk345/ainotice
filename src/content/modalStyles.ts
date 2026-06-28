@@ -101,11 +101,13 @@ export const MODAL_CSS = `
       background: rgba(99,102,241,.12);
       pointer-events: none;
     }
-    /* Doctrine-mapped tints — indigo for crit/high, amber/green for med/low */
-    .agentguard-header-circle-critical { background: rgba(79,70,229,.18); }
-    .agentguard-header-circle-high     { background: rgba(100,116,139,.14); }
-    .agentguard-header-circle-medium   { background: rgba(245,158,11,.12); }
-    .agentguard-header-circle-low      { background: rgba(52,211,153,.12); }
+    /* AG-PROMPT-326: doctrine-mapped tints aligned to the AG-177 severity ramp —
+       rose (Rose 600 #E11D48) for crit/high, amber for medium, gray for low.
+       Replaces the prior indigo(crit)/slate-gray(high) tints that understated danger. */
+    .agentguard-header-circle-critical { background: rgba(225,29,72,.18); }
+    .agentguard-header-circle-high     { background: rgba(225,29,72,.12); }
+    .agentguard-header-circle-medium   { background: rgba(217,119,6,.12); }
+    .agentguard-header-circle-low      { background: rgba(107,114,128,.12); }
     /* Row: left block + icon */
     .agentguard-header-row {
       display: flex;
@@ -122,22 +124,25 @@ export const MODAL_CSS = `
     }
     .agentguard-sev-dot {
       width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-      background: #6366f1;
+      background: var(--ag-low-text);
     }
-    .agentguard-sev-dot-critical { background: #6366f1; }
-    .agentguard-sev-dot-high     { background: #94a3b8; }
-    .agentguard-sev-dot-medium   { background: #f59e0b; }
-    .agentguard-sev-dot-low      { background: #34d399; }
+    /* AG-PROMPT-326: severity dot aligned to the AG-177 ramp (same tokens as the bar/accent).
+       crit/high = Rose 600, medium = Amber 600, low = Gray 500. No gray for High, no blue for Critical. */
+    .agentguard-sev-dot-critical { background: var(--ag-crit-bg); }
+    .agentguard-sev-dot-high     { background: var(--ag-high-text); }
+    .agentguard-sev-dot-medium   { background: var(--ag-med-text); }
+    .agentguard-sev-dot-low      { background: var(--ag-low-text); }
     .agentguard-sev-label {
       font-size: 9.5px; font-weight: 700;
       letter-spacing: 0.1em; text-transform: uppercase;
       font-family: 'DM Mono', 'Fira Mono', monospace;
-      color: #6366f1;
+      color: var(--ag-low-text);
     }
-    .agentguard-sev-label-critical { color: #818cf8; }
-    .agentguard-sev-label-high     { color: #94a3b8; }
-    .agentguard-sev-label-medium   { color: #f59e0b; }
-    .agentguard-sev-label-low      { color: #34d399; }
+    /* AG-PROMPT-326: severity label color aligned to the AG-177 ramp (matches the dot/bar). */
+    .agentguard-sev-label-critical { color: var(--ag-crit-bg); }
+    .agentguard-sev-label-high     { color: var(--ag-high-text); }
+    .agentguard-sev-label-medium   { color: var(--ag-med-text); }
+    .agentguard-sev-label-low      { color: var(--ag-low-text); }
     /* Title — white on dark header */
     .agentguard-title {
       font-size: 14px;

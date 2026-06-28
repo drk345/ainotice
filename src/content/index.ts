@@ -156,6 +156,7 @@ import {
 // AG-PROMPT-134: Decision quality blocks
 import {
   deriveDecisionQualityBlocks,
+  resolveDisplaySeverity,  // AG-PROMPT-326: display-only Critical+Inferred cap
 } from './decisionQualityBlocks';
 
 // AG-SECURITY-HARDENING-SEC-01: Safe DOM rendering utilities
@@ -280,6 +281,13 @@ interface FileRiskAssessment {
    * block so a partially-inspected file is not presented as a full clean scan. Non-content fact.
    */
   partialInspection?: boolean;
+  /**
+   * AG-PROMPT-325: true when the local scan was skipped or timed out (detection timeout, or an
+   * oversize file whose content was not inspected). Non-content fact. Routes to FRAME_NOT_SCANNED
+   * and forces an honest "could not fully check" surface so silence is not read as a clean pass.
+   * Distinct from partialInspection (some content seen) and pdfExtractionFailed (parser failure).
+   */
+  notScanned?: boolean;
   /** Encryption readability classification for encrypted-PDF edge cases */
   pdfEncryptionReadability?: PdfEncryptionReadability;
   /** AG-PROMPT-196: What user action triggered this scan — drives modal copy selection */
@@ -614,6 +622,8 @@ interface TextDetectionResult {
   usedLegacyFallback: boolean;
   /** Detection timing in ms */
   detectionMs: number;
+  /** AG-PROMPT-325: true when detection exceeded the fail-open timeout (results discarded). */
+  timedOut: boolean;
 }
 
 function runTextDetectionStrategy(
@@ -625,6 +635,7 @@ function runTextDetectionStrategy(
   const startTime = performance.now();
   const signals: RiskSignal[] = [];
   let usedLegacyFallback = false;
+  let timedOut = false;  // AG-PROMPT-325: detection fail-open timeout
 
   // Step 1: Run detection packs (PRIMARY)
   const detectionContext: DetectionContext = {
@@ -640,6 +651,7 @@ function runTextDetectionStrategy(
   if (detectElapsed > DETECTION_TIMEOUT_MS) {
     console.warn(`[AgentGuard] Detection timeout exceeded (${detectElapsed.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
     packResult = { signals: [], packsExecuted: packResult.packsExecuted };
+    timedOut = true;  // AG-PROMPT-325: surface as not-scanned downstream
   }
   const packSignals = packResult.signals.map(s => ({
     ...s,
@@ -674,6 +686,7 @@ function runTextDetectionStrategy(
     signals,
     usedLegacyFallback,
     detectionMs,
+    timedOut,
   };
 }
 
@@ -761,6 +774,10 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
   // inspection). 500_000 is the shared output cap used by the PDF/DOCX/XLSX extractors; a doc
   // body at/over it was truncated. Text files (< 1MB, scanned in full) are NOT subject to this.
   let partialInspection = false;
+  // AG-PROMPT-325: true when the local scan was skipped or timed out (oversize content-scan skip,
+  // or detection fail-open timeout) — a non-content fact so a not-scanned file is surfaced honestly
+  // rather than passing as a silent clean result. Distinct from partialInspection / pdfExtractionFailed.
+  let notScanned = false;
   const PARTIAL_INSPECTION_OUTPUT_CAP = 500_000;
   let pdfEncryptionReadability: PdfEncryptionReadability = 'NOT_ENCRYPTED';
   let degradedFallbackResult: FallbackClassificationResult | null = null;  // AG-PHASE-5E-058: Degraded PDF fallback
@@ -803,6 +820,10 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
         );
         signals.push(...strategyResult.signals);
         detectionMs = strategyResult.detectionMs;
+        // AG-PROMPT-325: detection fail-open timeout → content not meaningfully scanned.
+        if (strategyResult.timedOut) {
+          notScanned = true;
+        }
 
         // AG-PROMPT-044: Run canary detection (debug-only)
         const canarySignals = runCanaryDetection(content, 'content');
@@ -821,11 +842,21 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
     } catch (e) {
       console.warn('[AgentGuard] Could not read file content:', e);
     }
+  } else if (isTextFile) {
+    // AG-PROMPT-325: text file at/over the 1MB content-scan cap → body was NOT scanned.
+    // Surface honestly (not-scanned) rather than passing as a silent clean result.
+    notScanned = true;
   }
-  
+
   // 3. Metadata and body extraction for Office documents and PDFs
   const extension = file.name.split('.').pop()?.toLowerCase();
   const isDocumentFile = ['pdf', 'docx', 'xlsx', 'pptx'].includes(extension || '');
+
+  if (isDocumentFile && file.size >= 50 * 1024 * 1024) {
+    // AG-PROMPT-325: supported document at/over the 50MB extraction cap → content was NOT
+    // extracted or scanned. Surface honestly rather than passing as a silent clean result.
+    notScanned = true;
+  }
 
   if (isDocumentFile && file.size < 50 * 1024 * 1024) {
     try {
@@ -898,6 +929,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
           if (detectElapsed2 > DETECTION_TIMEOUT_MS) {
             console.warn(`[AgentGuard] Detection timeout exceeded (${detectElapsed2.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
             detectionResult = { signals: [], packsExecuted: detectionResult.packsExecuted };
+            notScanned = true;  // AG-PROMPT-325: surface as not-scanned downstream
           }
           // Add signals from detection packs (phones will only appear if locale confidence is sufficient)
           signals.push(...detectionResult.signals.map(s => ({
@@ -1210,6 +1242,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
     documentClass: effectiveDocumentClass,  // AG-PHASE-5E-058: Use effective class
     ontologyDriven,
     pdfExtractionFailed,
+    notScanned,  // AG-PROMPT-325: route to FRAME_NOT_SCANNED when scan skipped/timed out
     pdfEncryptionReadability,
     singleStrongAwareness: calibrationResult.stats.singleStrongAwareness > 0,
     identityConfidence: documentClassResult.identityConfidence,
@@ -1413,6 +1446,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
       documentClass: effectiveDocumentClass,
       ontologyDriven,
       pdfExtractionFailed,
+      notScanned,  // AG-PROMPT-325: route to FRAME_NOT_SCANNED when scan skipped/timed out
       pdfEncryptionReadability,
       singleStrongAwareness: calibrationResult.stats.singleStrongAwareness > 0,
       identityConfidence: documentClassResult.identityConfidence,
@@ -1530,6 +1564,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
     decisionExplanation: finalDecisionExplanation,
     pdfExtractionFailed,
     partialInspection,  // AG-PROMPT-303
+    notScanned,  // AG-PROMPT-325
     pdfEncryptionReadability,
     triggerSource: 'file',
   };
@@ -1710,6 +1745,22 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
       })
     : undefined;
 
+  // AG-PROMPT-326: Critical is reserved for confirmed high-impact findings. A generic,
+  // inferred-only finding must NOT render as "Critical" (red Critical + amber Inferred reads
+  // incoherent and overstates weak evidence). DISPLAY-ONLY cap: when the displayed confidence is
+  // 'Inferred' and severity resolved to 'critical', show the header/dot/bar as 'High Risk' instead.
+  // Policy severity, action, enforcement, and high/critical friction are UNCHANGED (needsFriction
+  // below still uses the real overallRisk; cap critical→high keeps friction on). Confirmed criticals
+  // (secrets etc.) derive 'Confirmed' confidence and are never capped. Visible signal badges are
+  // re-capped to the displayed severity so no badge exceeds the header.
+  const displaySeverity = resolveDisplaySeverity(
+    overallRisk,
+    decisionQuality?.confidence.label,
+  ) as FileRiskAssessment['overallRisk'];
+  const displaySignals = displaySeverity === overallRisk
+    ? allSignals
+    : createVisibleSignals(allSignals, displaySeverity as RiskSignal['severity']);
+
   // AG-PROMPT-196: Derive trigger source from assessments (all same source in practice).
   // Defaults to 'file' for backwards compat with any assessment missing the field.
   const triggerSource: UploadTriggerSource = assessments[0]?.triggerSource ?? 'file';
@@ -1757,13 +1808,13 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
     scannedSourcesText: formatScannedSources(allScannedSources),
     // AG-PROMPT-196: file cards only for file triggers
     filesHtml: filesElement,
-    signals: allSignals,
+    signals: displaySignals,  // AG-PROMPT-326: re-capped to displaySeverity for consistency
     licenseState: cachedLicenseState,
     isBlocked,
     needsFriction,
     decisionQuality,
     hasDetectedSignals: totalSignals > 0,
-    overallRisk,
+    overallRisk: displaySeverity,  // AG-PROMPT-326: header/dot/bar use the (possibly capped) display severity
     isExtractionLimited: decisionQuality?.confidence.label === 'Reduced',
     triggerSource,
     onCancel: () => { removeFocusTrap(); hideRiskModal(); onCancel(); showPostDecisionToast('cancel', triggerSource); },

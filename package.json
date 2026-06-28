@@ -10,7 +10,7 @@
     "build:background:chrome": "cross-env BUILD_TARGET=chrome vite build --config vite.background.config.ts",
     "build:background:firefox": "cross-env BUILD_TARGET=firefox vite build --config vite.background.config.ts",
     "build": "npm run build:chrome",
-    "build:chrome": "npm run build:content:chrome && npm run build:background:chrome && npx tsx scripts/copy-manifest.ts chrome && npx tsx scripts/test-chrome-build-artifacts.ts",
+    "build:chrome": "npm run build:content:chrome && npm run build:background:chrome && npx tsx scripts/copy-manifest.ts chrome && npx tsx scripts/test-chrome-build-artifacts.ts && npx tsx scripts/test-consumer-modal-no-admin-license-copy.ts",
     "build:firefox": "npm run build:content:firefox && npm run build:background:firefox && npx tsx scripts/copy-manifest.ts firefox && npx tsx scripts/test-firefox-build-artifacts.ts",
     "build:all": "npm run build:chrome && npm run build:firefox",
     "verify:manifest": "npx tsx scripts/verify-manifest.ts",

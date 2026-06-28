@@ -1,14 +1,18 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "5206032cac1d110f0104745e0ae60141ef6e0aeb",
+  "source_commit": "0d442a4b82c4251b201661f6fab6d8125e842dd8",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-06-25T18:48:19.511Z",
-  "prompt_id": "AG-PROMPT-270",
-  "promotion_tool": "scripts/release-export.ts (dry-run)",
+  "generated_at": "2026-06-28T07:48:30.989Z",
+  "prompt_id": "AG-PROMPT-327",
+  "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
   "allow_list_version": "AG-269-plan-v1",
-  "store_upload": "NONE — no store upload performed by this export",
-  "note": "Disposable dry-run export. No git init/push performed."
+  "promoted_zip_sha256": "2432c09e9c975e505a2c530057993a9ef4efea5bd552009343ba0416e6736a17",
+  "promoted_zip_path": "release/ainotice-chrome.zip",
+  "supersedes_release_zip_sha256": "ae34e75755f3e6a27ee021164e3eef04b7d0751025152bd0eb878b7b6ad0bb61",
+  "superseded_intermediate_zip_sha256": "67dcf33fdc4fbfb6e1735efb27321d9e0313d06f66e179e0b367925a803f2b14",
+  "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
+  "note": "Governed dev→release re-promotion of the AG-326 deterministic Chrome candidate (AG-PROMPT-327). Release-side build (build:content/background:chrome + copy-manifest + package:chrome) independently reproduced promoted_zip_sha256 from source_commit 0d442a4. No git init beyond this repo; no store upload; no GitHub Release."
 }
