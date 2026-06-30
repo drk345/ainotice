@@ -7,7 +7,7 @@ export class StorageManager {
       const result = await chrome.storage.local.get('settings');
       return result.settings || DEFAULT_SETTINGS;
     } catch (e) {
-      console.warn('[AgentGuard] storage.get(settings) failed:', (e as Error).message);
+      console.warn('[Ai Notice] storage.get(settings) failed:', (e as Error).message);
       return DEFAULT_SETTINGS;
     }
   }
@@ -18,7 +18,7 @@ export class StorageManager {
       const newSettings = { ...currentSettings, ...updates };
       await chrome.storage.local.set({ settings: newSettings });
     } catch (e) {
-      console.warn('[AgentGuard] storage.set(settings) failed:', (e as Error).message);
+      console.warn('[Ai Notice] storage.set(settings) failed:', (e as Error).message);
     }
   }
 
@@ -27,7 +27,7 @@ export class StorageManager {
       const result = await chrome.storage.local.get('licenseToken');
       return result.licenseToken;
     } catch (e) {
-      console.warn('[AgentGuard] storage.get(licenseToken) failed:', (e as Error).message);
+      console.warn('[Ai Notice] storage.get(licenseToken) failed:', (e as Error).message);
       return undefined;
     }
   }
@@ -36,7 +36,7 @@ export class StorageManager {
     try {
       await chrome.storage.local.set({ licenseToken: token });
     } catch (e) {
-      console.warn('[AgentGuard] storage.set(licenseToken) failed:', (e as Error).message);
+      console.warn('[Ai Notice] storage.set(licenseToken) failed:', (e as Error).message);
     }
   }
 }

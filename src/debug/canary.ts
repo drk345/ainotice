@@ -76,7 +76,7 @@ export function runCanaryDetection(
  * @returns Text content containing the canary token with context
  */
 export function createCanaryTestContent(): string {
-  return `AgentGuard Pipeline Verification Document
+  return `Ai Notice Pipeline Verification Document
 
 This document is used to test that the signal detection pipeline is working.
 It contains a debug-only canary token that should trigger a harmless signal.

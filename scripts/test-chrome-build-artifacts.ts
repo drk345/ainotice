@@ -240,6 +240,42 @@ for (let i = 0; i < jsArtifacts.length; i++) {
 }
 
 // ============================================================================
+// E: No old-brand / prompt-ID leaks in shipped runtime + static (AG-PROMPT-346)
+// console.warn/error survive terser, and static CSS/HTML ship verbatim, so any
+// old-brand or internal prompt-ID string in those surfaces would reach reviewers.
+// Scan the ACTUAL shipped JS + static assets.
+//
+// AG-347: the `agentguard-*` DOM/CSS/runtime selector namespace has been MIGRATED
+// to `ainotice-*`, so lowercase `agentguard-` is now FORBIDDEN in shipped
+// artifacts too (alongside capital `AgentGuard` old brand).
+// ============================================================================
+console.log('\n=== E: No old-brand / prompt-ID leaks in shipped runtime + static ===');
+
+const FORBIDDEN_BRAND_PROMPT = [
+  'AG-PROMPT', 'AG_PROMPT', 'PROMPT-',
+  'No DecisionExplanation', 'applied FRAME',
+  '[AgentGuard', 'AgentGuard', 'agentguard-',
+];
+const leakScanArtifacts = ['content.js', 'background.js', 'warning-modal.css', 'popup.html', 'warning-modal.html', 'manifest.json'];
+let eIdx = 0;
+for (const fileName of leakScanArtifacts) {
+  const filePath = path.join(distDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    skip(`E.${++eIdx}`, `${fileName} not found — skipping leak scan`);
+    continue;
+  }
+  const source = fs.readFileSync(filePath, 'utf-8');
+  const hits = FORBIDDEN_BRAND_PROMPT.filter(s => source.includes(s));
+  assert(
+    `E.${++eIdx}`,
+    hits.length === 0,
+    hits.length === 0
+      ? `${fileName}: no old-brand/prompt-ID/agentguard-* leaks`
+      : `${fileName}: leaks present: ${hits.join(', ')}`
+  );
+}
+
+// ============================================================================
 // SUMMARY
 // ============================================================================
 

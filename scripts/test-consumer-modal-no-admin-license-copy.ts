@@ -18,7 +18,7 @@
  * can never ship trial/admin/license copy or a dead admin/license link before upload.
  *
  * Scope guard: this checks VISIBLE copy and clickable affordances only. The unused CSS
- * class selector `agentguard-license-status` is explicitly allowed — it is a non-rendered
+ * class selector `ainotice-license-status` is explicitly allowed — it is a non-rendered
  * style hook (the element is never built), not visible text.
  *
  * Run as part of `npm run build:chrome` (every Chrome build) — see package.json.
@@ -80,7 +80,7 @@ const popup = fs.existsSync(popupPath) ? fs.readFileSync(popupPath, 'utf-8') : '
 // ("anonymous","unknown","user","admin","administrator",…) in src/detection/metadataSignals.ts,
 // which filters generic author metadata and is not consumer-visible copy. Bare tokens are
 // only safe to forbid in the static popup.html (pure visible copy, no detection logic).
-// The CSS class `agentguard-license-status` is also deliberately NOT forbidden (non-rendered
+// The CSS class `ainotice-license-status` is also deliberately NOT forbidden (non-rendered
 // style hook, allowed residue).
 const FORBIDDEN_PHRASES: Array<{ label: string; re: RegExp }> = [
   { label: 'Trial mode', re: /Trial\s*mode/i },

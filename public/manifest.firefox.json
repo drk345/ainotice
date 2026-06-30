@@ -37,7 +37,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "agentguard-dev@local",
+      "id": "ainotice-dev@local",
       "strict_min_version": "109.0"
     }
   }

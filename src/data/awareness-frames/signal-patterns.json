@@ -1,9 +1,8 @@
 {
   "$schema": "./signal-patterns.schema.json",
   "description": "Signal ID patterns for frame selection logic",
-  "notes": "Used to detect regulated/legal content from driving signal IDs. AG-PROMPT-SURFACE-COMPOSITE-001: Signal families for composite detection. AG-PROMPT-CONFIDENTIAL-QUALITY-008: Separates distribution sensitivity from content sensitivity.",
   "regulatedPatterns": {
-    "description": "Patterns indicating regulated/clinical content (for FRAME_REGULATED_SENSITIVE). AG-PROMPT-CONFIDENTIAL-QUALITY-008: Excludes confidentiality markers (distribution signals).",
+    "description": "Patterns indicating regulated/clinical content (for FRAME_REGULATED_SENSITIVE). Excludes confidentiality markers (distribution signals).",
     "patterns": [
       "coa-",
       "icd",
@@ -14,7 +13,7 @@
     ]
   },
   "distributionPatterns": {
-    "description": "AG-PROMPT-CONFIDENTIAL-QUALITY-008: Patterns indicating distribution restrictions (not content sensitivity). These markers indicate HOW to share, not WHAT the document contains.",
+    "description": "Patterns indicating distribution restrictions (not content sensitivity). These markers indicate HOW to share, not WHAT the document contains.",
     "patterns": [
       "global-confidential-en",
       "global-confidential-de",
@@ -27,7 +26,7 @@
     ]
   },
   "secretsPatterns": {
-    "description": "AG-PROMPT-CONFIDENTIAL-QUALITY-008: Patterns indicating actual secrets/credentials (content sensitivity, NOT distribution). These remain high/critical severity.",
+    "description": "Patterns indicating actual secrets/credentials (content sensitivity, NOT distribution). These remain high/critical severity.",
     "patterns": [
       "global-api-key",
       "global-bearer-token",
@@ -40,7 +39,7 @@
     ]
   },
   "businessSensitivePatterns": {
-    "description": "AG-PROMPT-188: Patterns indicating business-sensitive / M&A content (for FRAME_BUSINESS_SENSITIVE). Material non-public information.",
+    "description": "Patterns indicating business-sensitive / M&A content (for FRAME_BUSINESS_SENSITIVE). Material non-public information.",
     "patterns": [
       "global-ma-terms",
       "global-ma-valuation"
@@ -57,37 +56,86 @@
     ]
   },
   "signalFamilies": {
-    "description": "AG-PROMPT-SURFACE-COMPOSITE-001: Signal family definitions for composite headline generation. Surface language uses human-readable family labels, not internal categories.",
+    "description": "Signal family definitions for composite headline generation. Surface language uses human-readable family labels, not internal categories.",
     "families": [
       {
         "id": "medical",
         "label": "medical",
-        "patterns": ["medical", "health", "clinical", "icd", "coa-", "patient", "diagnosis", "prescription"]
+        "patterns": [
+          "medical",
+          "health",
+          "clinical",
+          "icd",
+          "coa-",
+          "patient",
+          "diagnosis",
+          "prescription"
+        ]
       },
       {
         "id": "legal",
         "label": "legal",
-        "patterns": ["legal.", "contract", "nda", "agreement", "privileged", "attorney", "litigation"]
+        "patterns": [
+          "legal.",
+          "contract",
+          "nda",
+          "agreement",
+          "privileged",
+          "attorney",
+          "litigation"
+        ]
       },
       {
         "id": "financial",
         "label": "financial",
-        "patterns": ["financial.", "banking", "iban", "credit_card", "payment", "invoice", "salary", "compensation"]
+        "patterns": [
+          "financial.",
+          "banking",
+          "iban",
+          "credit_card",
+          "payment",
+          "invoice",
+          "salary",
+          "compensation"
+        ]
       },
       {
         "id": "personal",
         "label": "personal",
-        "patterns": ["pii.", "ssn", "national_id", "phone", "email", "address", "dob", "employee"]
+        "patterns": [
+          "pii.",
+          "ssn",
+          "national_id",
+          "phone",
+          "email",
+          "address",
+          "dob",
+          "employee"
+        ]
       },
       {
         "id": "hr",
         "label": "HR",
-        "patterns": ["hr.", "employee", "payroll", "benefits", "performance", "termination"]
+        "patterns": [
+          "hr.",
+          "employee",
+          "payroll",
+          "benefits",
+          "performance",
+          "termination"
+        ]
       },
       {
         "id": "secrets",
         "label": "credentials",
-        "patterns": ["secret.", "api_key", "password", "private_key", "bearer_token", "connection_string"]
+        "patterns": [
+          "secret.",
+          "api_key",
+          "password",
+          "private_key",
+          "bearer_token",
+          "connection_string"
+        ]
       }
     ]
   }

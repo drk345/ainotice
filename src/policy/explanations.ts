@@ -596,7 +596,7 @@ export function buildExplanationBundle(
 
   // Debug log: counts only, no content
   if (mapperAttached > 0) {
-    console.log(`[AgentGuard] PolicyMapper attached: ${mapperAttached} explanations`);
+    console.log(`[Ai Notice] PolicyMapper attached: ${mapperAttached} explanations`);
   }
 
   return {

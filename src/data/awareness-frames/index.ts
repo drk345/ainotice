@@ -62,7 +62,7 @@ for (const frame of FRAMES_DATA) {
 // at module load rather than causing a confusing TypeError later.
 if (!FRAME_MAP['FRAME_GENERAL_SENSITIVE']) {
   throw new Error(
-    'AG-PROMPT-094: FRAME_MAP missing FRAME_GENERAL_SENSITIVE. ' +
+    'Frame registry error: FRAME_MAP missing the default content frame. ' +
     'Check frames.json integrity. Frame governance requires this default frame.'
   );
 }

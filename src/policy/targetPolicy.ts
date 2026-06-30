@@ -610,7 +610,7 @@ export async function loadTargetPolicyFromManagedStorage(): Promise<TargetPolicy
     // Check if running in extension context
     if (typeof chrome === 'undefined' || !chrome.storage?.managed) {
       if (isDebugMode()) {
-        console.log('[AgentGuard][TargetPolicy] No managed storage API available');
+        console.log('[Ai Notice][TargetPolicy] No managed storage API available');
       }
       return null;
     }
@@ -620,13 +620,13 @@ export async function loadTargetPolicyFromManagedStorage(): Promise<TargetPolicy
 
     if (!result || !result.targets) {
       if (isDebugMode()) {
-        console.log('[AgentGuard][TargetPolicy] No targets policy in managed storage');
+        console.log('[Ai Notice][TargetPolicy] No targets policy in managed storage');
       }
       return null;
     }
 
     if (isDebugMode()) {
-      console.log('[AgentGuard][TargetPolicy] Loaded policy from managed storage:', {
+      console.log('[Ai Notice][TargetPolicy] Loaded policy from managed storage:', {
         mode: result.targets.mode,
         includeSubdomains: result.targets.includeSubdomains,
         additionalDomainsCount: result.targets.additionalDomains?.length,
@@ -638,7 +638,7 @@ export async function loadTargetPolicyFromManagedStorage(): Promise<TargetPolicy
   } catch (error) {
     // Managed storage not available or access denied
     if (isDebugMode()) {
-      console.log('[AgentGuard][TargetPolicy] Failed to load managed storage:', error);
+      console.log('[Ai Notice][TargetPolicy] Failed to load managed storage:', error);
     }
     return null;
   }
@@ -667,7 +667,7 @@ export async function getTargetConfig(forceReload = false): Promise<NormalizedTa
   cachedConfig = normalizeTargetPolicy(policy);
 
   if (isDebugMode() && cachedConfig.invalidEntries.length > 0) {
-    console.warn('[AgentGuard][TargetPolicy] Invalid entries ignored:',
+    console.warn('[Ai Notice][TargetPolicy] Invalid entries ignored:',
       cachedConfig.invalidEntries);
   }
 

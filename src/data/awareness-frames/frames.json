@@ -1,14 +1,13 @@
 {
   "$schema": "./frames.schema.json",
   "description": "Awareness frame templates for user-facing explanations",
-  "notes": "AG-PROMPT-SURFACE-EPISTEMIC-BOUNDARIES-018: Indicator-centric language when no documentClass. Never imply document category from signals alone.",
   "copyPrinciples": [
     "Calm seatbelt: inform without alarming",
     "Observational: 'indicators detected' not 'contains', 'patterns suggest' not 'is'",
     "Non-judgmental: user decides, we inform",
     "Actionable: guidance tells them what they can do",
     "Probabilistic: reflect what we observed, not ground truth",
-    "Epistemic humility: indicators ≠ document type (AG-PROMPT-018)"
+    "Epistemic humility: indicators ≠ document type"
   ],
   "forbiddenPhrases": [
     "This looks like a",
@@ -31,8 +30,7 @@
       "noClassInferredHeadline": "Some patterns may relate to health information",
       "summary": "Some patterns are consistent with health records or clinical data.",
       "lowSeveritySummary": "A few patterns may relate to health information.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-HEADLINE-EPIS-POLICY-020: noClassHeadline prevents category overreach when documentClass is null."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_PAYROLL",
@@ -42,8 +40,7 @@
       "noClassInferredHeadline": "Some patterns may relate to financial information",
       "summary": "Some patterns are consistent with salary or payment details.",
       "lowSeveritySummary": "A few patterns may relate to payment information.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-HEADLINE-EPIS-POLICY-020: noClassHeadline prevents category overreach when documentClass is null."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_HR",
@@ -53,8 +50,7 @@
       "noClassInferredHeadline": "Some patterns may relate to employment information",
       "summary": "Some patterns are consistent with employee records.",
       "lowSeveritySummary": "A few patterns may relate to employee information.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-HEADLINE-EPIS-POLICY-020: noClassHeadline prevents category overreach when documentClass is null."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_LEGAL",
@@ -64,8 +60,7 @@
       "noClassInferredHeadline": "Some patterns may relate to legal terminology",
       "summary": "Some patterns are consistent with contracts or agreements.",
       "lowSeveritySummary": "A few patterns may relate to legal terminology.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-EPISTEMIC-BOUNDARIES-018: noClassHeadline used when selected by signals, not document classification."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_REGULATED_SENSITIVE",
@@ -75,8 +70,7 @@
       "noClassInferredHeadline": "This file may contain regulated personal information",
       "summary": "Some patterns may be subject to privacy or compliance rules.",
       "lowSeveritySummary": "A few patterns may relate to regulated data.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-EPISTEMIC-BOUNDARIES-018: noClassHeadline avoids category implication without classification."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_PERSONAL_DATA_AWARENESS",
@@ -86,19 +80,17 @@
       "noClassInferredHeadline": "Some patterns may relate to identifiable information",
       "summary": "Some patterns may relate to an identifiable individual.",
       "lowSeveritySummary": "A few patterns may relate to personal details.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-EPISTEMIC-BOUNDARIES-018: noClassHeadline for signal-only detection."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_GENERAL_SENSITIVE",
-      "headline": "Sensitive content was found in this file",
-      "noClassHeadline": "Sensitive content was found in this file",
-      "inferredHeadline": "This file may include sensitive content",
-      "noClassInferredHeadline": "This file may include sensitive content",
+      "headline": "Sensitive content was detected",
+      "noClassHeadline": "Sensitive content was detected",
+      "inferredHeadline": "This may include sensitive content",
+      "noClassInferredHeadline": "This may include sensitive content",
       "summary": "Some patterns may be private or confidential.",
       "lowSeveritySummary": "A few patterns may relate to personal information.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-EPISTEMIC-BOUNDARIES-018: Default frame, uses noClassHeadline when no documentClass."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_PDF_UNREADABLE",
@@ -110,8 +102,7 @@
         "Some PDFs store text as positioned graphics without text maps, which limits local extraction.",
         "Form fields and annotations may contain additional content outside the main text layer.",
         "Ai Notice does not send your file anywhere — your decision here is final."
-      ],
-      "notes": "AG-PROMPT-162 (8B): Improved extraction-limited copy. Factual, calm, user-agency-explicit."
+      ]
     },
     {
       "id": "FRAME_INSURANCE",
@@ -121,8 +112,7 @@
       "noClassInferredHeadline": "This file may relate to insurance information",
       "summary": "Some patterns are consistent with insurance policy details.",
       "lowSeveritySummary": "A few patterns may relate to insurance information.",
-      "guidance": "Insurance documents often contain personal details. Review before sharing externally.",
-      "notes": "AG-PHASE-5C-056: Insurance policy frame for documents with policy numbers, coverage terms, personal details."
+      "guidance": "Insurance documents often contain personal details. Review before sharing externally."
     },
     {
       "id": "FRAME_COMPOSITE",
@@ -130,40 +120,35 @@
       "inferredHeadline": "This file may contain multiple types of sensitive information",
       "summary": "Indicators related to {familyList} were found.",
       "lowSeveritySummary": "Some patterns may relate to {familyList}.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-PROBABILISTIC-LANGUAGE-017: Used when multiple signal families are present."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_DISTRIBUTION_RESTRICTION",
       "headline": "This file has internal sharing restrictions",
       "summary": "Language commonly used to limit redistribution was found.",
       "lowSeveritySummary": "Some markers may indicate distribution limits.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-SURFACE-PROBABILISTIC-LANGUAGE-017: Distribution sensitivity (not content sensitivity). Used when ONLY confidentiality markers are present, without regulated content signals."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_DEGRADED_PAYROLL",
       "headline": "This file may contain payroll information",
       "summary": "The filename or metadata suggests this may contain salary or payment information. Text extraction was limited.",
       "lowSeveritySummary": "The filename or metadata suggests this may relate to payroll. Full content could not be verified.",
-      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed.",
-      "notes": "AG-PHASE-5E-058: Shown when extraction is degraded/blocked but filename/metadata indicate payroll content."
+      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed."
     },
     {
       "id": "FRAME_DEGRADED_HR",
       "headline": "This file may contain employment information",
       "summary": "The filename or metadata suggests this may contain HR or employment information. Text extraction was limited.",
       "lowSeveritySummary": "The filename or metadata suggests this may relate to employment. Full content could not be verified.",
-      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed.",
-      "notes": "AG-PHASE-5E-058: Shown when extraction is degraded/blocked but filename/metadata indicate HR content."
+      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed."
     },
     {
       "id": "FRAME_DEGRADED_INSURANCE",
       "headline": "This file may contain insurance information",
       "summary": "The filename or metadata suggests this may contain insurance policy information. Text extraction was limited.",
       "lowSeveritySummary": "The filename or metadata suggests this may relate to insurance. Full content could not be verified.",
-      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed.",
-      "notes": "AG-PHASE-5E-058: Shown when extraction is degraded/blocked but filename/metadata indicate insurance content."
+      "guidance": "Consider this sensitive and review before sharing. This PDF could not be fully analyzed."
     },
     {
       "id": "FRAME_INVOICE",
@@ -173,8 +158,7 @@
       "noClassInferredHeadline": "Some patterns may relate to billing or invoices",
       "summary": "This document contains billing or payment information that may include personal or financial details.",
       "lowSeveritySummary": "A few patterns may relate to billing or invoice information.",
-      "guidance": "Review before sharing externally.",
-      "notes": "AG-PROMPT-175: Invoice frame. Prevents invoice/legal collision."
+      "guidance": "Review before sharing externally."
     },
     {
       "id": "FRAME_HEALTH_CERTIFICATE",
@@ -184,8 +168,7 @@
       "noClassInferredHeadline": "Some patterns may relate to health documentation",
       "summary": "This document contains health-related information that may include personal identifiers.",
       "lowSeveritySummary": "A few patterns may relate to health documentation.",
-      "guidance": "Health documents typically contain sensitive personal data. Review before sharing.",
-      "notes": "AG-PROMPT-175: Health certificate frame for COVID/vaccination certificates."
+      "guidance": "Health documents typically contain sensitive personal data. Review before sharing."
     },
     {
       "id": "FRAME_BUSINESS_SENSITIVE",
@@ -195,24 +178,21 @@
       "noClassInferredHeadline": "Some patterns may relate to business-sensitive information",
       "summary": "Some patterns are consistent with business-sensitive or transaction-related content.",
       "lowSeveritySummary": "A few patterns may relate to commercially sensitive information.",
-      "guidance": "Business-sensitive documents may contain material non-public information. Review before sharing externally.",
-      "notes": "AG-PROMPT-188: Closes the M&A/business-sensitive frame gap identified in AG-PROMPT-185."
+      "guidance": "Business-sensitive documents may contain material non-public information. Review before sharing externally."
     },
     {
       "id": "FRAME_REVIEW_ADVISED",
-      "headline": "We couldn\u2019t determine what this file contains",
+      "headline": "We couldn’t determine what this file contains",
       "summary": "No clear indicators were found, but content could not be fully assessed.",
       "lowSeveritySummary": "No specific indicators were found. Review if you believe it may contain personal details.",
-      "guidance": "Use your judgment based on what you know about this document.",
-      "notes": "AG-PROMPT-SURFACE-PROBABILISTIC-LANGUAGE-017: Fallback frame for weak or no evidence. Used when signalCount = 0 or evidence is ambiguous."
+      "guidance": "Use your judgment based on what you know about this document."
     },
     {
       "id": "FRAME_NOT_SCANNED",
       "headline": "Ai Notice could not fully check this file",
       "summary": "This file was not fully analyzed locally, so its contents could not be confirmed before sharing.",
       "lowSeveritySummary": "Some of this file may not have been analyzed locally before sharing.",
-      "guidance": "Review it yourself before sharing if it may contain personal or confidential details.",
-      "notes": "AG-PROMPT-325: Honest signaling when the local scan was skipped or timed out (NOT a parser failure). Distinct from FRAME_PDF_UNREADABLE (could not read) and FRAME_REVIEW_ADVISED (scanned, no clear markers). Must not imply the file is safe/clean."
+      "guidance": "Review it yourself before sharing if it may contain personal or confidential details."
     }
   ]
 }

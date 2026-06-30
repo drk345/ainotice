@@ -494,7 +494,7 @@ export function enforceAwarenessVisibility(
   // If visibility changed, log for debugging
   if (newVisibility !== explanation.awarenessVisibility) {
     const detailCount = explanation.details?.length ?? 0;
-    console.log(`[AgentGuard] AwarenessVisibility corrected: ${explanation.awarenessVisibility} => ${newVisibility} (details=${detailCount}, severity=${explanation.severity}, frameId=${explanation.frameId ?? 'none'})`);
+    console.log(`[Ai Notice] AwarenessVisibility corrected: ${explanation.awarenessVisibility} => ${newVisibility} (details=${detailCount}, severity=${explanation.severity}, frameId=${explanation.frameId ?? 'none'})`);
   }
 
   // Build updated reason codes array if escalation occurred
@@ -855,7 +855,7 @@ export function buildDecisionExplanation(
   // AG-PROMPT-095: Track signal dominance reordering
   if (dominanceResult.reordered) {
     reasonCodes.push('SIGNAL_DOMINANCE_REORDERED');
-    console.log(`[AgentGuard] SignalDominance: ${dominanceResult.reason} (rule=${dominanceResult.ruleId})`);
+    console.log(`[Ai Notice] SignalDominance: ${dominanceResult.reason} (rule=${dominanceResult.ruleId})`);
   }
 
   // AG-PROMPT-095: Track single strong awareness

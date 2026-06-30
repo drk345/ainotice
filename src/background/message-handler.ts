@@ -31,14 +31,14 @@ const VALID_MESSAGE_TYPES: Set<MessageType> = new Set([
 function isValidSender(sender: chrome.runtime.MessageSender): boolean {
   // Sender must have an ID
   if (!sender.id) {
-    console.warn('[AgentGuard:SEC-02] Rejected message: missing sender.id');
+    console.warn('[Ai Notice:SEC-02] Rejected message: missing sender.id');
     return false;
   }
 
   // Sender ID must match our extension ID
   // chrome.runtime.id is the extension's own ID
   if (sender.id !== chrome.runtime.id) {
-    console.warn('[AgentGuard:SEC-02] Rejected message: sender.id mismatch', {
+    console.warn('[Ai Notice:SEC-02] Rejected message: sender.id mismatch', {
       expected: chrome.runtime.id,
       received: sender.id,
     });
@@ -54,7 +54,7 @@ function isValidSender(sender: chrome.runtime.MessageSender): boolean {
  */
 function isValidMessage(message: unknown): message is Message {
   if (typeof message !== 'object' || message === null) {
-    console.warn('[AgentGuard:SEC-02] Rejected message: not an object');
+    console.warn('[Ai Notice:SEC-02] Rejected message: not an object');
     return false;
   }
 
@@ -62,13 +62,13 @@ function isValidMessage(message: unknown): message is Message {
 
   // Must have a type field
   if (typeof msg.type !== 'string') {
-    console.warn('[AgentGuard:SEC-02] Rejected message: missing type field');
+    console.warn('[Ai Notice:SEC-02] Rejected message: missing type field');
     return false;
   }
 
   // Type must be known
   if (!VALID_MESSAGE_TYPES.has(msg.type as MessageType)) {
-    console.warn('[AgentGuard:SEC-02] Rejected message: unknown type', msg.type);
+    console.warn('[Ai Notice:SEC-02] Rejected message: unknown type', msg.type);
     return false;
   }
 

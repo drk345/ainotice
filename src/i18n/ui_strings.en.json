@@ -1,7 +1,7 @@
 {
   "$schema": "ui_strings",
   "$locale": "en",
-  "$description": "AG-PROMPT-168/WS-02: Externalized UI strings for Ai Notice modal. Source of truth for all user-visible copy in uiComponents.ts and decisionQualityBlocks.ts.",
+  "$description": "Externalized UI strings for Ai Notice modal. Source of truth for all user-visible copy in uiComponents.ts and decisionQualityBlocks.ts.",
 
   "brand": "Ai Notice",
   "modal.uploadingTo": "Uploading to",

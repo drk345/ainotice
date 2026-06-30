@@ -277,7 +277,7 @@ async function scanTextChunked(
       // Check if this scan was canceled
       if (activeRequestId !== requestId) {
         if (DEBUG_SCHEDULER) {
-          console.log(`[AgentGuard] ScanScheduler: scan ${requestId.slice(0, 8)} canceled mid-processing`);
+          console.log(`[Ai Notice] ScanScheduler: scan ${requestId.slice(0, 8)} canceled mid-processing`);
         }
         resolve({
           signals: [],
@@ -336,7 +336,7 @@ async function scanTextChunked(
 
           const durationMs = performance.now() - startTime;
           if (DEBUG_SCHEDULER) {
-            console.log(`[AgentGuard] ScanScheduler: completed ${requestId.slice(0, 8)} chunks=${chunksProcessed} signals=${uniqueSignals.length} durationMs=${durationMs.toFixed(1)}`);
+            console.log(`[Ai Notice] ScanScheduler: completed ${requestId.slice(0, 8)} chunks=${chunksProcessed} signals=${uniqueSignals.length} durationMs=${durationMs.toFixed(1)}`);
           }
 
           stats.completed++;
@@ -393,7 +393,7 @@ export function scheduleTextScan(text: string, meta: ScanMeta): Promise<ScanResu
         });
         stats.canceled++;
         if (DEBUG_SCHEDULER) {
-          console.log(`[AgentGuard] ScanScheduler: debounce-canceled ${pendingScan.meta.requestId.slice(0, 8)}`);
+          console.log(`[Ai Notice] ScanScheduler: debounce-canceled ${pendingScan.meta.requestId.slice(0, 8)}`);
         }
       }
     }
@@ -402,7 +402,7 @@ export function scheduleTextScan(text: string, meta: ScanMeta): Promise<ScanResu
     if (activeRequestId) {
       stats.canceled++;
       if (DEBUG_SCHEDULER) {
-        console.log(`[AgentGuard] ScanScheduler: superseded ${activeRequestId.slice(0, 8)} with ${meta.requestId.slice(0, 8)}`);
+        console.log(`[Ai Notice] ScanScheduler: superseded ${activeRequestId.slice(0, 8)} with ${meta.requestId.slice(0, 8)}`);
       }
     }
 
@@ -421,7 +421,7 @@ export function scheduleTextScan(text: string, meta: ScanMeta): Promise<ScanResu
       activeRequestId = scan.meta.requestId;
 
       if (DEBUG_SCHEDULER) {
-        console.log(`[AgentGuard] ScanScheduler: starting ${scan.meta.requestId.slice(0, 8)} source=${scan.meta.source} length=${scan.text.length}`);
+        console.log(`[Ai Notice] ScanScheduler: starting ${scan.meta.requestId.slice(0, 8)} source=${scan.meta.source} length=${scan.text.length}`);
       }
 
       // Run chunked scan
@@ -444,7 +444,7 @@ export function scheduleTextScan(text: string, meta: ScanMeta): Promise<ScanResu
  */
 export function cancelPendingScans(reason: string): void {
   if (DEBUG_SCHEDULER) {
-    console.log(`[AgentGuard] ScanScheduler: cancelAll reason="${reason}"`);
+    console.log(`[Ai Notice] ScanScheduler: cancelAll reason="${reason}"`);
   }
 
   // Cancel debounced pending scan

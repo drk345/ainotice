@@ -758,12 +758,12 @@ export function applyHumanHeuristics(input: HeuristicInput): HeuristicResult {
 
   // Dev-mode logging
   if (DEBUG_HEURISTICS) {
-    console.log(`[AgentGuard][HHA] Input: ${stats.inputCount} signals`);
-    console.log(`[AgentGuard][HHA] Output: ${stats.outputCount} signals`);
-    console.log(`[AgentGuard][HHA] Suppressed: ${stats.suppressedCount}`);
-    console.log(`[AgentGuard][HHA] Promoted: ${stats.promotedCount}`);
+    console.log(`[Ai Notice][HHA] Input: ${stats.inputCount} signals`);
+    console.log(`[Ai Notice][HHA] Output: ${stats.outputCount} signals`);
+    console.log(`[Ai Notice][HHA] Suppressed: ${stats.suppressedCount}`);
+    console.log(`[Ai Notice][HHA] Promoted: ${stats.promotedCount}`);
     for (const entry of audit) {
-      console.log(`[AgentGuard][HHA] ${entry.ruleId}: ${entry.reason}`);
+      console.log(`[Ai Notice][HHA] ${entry.ruleId}: ${entry.reason}`);
     }
   }
 

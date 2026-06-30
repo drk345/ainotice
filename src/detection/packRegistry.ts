@@ -487,8 +487,8 @@ export function resolveActivePacks(
   }
   
   if (DEBUG_PACKS) {
-    console.log(`[AgentGuard] Locale confidence: ${effectiveConfidence}`);
-    console.log(`[AgentGuard] Active packs: ${activePacks.map(p => p.metadata.id).join(', ')}`);
+    console.log(`[Ai Notice] Locale confidence: ${effectiveConfidence}`);
+    console.log(`[Ai Notice] Active packs: ${activePacks.map(p => p.metadata.id).join(', ')}`);
   }
   
   return activePacks;
@@ -586,7 +586,7 @@ export function runDetection(
   }
 
   if (DEBUG_PACKS) {
-    console.log(`[AgentGuard] Running detection with locale confidence: ${localeConfidence}`);
+    console.log(`[Ai Notice] Running detection with locale confidence: ${localeConfidence}`);
   }
 
   // AG-PROMPT-4: Normalize text before detection
@@ -616,7 +616,7 @@ export function runDetection(
   }
   
   if (DEBUG_PACKS) {
-    console.log(`[AgentGuard] Detection complete: ${signals.length} signals from ${packsExecuted.length} packs`);
+    console.log(`[Ai Notice] Detection complete: ${signals.length} signals from ${packsExecuted.length} packs`);
   }
 
   // AG-PROMPT-044: Log detection result (raw signal count)

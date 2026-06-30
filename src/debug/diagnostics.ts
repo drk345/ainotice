@@ -66,7 +66,7 @@ const DEBUG_DIAGNOSTICS = false;
 const MAX_SNIPPET_LENGTH = 80;
 
 /** Prefix for all diagnostic logs */
-const LOG_PREFIX = '[AgentGuard:Diag]';
+const LOG_PREFIX = '[Ai Notice:Diag]';
 
 // ============================================================================
 // DEBUG MODE DETECTION

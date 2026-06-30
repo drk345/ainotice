@@ -127,6 +127,8 @@ import {
 } from './scanScheduler';
 // AG-CODEX-057A: Proper ID-based signal deduplication
 import { deduplicateSignals } from './signalDedupe';
+// AG-PROMPT-343: robust drop-file extraction (reads DataTransfer.files AND items).
+import { extractDropFiles } from './dropFiles';
 
 // AG-PROMPT-031: Evidence tracing
 import { AG_DEBUG_EVIDENCE, createEvidence } from '../detection/evidenceCapture';
@@ -207,9 +209,9 @@ function runStartupValidation(): void {
 
   // Validate policy schema (legacy validation)
   const schemaResult = validateSchema(DEFAULT_POLICY_SCHEMA);
-  console.log(`[AgentGuard] Policy schema validated: ok=${schemaResult.valid}`);
+  console.log(`[Ai Notice] Policy schema validated: ok=${schemaResult.valid}`);
   if (!schemaResult.valid) {
-    console.warn('[AgentGuard] Schema errors:', schemaResult.errors.length);
+    console.warn('[Ai Notice] Schema errors:', schemaResult.errors.length);
   }
 
   // Enhanced policy validation (AG-PROMPT-034)
@@ -222,7 +224,7 @@ function runStartupValidation(): void {
 
   // Validate locale profiles
   const localeOk = validateLocaleProfiles();
-  console.log(`[AgentGuard] LocaleProfiles active: ok=${localeOk}`);
+  console.log(`[Ai Notice] LocaleProfiles active: ok=${localeOk}`);
 }
 
 // ============================================================================
@@ -377,13 +379,13 @@ async function safeSendMessage(message: { type: string; payload?: unknown }): Pr
     const response = await chrome.runtime.sendMessage(message);
     // Check for chrome.runtime.lastError (set when extension context is invalidated)
     if (chrome.runtime.lastError) {
-      console.warn('[AgentGuard] sendMessage error:', chrome.runtime.lastError.message);
+      console.warn('[Ai Notice] sendMessage error:', chrome.runtime.lastError.message);
       return undefined;
     }
     return response;
   } catch (e) {
     // Extension context invalidated (unloaded, updated, or crashed)
-    console.warn('[AgentGuard] sendMessage failed (extension may be disconnected):', e);
+    console.warn('[Ai Notice] sendMessage failed (extension may be disconnected):', e);
     return undefined;
   }
 }
@@ -418,7 +420,7 @@ function isSafeDebugEnabled(): boolean {
  */
 function safeDebugLog(event: string, data: Record<string, unknown>): void {
   if (!isSafeDebugEnabled()) return;
-  console.log(`[AgentGuard:DEBUG] ${event}`, JSON.stringify(data));
+  console.log(`[Ai Notice:DEBUG] ${event}`, JSON.stringify(data));
 }
 
 // ============================================================================
@@ -649,7 +651,7 @@ function runTextDetectionStrategy(
   let packResult = runDetection(detectionContext);
   const detectElapsed = performance.now() - detectStartTimeout;
   if (detectElapsed > DETECTION_TIMEOUT_MS) {
-    console.warn(`[AgentGuard] Detection timeout exceeded (${detectElapsed.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
+    console.warn(`[Ai Notice] Detection timeout exceeded (${detectElapsed.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
     packResult = { signals: [], packsExecuted: packResult.packsExecuted };
     timedOut = true;  // AG-PROMPT-325: surface as not-scanned downstream
   }
@@ -840,7 +842,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
         }
       }
     } catch (e) {
-      console.warn('[AgentGuard] Could not read file content:', e);
+      console.warn('[Ai Notice] Could not read file content:', e);
     }
   } else if (isTextFile) {
     // AG-PROMPT-325: text file at/over the 1MB content-scan cap → body was NOT scanned.
@@ -876,7 +878,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
           pdfEncryptionReadability = result.pdfExtractionStatus.encryptionReadability;
           if (result.pdfExtractionStatus.extractionFailed) {
             pdfExtractionFailed = true;
-            console.log(`[AgentGuard] PDF extraction failed: ${result.pdfExtractionStatus.reasonCode}`);
+            console.log(`[Ai Notice] PDF extraction failed: ${result.pdfExtractionStatus.reasonCode}`);
           }
           // AG-PROMPT-303: PDF byte-window / output-cap truncation = partial inspection.
           if (result.pdfExtractionStatus.truncated) {
@@ -927,7 +929,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
           let detectionResult = runDetection(detectionContext);
           const detectElapsed2 = performance.now() - detectStartTimeout2;
           if (detectElapsed2 > DETECTION_TIMEOUT_MS) {
-            console.warn(`[AgentGuard] Detection timeout exceeded (${detectElapsed2.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
+            console.warn(`[Ai Notice] Detection timeout exceeded (${detectElapsed2.toFixed(0)}ms > ${DETECTION_TIMEOUT_MS}ms) — fail-open, discarding results`);
             detectionResult = { signals: [], packsExecuted: detectionResult.packsExecuted };
             notScanned = true;  // AG-PROMPT-325: surface as not-scanned downstream
           }
@@ -980,13 +982,13 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
               quality
             );
             if (degradedFallbackResult.applied) {
-              console.log(`[AgentGuard] Degraded fallback: domain=${degradedFallbackResult.domain} tokenCount=${degradedFallbackResult.matchedTokens.length} source=${degradedFallbackResult.source}`);
+              console.log(`[Ai Notice] Degraded fallback: domain=${degradedFallbackResult.domain} tokenCount=${degradedFallbackResult.matchedTokens.length} source=${degradedFallbackResult.source}`);
             }
           }
         }
       }
     } catch (e) {
-      console.warn('[AgentGuard] Metadata extraction error:', e);
+      console.warn('[Ai Notice] Metadata extraction error:', e);
     }
   }
 
@@ -1098,7 +1100,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log policy application (counters only, no content - ADR-002)
   if (phoneCount > 0 || localeResult.locale !== 'unknown') {
-    console.log(`[AgentGuard] Policy applied: locale=${localeResult.locale} phones=${phoneCount} emails=${emailCount} -> ${policySignals.length} signals`);
+    console.log(`[Ai Notice] Policy applied: locale=${localeResult.locale} phones=${phoneCount} emails=${emailCount} -> ${policySignals.length} signals`);
   }
 
   // === INTERPRETATION CALIBRATION (AG-PROMPT-038) ===
@@ -1111,7 +1113,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log calibration stats (counters only, no content - ADR-002)
   if (calibrationResult.stats.suppressedCount > 0 || calibrationResult.stats.promotedByCount > 0 || calibrationResult.stats.rescuedRegulated > 0 || calibrationResult.stats.singleStrongAwareness > 0) {
-    console.log(`[AgentGuard] Calibration: driving=${calibrationResult.stats.drivingCount} suppressed=${calibrationResult.stats.suppressedCount} promoted=${calibrationResult.stats.promotedByCount + calibrationResult.stats.promotedByProximity}${calibrationResult.stats.rescuedRegulated > 0 ? ` rescued=${calibrationResult.stats.rescuedRegulated}` : ''}${calibrationResult.stats.singleStrongAwareness > 0 ? ` singleStrong=${calibrationResult.stats.singleStrongAwareness}` : ''}`);
+    console.log(`[Ai Notice] Calibration: driving=${calibrationResult.stats.drivingCount} suppressed=${calibrationResult.stats.suppressedCount} promoted=${calibrationResult.stats.promotedByCount + calibrationResult.stats.promotedByProximity}${calibrationResult.stats.rescuedRegulated > 0 ? ` rescued=${calibrationResult.stats.rescuedRegulated}` : ''}${calibrationResult.stats.singleStrongAwareness > 0 ? ` singleStrong=${calibrationResult.stats.singleStrongAwareness}` : ''}`);
   }
 
   // === HUMAN HEURISTIC ANCHORS (AG-PROMPT-039) ===
@@ -1130,7 +1132,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log heuristic stats (counters only, no content - ADR-002)
   if (heuristicResult.stats.suppressedCount > 0 || heuristicResult.stats.promotedCount > 0) {
-    console.log(`[AgentGuard] Heuristics: driving=${heuristicResult.stats.outputCount} suppressed=${heuristicResult.stats.suppressedCount} zone=${heuristicResult.stats.zoneSuppressed} finality=${heuristicResult.stats.finalitySuppressed}`);
+    console.log(`[Ai Notice] Heuristics: driving=${heuristicResult.stats.outputCount} suppressed=${heuristicResult.stats.suppressedCount} zone=${heuristicResult.stats.zoneSuppressed} finality=${heuristicResult.stats.finalitySuppressed}`);
   }
 
   // === DOCUMENT CLASS ANCHORS (AG-PROMPT-041) ===
@@ -1148,9 +1150,9 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log document class detection (counters only, no content - ADR-002)
   // AG-PROMPT-077: Enhanced logging for medical escalation diagnosis
-  console.log(`[AgentGuard] DocumentClass: ${documentClassResult.classification.documentClass || 'none'} hasPatientContext=${documentClassResult.hasPatientContext} baseline=${documentClassResult.classification.baselineSeverity || 'none'}`);
+  console.log(`[Ai Notice] DocumentClass: ${documentClassResult.classification.documentClass || 'none'} hasPatientContext=${documentClassResult.hasPatientContext} baseline=${documentClassResult.classification.baselineSeverity || 'none'}`);
   if (documentClassResult.stats.classDetected) {
-    console.log(`[AgentGuard] DocumentClass indicators: ${documentClassResult.classification.indicators.length} noiseSuppressed=${documentClassResult.stats.noiseSuppressed}`);
+    console.log(`[Ai Notice] DocumentClass indicators: ${documentClassResult.classification.indicators.length} noiseSuppressed=${documentClassResult.stats.noiseSuppressed}`);
   }
 
   // AG-PHASE-5E-058: Determine effective document class, using degraded fallback when needed
@@ -1158,7 +1160,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
   let effectiveDocumentClass = documentClassResult.classification.documentClass;
   if (!effectiveDocumentClass && degradedFallbackResult?.applied && degradedFallbackResult.documentClass) {
     effectiveDocumentClass = degradedFallbackResult.documentClass;
-    console.log(`[AgentGuard] Using degraded fallback documentClass: ${effectiveDocumentClass}`);
+    console.log(`[Ai Notice] Using degraded fallback documentClass: ${effectiveDocumentClass}`);
   }
 
   // AG-PROMPT-044: Boundary counter [C] - after dedup/filtering
@@ -1186,7 +1188,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log authoritative decision (counters only, no content - ADR-002)
   if (authoritativeDecision.baselineApplied) {
-    console.log(`[AgentGuard] AuthoritativeDecision: ${authoritativeDecision.reason} (rule=${authoritativeDecision.ruleId})`);
+    console.log(`[Ai Notice] AuthoritativeDecision: ${authoritativeDecision.reason} (rule=${authoritativeDecision.ruleId})`);
   }
 
   // Derive overallRisk FROM authoritative decision (single source of truth)
@@ -1216,7 +1218,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
       totalSignals: classifiedSignals.length,
     }
   );
-  console.log(`[AgentGuard] Explanations built: ${Object.keys(explanations.perSignal).length} signals (${calibrationResult.stats.suppressedCount} suppressed)`);
+  console.log(`[Ai Notice] Explanations built: ${Object.keys(explanations.perSignal).length} signals (${calibrationResult.stats.suppressedCount} suppressed)`);
   const destination = deriveDestination(getEffectiveHostname());
   // AG-PROMPT-086: Derive ontologyDriven from classification indicators
   // Clinical ontology anchors (COA-*) indicate ontology-driven classification
@@ -1264,7 +1266,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log consistency enforcement (counters only, no content - ADR-002)
   if (consistencyResult.hadContradictions) {
-    console.log(`[AgentGuard] Consistency: fixed ${consistencyResult.stats.downgraded} contradictions`);
+    console.log(`[Ai Notice] Consistency: fixed ${consistencyResult.stats.downgraded} contradictions`);
   }
 
   // === VISIBLE SIGNALS (AG-PROMPT-043) ===
@@ -1305,7 +1307,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log medical escalation (counters only, no content - ADR-002)
   if (medicalEscalationResult.escalated) {
-    console.log(`[AgentGuard] MedicalEscalation: ${medicalEscalationResult.reason} (rule=${medicalEscalationResult.ruleId})`);
+    console.log(`[Ai Notice] MedicalEscalation: ${medicalEscalationResult.reason} (rule=${medicalEscalationResult.ruleId})`);
   }
 
   // === AG-PROMPT-080: SEVERITY FLOOR ENFORCEMENT ===
@@ -1326,7 +1328,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
       ...decisionExplanation,
       severity: severityFloorResult.severity,
     };
-    console.log(`[AgentGuard] SeverityFloor: ${severityFloorResult.reason} (rule=${severityFloorResult.ruleId})`);
+    console.log(`[Ai Notice] SeverityFloor: ${severityFloorResult.reason} (rule=${severityFloorResult.ruleId})`);
   }
 
   // === AG-PROMPT-162-2A: AGGREGATE HR/FINANCE SEVERITY CAP ===
@@ -1352,7 +1354,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
           ...floorEnforcedExplanation,
           severity: effects.severityCap,
         };
-        console.log(`[AgentGuard] AggregateHRCap: severity capped from ${floorEnforcedExplanation.severity} to ${effects.severityCap} (archetype=${aggregateCapMatch.archetypeId}, markerCount=${aggregateCapMatch.matchedMarkers.length})`);
+        console.log(`[Ai Notice] AggregateHRCap: severity capped from ${floorEnforcedExplanation.severity} to ${effects.severityCap} (archetype=${aggregateCapMatch.archetypeId}, markerCount=${aggregateCapMatch.matchedMarkers.length})`);
       }
     }
   }
@@ -1382,7 +1384,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
   });
 
   if (severityCapsResult.anyCapped) {
-    console.log(`[AgentGuard] SeverityCaps: ${severityCapsResult.capsApplied.length} signal(s) capped (confidence=${surfaceConfidenceResult.confidence})`);
+    console.log(`[Ai Notice] SeverityCaps: ${severityCapsResult.capsApplied.length} signal(s) capped (confidence=${surfaceConfidenceResult.confidence})`);
   }
 
   // === REGULATED VISIBILITY GUARDRAIL (AG-PROMPT-071, AG-PROMPT-074) ===
@@ -1417,7 +1419,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
 
   // Log visibility guardrail (counters only, no content - ADR-002)
   if (visibilityGuardrailResult.enforced) {
-    console.log(`[AgentGuard] VisibilityGuardrail: ${visibilityGuardrailResult.reason} (rule=${visibilityGuardrailResult.ruleId})`);
+    console.log(`[Ai Notice] VisibilityGuardrail: ${visibilityGuardrailResult.reason} (rule=${visibilityGuardrailResult.ruleId})`);
   }
 
   // === AG-PROMPT-164/WS-01: EXPLANATION INTEGRITY ===
@@ -1456,7 +1458,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
         source: degradedFallbackResult.source!,
       } : undefined,
     });
-    console.log(`[AgentGuard] ExplanationIntegrity: regenerated for final severity=${finalDecisionExplanation.severity} (was ${aggregatedResult.severity})`);
+    console.log(`[Ai Notice] ExplanationIntegrity: regenerated for final severity=${finalDecisionExplanation.severity} (was ${aggregatedResult.severity})`);
   }
 
   // SEC-05: Explicit bodyText nulling — narrow memory window for extracted content.
@@ -1517,7 +1519,7 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
     reasonCodes: finalDecisionExplanation.reasonCodes || [],
   });
 
-  console.log(`[AgentGuard] DecisionExplanation: action=${finalDecisionExplanation.action} severity=${finalDecisionExplanation.severity} uiEscalation=${finalDecisionExplanation.uiEscalation} visibility=${finalDecisionExplanation.awarenessVisibility}`);
+  console.log(`[Ai Notice] DecisionExplanation: action=${finalDecisionExplanation.action} severity=${finalDecisionExplanation.severity} uiEscalation=${finalDecisionExplanation.uiEscalation} visibility=${finalDecisionExplanation.awarenessVisibility}`);
 
   // AG-PROMPT-044: Boundary counter [D] - what UI receives
   if (isDebugMode()) {
@@ -1541,9 +1543,9 @@ async function assessFileRisk(file: File): Promise<FileRiskAssessment> {
   // AG-PROMPT-043: Performance logging (local-only)
   const totalMs = performance.now() - perfStart;
   if (totalMs > PERF_BUDGET.TOTAL_WARNING_MS) {
-    console.warn(`[AgentGuard] Perf warning: assessment took ${totalMs.toFixed(0)}ms (extract=${extractionMs.toFixed(0)}ms, detect=${detectionMs.toFixed(0)}ms)`);
+    console.warn(`[Ai Notice] Perf warning: assessment took ${totalMs.toFixed(0)}ms (extract=${extractionMs.toFixed(0)}ms, detect=${detectionMs.toFixed(0)}ms)`);
   } else {
-    console.log(`[AgentGuard] Perf: ${totalMs.toFixed(0)}ms total (extract=${extractionMs.toFixed(0)}ms, detect=${detectionMs.toFixed(0)}ms)`);
+    console.log(`[Ai Notice] Perf: ${totalMs.toFixed(0)}ms total (extract=${extractionMs.toFixed(0)}ms, detect=${detectionMs.toFixed(0)}ms)`);
   }
 
   // AG-PROMPT-070/071: Use final severity from medical escalation or visibility guardrail (if elevated)
@@ -1671,7 +1673,12 @@ function ensureFrameCompleteForUI(explanation: DecisionExplanation | undefined):
       frameId: 'FRAME_GENERAL_SENSITIVE',
       createdAt: Date.now(),
     };
-    console.warn('[AgentGuard] AG-PROMPT-093: No DecisionExplanation - applied FRAME_GENERAL_SENSITIVE default');
+    // AG-PROMPT-344: neutral, brand-safe diagnostic. console.debug is stripped
+    // from production bundles by terser (pure_funcs), so nothing ships; visible
+    // only in dev. Reaching this fallback is EXPECTED for synthetic assessments
+    // (e.g. clipboard paste, which carries no decisionExplanation) — the real
+    // governance gate remains assertFrameComplete() below.
+    console.debug('[Ai Notice] applied default content frame (no explanation present)');
     assertFrameComplete(fallback);
     return fallback;
   }
@@ -1691,7 +1698,8 @@ function ensureFrameCompleteForUI(explanation: DecisionExplanation | undefined):
       summary: explanation.summary || defaultFrame.summary,
       guidance: explanation.guidance || defaultFrame.guidance,
     };
-    console.warn('[AgentGuard] AG-PROMPT-093: Incomplete frame data - applied FRAME_GENERAL_SENSITIVE defaults');
+    // AG-PROMPT-344: neutral, brand-safe diagnostic (console.debug stripped in prod).
+    console.debug('[Ai Notice] completed partial frame with default content frame');
     assertFrameComplete(repaired);
     return repaired;
   }
@@ -1773,13 +1781,13 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
           ? buildMetadataSection(a.metadata)
           : null;
         const children: (HTMLElement | string | null)[] = [
-          el('div', { className: 'agentguard-file-name' }, [a.filename]),
-          el('div', { className: 'agentguard-file-meta' }, [
+          el('div', { className: 'ainotice-file-name' }, [a.filename]),
+          el('div', { className: 'ainotice-file-meta' }, [
             `${formatFileSize(a.size)} \u2022 ${a.type || 'Unknown type'}`,
           ]),
           metaEl,
         ];
-        return el('div', { className: 'agentguard-file-card' }, children.filter(Boolean) as (HTMLElement | string)[]);
+        return el('div', { className: 'ainotice-file-card' }, children.filter(Boolean) as (HTMLElement | string)[]);
       })) as HTMLDivElement
     : null;
 
@@ -1823,7 +1831,7 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
       // modal is currently present and actually visible. If a hostile page removed or hid
       // it, route proceed to cancel — do not silently proceed as if the user was warned.
       if (!isWarningActuallyVisible()) {
-        if (isDebugMode()) console.warn('[AgentGuard:SEC-MODAL] proceed blocked — warning not verifiably visible; failing safe to cancel');
+        if (isDebugMode()) console.warn('[Ai Notice:SEC-MODAL] proceed blocked — warning not verifiably visible; failing safe to cancel');
         removeFocusTrap(); hideRiskModal(); onCancel(); showPostDecisionToast('cancel', triggerSource);
         return;
       }
@@ -1847,7 +1855,7 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
   // removable/pre-clobberable head <style>. Containment styles are inline-!important on the
   // host so host-page CSS cannot hide the warning.
   const host = document.createElement('div');
-  host.id = 'agentguard-shadow-host';
+  host.id = 'ainotice-shadow-host';
   host.setAttribute('style', MODAL_HOST_CONTAINMENT_STYLE);
   const shadow = host.attachShadow({ mode: 'open' });
   shadow.appendChild(buildModalStyleEl());
@@ -1869,7 +1877,7 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
     if (hitProceed) {
       e.stopImmediatePropagation();
       e.preventDefault();
-      if (isDebugMode()) console.warn('[AgentGuard:SEC-MODAL] blocked untrusted (synthetic) proceed click');
+      if (isDebugMode()) console.warn('[Ai Notice:SEC-MODAL] blocked untrusted (synthetic) proceed click');
     }
   }, true);
 
@@ -1907,7 +1915,7 @@ function showRiskModal(assessments: FileRiskAssessment[], onProceed: () => void,
   if (initialFocus) initialFocus.focus();
 
   // AG-PROMPT-168/WS-01: Re-query focusable elements after accordion expand/collapse
-  overlay.addEventListener('agentguard:accordion-toggle', () => {
+  overlay.addEventListener('ainotice:accordion-toggle', () => {
     // getFocusableEls() already re-queries the DOM each call — this
     // listener exists to ensure the focus trap handler always gets a
     // fresh list on the next Tab press. No additional action needed
@@ -1920,8 +1928,8 @@ function hideRiskModal(): void {
   stopModalSelfHeal();
   modalHostElement?.remove();
   // Fallbacks: host by id, and legacy light-DOM overlay id (pre-AG-292 callers / safety).
-  document.getElementById('agentguard-shadow-host')?.remove();
-  document.getElementById('agentguard-modal-overlay')?.remove();
+  document.getElementById('ainotice-shadow-host')?.remove();
+  document.getElementById('ainotice-modal-overlay')?.remove();
   modalHostElement = null;
   modalShadowRoot = null;
   modalFailSafeCancel = null;
@@ -1940,7 +1948,7 @@ function isWarningActuallyVisible(): boolean {
   if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') < 0.1) {
     return false;
   }
-  const overlay = (modalShadowRoot?.querySelector('.agentguard-overlay') as HTMLElement | null) ?? host;
+  const overlay = (modalShadowRoot?.querySelector('.ainotice-overlay') as HTMLElement | null) ?? host;
   const rect = overlay.getBoundingClientRect();
   return rect.width > 40 && rect.height > 40;
 }
@@ -2017,7 +2025,7 @@ function shouldShowInlineBanner(assessments: FileRiskAssessment[]): boolean {
  * Hide awareness banner if visible.
  */
 function hideAwarenessBanner(): void {
-  document.getElementById('agentguard-awareness-banner')?.remove();
+  document.getElementById('ainotice-awareness-banner')?.remove();
   bannerElement = null;
 }
 
@@ -2100,7 +2108,7 @@ function showAwarenessBanner(
   document.body.appendChild(banner);
   bannerElement = banner;
 
-  console.log(`[AgentGuard] Showing awareness banner (${totalSignals} signal${totalSignals !== 1 ? 's' : ''}, uiEscalation=inline)`);
+  console.log(`[Ai Notice] Showing awareness banner (${totalSignals} signal${totalSignals !== 1 ? 's' : ''}, uiEscalation=inline)`);
 }
 
 // ============================================================================
@@ -2150,7 +2158,7 @@ function showAwarenessNotice(
   // Use frame-validated copy (fallbacks removed - AG-PROMPT-093)
   const headline = firstExplanation.headline;
   const summary = firstExplanation.summary;
-  const iconClass = isLowRisk ? 'agentguard-notice-icon-low' : '';
+  const iconClass = isLowRisk ? 'ainotice-notice-icon-low' : '';
 
   let dismissed = false;
   let autoDismissTimer: ReturnType<typeof setTimeout> | null = null;
@@ -2188,7 +2196,7 @@ function showAwarenessNotice(
   });
 
   // Click the notice card to dismiss (but not action buttons)
-  const noticeCard = notice.querySelector('.agentguard-notice');
+  const noticeCard = notice.querySelector('.ainotice-notice');
   if (noticeCard) {
     noticeCard.addEventListener('click', (e) => {
       const action = (e.target as HTMLElement).dataset?.action;
@@ -2206,11 +2214,11 @@ function showAwarenessNotice(
     dismiss();
   }, autoDismissMs);
 
-  console.log(`[AgentGuard] Showing awareness notice (${isLowRisk ? 'low-risk' : 'no-risk'}, auto-dismiss in ${autoDismissMs}ms)`);
+  console.log(`[Ai Notice] Showing awareness notice (${isLowRisk ? 'low-risk' : 'no-risk'}, auto-dismiss in ${autoDismissMs}ms)`);
 }
 
 function hideAwarenessNotice(): void {
-  document.getElementById('agentguard-notice-overlay')?.remove();
+  document.getElementById('ainotice-notice-overlay')?.remove();
 }
 
 /**
@@ -2344,10 +2352,10 @@ function showLoadingModal(): void {
  *  - Text matching is English-only; non-English host UIs may need future patterns.
  */
 function isAgentGuardElement(el: HTMLElement): boolean {
-  return el.classList.contains('agentguard-overlay') ||
-    el.classList.contains('agentguard-drag-overlay') ||
-    el.id === 'agentguard-modal-overlay' ||
-    el.id === 'agentguard-shadow-host'; // AG-292: warning-modal containment host
+  return el.classList.contains('ainotice-overlay') ||
+    el.classList.contains('ainotice-drag-overlay') ||
+    el.id === 'ainotice-modal-overlay' ||
+    el.id === 'ainotice-shadow-host'; // AG-292: warning-modal containment host
 }
 
 function isLikelyDragOverlay(el: HTMLElement): boolean {
@@ -2436,13 +2444,13 @@ function injectFilesViaInput(files: File[], preferredInput?: HTMLInputElement | 
   }
 
   if (!fileInput) {
-    console.warn('[AgentGuard] No file input found for injection');
+    console.warn('[Ai Notice] No file input found for injection');
     return false;
   }
 
   // AG-PROMPT-101: Final check - ensure input is still in DOM at injection time
   if (!isElementInDocument(fileInput)) {
-    console.warn('[AgentGuard] File input detached from DOM before injection');
+    console.warn('[Ai Notice] File input detached from DOM before injection');
     return false;
   }
 
@@ -2468,7 +2476,7 @@ function injectFilesViaInput(files: File[], preferredInput?: HTMLInputElement | 
 
     return true;
   } catch (e) {
-    console.error('[AgentGuard] Injection failed:', e);
+    console.error('[Ai Notice] Injection failed:', e);
     return false;
   }
 }
@@ -2501,13 +2509,39 @@ function handleDragLeave(): void {
 }
 
 async function handleDrop(event: DragEvent): Promise<void> {
-  // Guard: prevent double-triggering across frames
-  if (event.defaultPrevented) return;
+  // AG-PROMPT-343: Target-activation gate. This listener is now registered
+  // SYNCHRONOUSLY at module scope (document_start) so it fires before page
+  // handlers — mirroring the PASTE-RC6 paste fix. Because it runs before the
+  // activation gate resolves, we must gate per-frame here so nothing is
+  // inspected/read on non-target (non-AI) pages. Same gate as handlePaste.
+  if (deriveDestination(getEffectiveHostname()) === 'unknown') return;
+
+  // AG-PROMPT-343: Do NOT bail on event.defaultPrevented.
+  // Prior code returned early when the drop had already been preventDefault()'d.
+  // On surfaces like Copilot that ACCEPT the drop themselves (their own overlay
+  // highlights and the file is placed), the drop is already defaultPrevented by
+  // the time inner handlers run — and bailing here meant Ai Notice never warned
+  // (the confirmed AG-342 DROP_EVENT_GAP). We are registered first (capture,
+  // document_start), so firing regardless is correct; double-processing is
+  // prevented by isProcessingUpload below. (Same rationale as PASTE-RC6, which
+  // also dropped its defaultPrevented guard.)
+
+  // Privacy-safe observability (metadata only; NO file content). Lets a tester
+  // verify the handler fires on Copilot. Mirrors the handlePaste log. Optional
+  // chaining cannot throw, so no try/catch is needed (and none must precede the
+  // main try block — see upload-handler ordering invariants).
+  console.log('[Ai Notice] handleDrop fired',
+    `defaultPrevented=${event.defaultPrevented}`,
+    `files=${event.dataTransfer?.files?.length ?? 0}`,
+    `items=${event.dataTransfer?.items?.length ?? 0}`,
+  );
 
   dragEnterCount = 0;
   hideDragOverlay();
 
-  const files = Array.from(event.dataTransfer?.files || []);
+  // AG-PROMPT-343: read BOTH DataTransfer.files and items (kind==='file').
+  // Fail-open: extractDropFiles never throws.
+  const files = extractDropFiles(event.dataTransfer);
   if (files.length === 0) return;
 
   // Prevent default browser behavior (open file) and stop propagation to other frames
@@ -2532,7 +2566,7 @@ async function handleDrop(event: DragEvent): Promise<void> {
       forceHideHostDragOverlay();
     });
   } catch (e) {
-    console.error('[AgentGuard] Error:', e);
+    console.error('[Ai Notice] Error:', e);
     hideRiskModal();
     hideAwarenessBanner();
     forceHideHostDragOverlay();
@@ -2563,7 +2597,7 @@ async function handleFileInputChange(event: Event): Promise<void> {
       setTimeout(() => { isProcessingUpload = false; }, 100);
     }, () => { isProcessingUpload = false; });
   } catch (e) {
-    console.error('[AgentGuard] Error:', e);
+    console.error('[Ai Notice] Error:', e);
     hideRiskModal();
     hideAwarenessBanner();
     isProcessingUpload = false;
@@ -2771,7 +2805,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
 
   // PASTE-RC6: Privacy-safe paste observability (no content logged).
   // Logs only event metadata so a tester can verify the handler fires.
-  console.log('[AgentGuard] handlePaste fired',
+  console.log('[Ai Notice] handlePaste fired',
     `defaultPrevented=${event.defaultPrevented}`,
     `clipboardData=${!!event.clipboardData}`,
     `items=${event.clipboardData?.items?.length ?? 'null'}`,
@@ -2795,7 +2829,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   // which exits early if items is null — but getData() can still work even when
   // items is null (observed in Firefox MV2 for certain paste contexts).
   if (!event.clipboardData) {
-    console.log('[AgentGuard] paste-early-exit: no-clipboardData');
+    console.log('[Ai Notice] paste-early-exit: no-clipboardData');
     return;
   }
   const cd = event.clipboardData;
@@ -2847,7 +2881,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   // No content logged — only whether getData succeeded and types present.
   const getDataResult = rawText.length > 0 ? 'ok' : 'empty';
   const hasTextItem = asyncTextItem !== null;
-  console.log('[AgentGuard] paste-extract',
+  console.log('[Ai Notice] paste-extract',
     `getDataResult=${getDataResult}`,
     `hasTextItem=${hasTextItem}`,
     `files=${files.length}`,
@@ -2862,7 +2896,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
     const destinationType = deriveDestination(getEffectiveHostname());
     // PASTE-RC6/RC7: Privacy-safe decision trace (no content logged — length bucket only)
     const textLenBucket = rawText.length === 0 ? '0' : rawText.length < 20 ? '<20' : rawText.length < 100 ? '20-99' : '100+';
-    console.log('[AgentGuard] paste-text-path',
+    console.log('[Ai Notice] paste-text-path',
       `dest=${destinationType}`,
       `host=${getEffectiveHostname()}`,
       `textLen=${textLenBucket}`,
@@ -2882,10 +2916,10 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
       event.preventDefault();
       event.stopPropagation();
       isProcessingUpload = true;
-      console.log('[AgentGuard] paste-async-fallback-start');
+      console.log('[Ai Notice] paste-async-fallback-start');
       asyncTextItem.getAsString((asyncText: string) => {
         const asyncLenBucket = asyncText.length === 0 ? '0' : asyncText.length < 20 ? '<20' : asyncText.length < 100 ? '20-99' : '100+';
-        console.log('[AgentGuard] paste-async-result', `textLen=${asyncLenBucket}`);
+        console.log('[Ai Notice] paste-async-result', `textLen=${asyncLenBucket}`);
         if (asyncText.length === 0) {
           // Empty clipboard: nothing to assess or re-insert.
           isProcessingUpload = false;
@@ -2896,7 +2930,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
         // length — this correctly handles short structured identifiers (e.g. CPR).
         try {
           const assessment = assessRawTextRisk(asyncText);
-          console.log('[AgentGuard] paste-assessment',
+          console.log('[Ai Notice] paste-assessment',
             `risk=${assessment.overallRisk}`,
             `signals=${assessment.signals.length}`,
           );
@@ -2911,7 +2945,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
           }
         } catch (e) {
           // Fail-open: assessment error must not block the paste.
-          console.warn('[AgentGuard] async paste assessment failed, re-inserting:', e);
+          console.warn('[Ai Notice] async paste assessment failed, re-inserting:', e);
           insertRawText(asyncText, pasteTarget);
           isProcessingUpload = false;
         }
@@ -2941,7 +2975,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
         // browser handles the insertion and we do nothing.
         try {
           const assessment = assessRawTextRisk(rawText);
-          console.log('[AgentGuard] paste-short-assessment',
+          console.log('[Ai Notice] paste-short-assessment',
             `risk=${assessment.overallRisk}`,
             `signals=${assessment.signals.length}`,
             `textLen=${rawText.length}`,
@@ -2967,7 +3001,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
         isProcessingUpload = true;
         try {
           const assessment = assessRawTextRisk(rawText);
-          console.log('[AgentGuard] paste-assessment',
+          console.log('[Ai Notice] paste-assessment',
             `risk=${assessment.overallRisk}`,
             `signals=${assessment.signals.length}`,
           );
@@ -2983,7 +3017,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
           }
         } catch (e) {
           // CLIP-RT-03: Fail-open — any error allows the paste to proceed unblocked.
-          console.warn('[AgentGuard] Raw clipboard text assessment failed, allowing paste:', e);
+          console.warn('[Ai Notice] Raw clipboard text assessment failed, allowing paste:', e);
           insertRawText(rawText, pasteTarget);
           isProcessingUpload = false;
         }
@@ -3016,7 +3050,7 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
       setTimeout(() => { isProcessingUpload = false; }, 100);
     }, () => { isProcessingUpload = false; });
   } catch (e) {
-    console.error('[AgentGuard] Error:', e);
+    console.error('[Ai Notice] Error:', e);
     hideRiskModal();
     hideAwarenessBanner();
     isProcessingUpload = false;
@@ -3060,7 +3094,7 @@ function init(): void {
   // Frame detection logging (no content - ADR-017)
   const isTop = isTopFrame();
   const effectiveHost = getEffectiveHostname();
-  console.log(`[AgentGuard] Init frame: top=${isTop} host=${effectiveHost}`);
+  console.log(`[Ai Notice] Init frame: top=${isTop} host=${effectiveHost}`);
 
   createStyles();
   
@@ -3070,7 +3104,12 @@ function init(): void {
   document.addEventListener('dragenter', handleDragEnter, { capture: true });
   document.addEventListener('dragover', handleDragOver, { capture: true });
   document.addEventListener('dragleave', handleDragLeave, { capture: true });
-  document.addEventListener('drop', handleDrop, { capture: true });
+  // NOTE (AG-PROMPT-343): the 'drop' listener is registered SYNCHRONOUSLY at
+  // module scope (document_start), NOT here — same as the paste listener. The
+  // overlay-only drag listeners (enter/over/leave) stay here because they are
+  // cosmetic and only run on already-activated target pages. The 'drop'
+  // listener carries its own target-activation gate (handleDrop) so early
+  // registration is safe on non-target pages.
   // NOTE: paste listener is registered SYNCHRONOUSLY at module scope (PASTE-RC6),
   // not here. This ensures it fires before any page-registered handler.
   // PASTE-FALLBACK-01: Pre-send awareness scan (Enter key intercept)
@@ -3104,7 +3143,7 @@ function init(): void {
   let shadowRootObserverCount = 0;
 
   function observeOpenShadowRoot(host: HTMLElement): void {
-    if (host.id === 'agentguard-shadow-host') return; // AG-292: never observe our own modal shadow
+    if (host.id === 'ainotice-shadow-host') return; // AG-292: never observe our own modal shadow
     const root = host.shadowRoot; // null if closed or absent
     if (!root) return;
     if (observedShadowRoots.has(root)) return; // dedup
@@ -3194,7 +3233,7 @@ function getLicenseNoticeHtml(): string {
   // Both expired and invalid show Courtesy Mode message
   // AG-PROMPT-SURFACE-AND-LICENSE-003: Prefer "administrator" over "license holder"
   return `
-    <div class="agentguard-license-status">
+    <div class="ainotice-license-status">
       Ai Notice is operating in Courtesy Mode.
       The license could not be verified. Please contact your administrator.
     </div>
@@ -3223,14 +3262,14 @@ async function gatedInit(): Promise<void> {
     // NOT a target page - exit immediately
     // No DOM access, no event listeners, no content analysis
     if (isDebugMode()) {
-      console.log(`[AgentGuard] Inactive on ${hostname}: ${gateResult.reason}`);
+      console.log(`[Ai Notice] Inactive on ${hostname}: ${gateResult.reason}`);
     }
     return;
   }
 
   // Target page - proceed with full initialization
   if (isDebugMode()) {
-    console.log(`[AgentGuard] Activating on ${hostname}: ${gateResult.reason}`,
+    console.log(`[Ai Notice] Activating on ${hostname}: ${gateResult.reason}`,
       gateResult.matchedTarget ? `(target: ${gateResult.matchedTarget})` : '');
   }
 
@@ -3264,6 +3303,19 @@ async function gatedInit(): Promise<void> {
 // is read, scanned, interrupted, or logged on non-target pages.
 window.addEventListener('paste', handlePaste as unknown as EventListener, { capture: true });
 
+// AG-PROMPT-343: Register the 'drop' listener SYNCHRONOUSLY at document_start on
+// window (capture), BEFORE any async work — for the SAME reason as paste above.
+// Prior bug (AG-342 confirmed DROP_EVENT_GAP on copilot.microsoft.com): the drop
+// listener was registered inside init(), which runs only AFTER two awaits
+// (checkActivationGate + fetchAndCacheLicenseState). On a fast SPA like Copilot,
+// the page's own drop handler was already registered and consumed the accepted
+// drop before our late, document-level listener saw it — so Ai Notice never
+// warned for drag-drop (while paste and the '+' picker, which fire earlier,
+// worked). Registering early on window/capture guarantees we see the drop first.
+// handleDrop has its own target-activation gate, so this does NOT enable
+// interception on non-target pages.
+window.addEventListener('drop', handleDrop as unknown as EventListener, { capture: true });
+
 // Start the gated initialization
 // This is an async IIFE that catches errors silently on non-target pages
 (async () => {
@@ -3272,7 +3324,7 @@ window.addEventListener('paste', handlePaste as unknown as EventListener, { capt
   } catch (error) {
     // Only log errors in debug mode and on target pages
     if (isDebugMode() && isBuiltinTarget(window.location.hostname)) {
-      console.error('[AgentGuard] Initialization error:', error);
+      console.error('[Ai Notice] Initialization error:', error);
     }
   }
 })();

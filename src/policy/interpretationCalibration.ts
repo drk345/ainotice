@@ -820,7 +820,7 @@ export function calibrateInterpretation(
 
       if (DEBUG_CALIBRATION) {
         console.log(
-          `[AgentGuard][Calibration] Regulated rescue: promoted ${toRescue.signal.id} (${toRescue.signal.severity}) to driving`
+          `[Ai Notice][Calibration] Regulated rescue: promoted ${toRescue.signal.id} (${toRescue.signal.severity}) to driving`
         );
       }
     }
@@ -865,7 +865,7 @@ export function calibrateInterpretation(
 
       if (DEBUG_CALIBRATION) {
         console.log(
-          `[AgentGuard][Calibration] Single strong awareness: promoted ${singleSignal.signal.id} (${singleSignal.signal.severity}) to driving`
+          `[Ai Notice][Calibration] Single strong awareness: promoted ${singleSignal.signal.id} (${singleSignal.signal.severity}) to driving`
         );
       }
     }
@@ -923,7 +923,7 @@ export function calibrateInterpretation(
 
       if (DEBUG_CALIBRATION) {
         console.log(
-          `[AgentGuard][Calibration] AG-PROMPT-075 final guardrail: rescued ${toRescue.signal.id ?? toRescue.signal.type} (${toRescue.signal.severity}) to driving`
+          `[Ai Notice][Calibration] AG-PROMPT-075 final guardrail: rescued ${toRescue.signal.id ?? toRescue.signal.type} (${toRescue.signal.severity}) to driving`
         );
       }
     }
@@ -934,21 +934,21 @@ export function calibrateInterpretation(
 
   // Debug logging
   if (DEBUG_CALIBRATION) {
-    console.log(`[AgentGuard][Calibration] locale=${locale} total=${stats.totalSignals} driving=${stats.drivingCount} suppressed=${stats.suppressedCount}`);
+    console.log(`[Ai Notice][Calibration] locale=${locale} total=${stats.totalSignals} driving=${stats.drivingCount} suppressed=${stats.suppressedCount}`);
     if (stats.promotedByProximity > 0) {
-      console.log(`[AgentGuard][Calibration] Promoted by proximity: ${stats.promotedByProximity}`);
+      console.log(`[Ai Notice][Calibration] Promoted by proximity: ${stats.promotedByProximity}`);
     }
     if (stats.promotedByCount > 0) {
-      console.log(`[AgentGuard][Calibration] Promoted by count: ${stats.promotedByCount}`);
+      console.log(`[Ai Notice][Calibration] Promoted by count: ${stats.promotedByCount}`);
     }
     if (stats.suppressedAsBoilerplate > 0) {
-      console.log(`[AgentGuard][Calibration] Suppressed as boilerplate: ${stats.suppressedAsBoilerplate}`);
+      console.log(`[Ai Notice][Calibration] Suppressed as boilerplate: ${stats.suppressedAsBoilerplate}`);
     }
     if (stats.rescuedRegulated > 0) {
-      console.log(`[AgentGuard][Calibration] Rescued regulated: ${stats.rescuedRegulated}`);
+      console.log(`[Ai Notice][Calibration] Rescued regulated: ${stats.rescuedRegulated}`);
     }
     if (stats.singleStrongAwareness > 0) {
-      console.log(`[AgentGuard][Calibration] Single strong awareness: ${stats.singleStrongAwareness}`);
+      console.log(`[Ai Notice][Calibration] Single strong awareness: ${stats.singleStrongAwareness}`);
     }
   }
 

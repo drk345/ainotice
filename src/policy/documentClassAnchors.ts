@@ -2134,10 +2134,10 @@ export function applyDocumentClassAnchors(input: DocumentClassInput): DocumentCl
 
       if (templatePrefilterSuppressed.length > 0) {
         const ruleId = genericKeywordVetoMatch.archetypeId === 'policy_standard'
-          ? 'AG-PROMPT-162-POLICY-STANDARD-GENERIC-VETO'
+          ? 'POLICY-STANDARD-GENERIC-VETO'
           : genericKeywordVetoMatch.archetypeId === 'aggregate_hr_finance'
-          ? 'AG-PROMPT-162-AGGREGATE-HR-FINANCE-GENERIC-VETO'
-          : 'AG-PROMPT-155-TEMPLATE-GENERIC-VETO';
+          ? 'AGGREGATE-HR-FINANCE-GENERIC-VETO'
+          : 'TEMPLATE-GENERIC-VETO';
         auditLog.push({
           ruleId,
           action: 'noise_suppressed',
@@ -2171,7 +2171,7 @@ export function applyDocumentClassAnchors(input: DocumentClassInput): DocumentCl
       classification.baselineSeverity = null;
       classification.reason = `Class ${suppressedClass} suppressed by archetype ${classVetoMatch.archetypeId} (${classVetoMatch.matchedMarkers.slice(0, 3).join(', ')})`;
       auditLog.push({
-        ruleId: 'AG-PROMPT-187-ARCHETYPE-CLASS-VETO',
+        ruleId: 'ARCHETYPE-CLASS-VETO',
         action: 'class_suppressed',
         details: `Suppressed ${suppressedClass} — archetype ${classVetoMatch.archetypeId} (confidence: ${classVetoMatch.confidence}, markers: ${classVetoMatch.markerCount})`,
         affectedSignalIds: [suppressedClass],

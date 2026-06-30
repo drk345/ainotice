@@ -167,14 +167,14 @@ interface PdfBodyExtractionResult {
 async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> {
   // Check size limit
   if (file.size > BODY_SCAN_MAX_SIZE) {
-    console.log(`[AgentGuard] PDF body scan skipped: file too large (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+    console.log(`[Ai Notice] PDF body scan skipped: file too large (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
     return { text: '', quality: 'empty' };
   }
 
   try {
     // Phase 1: Initial scan (2MB)
     const initialReadBytes = Math.min(file.size, PDF_BODY_SCAN_READ_BYTES);
-    console.log(`[AgentGuard] PDF scan phase 1: reading ${(initialReadBytes / 1024 / 1024).toFixed(2)}MB of ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+    console.log(`[Ai Notice] PDF scan phase 1: reading ${(initialReadBytes / 1024 / 1024).toFixed(2)}MB of ${(file.size / 1024 / 1024).toFixed(2)}MB`);
 
     const initialSlice = file.slice(0, initialReadBytes);
     const initialBuffer = await initialSlice.arrayBuffer();
@@ -187,7 +187,7 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
     // AG-PHASE-5B-055: Use unified extraction core with browser inflate adapter
     const initialResult = extractPdfTextFromBytes(initialBytes, inflateBrowser);
 
-    console.log(`[AgentGuard] PDF scan phase 1: ${initialResult.text.length} chars, quality=${initialResult.quality}`);
+    console.log(`[Ai Notice] PDF scan phase 1: ${initialResult.text.length} chars, quality=${initialResult.quality}`);
 
     // Decide if we need extended scan
     const needsExtendedScan = (
@@ -198,7 +198,7 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
     if (needsExtendedScan) {
       // Phase 2: Extended scan (up to 6MB)
       const extendedReadBytes = Math.min(file.size, PDF_BODY_SCAN_EXTENDED_BYTES);
-      console.log(`[AgentGuard] PDF scan phase 2: extending to ${(extendedReadBytes / 1024 / 1024).toFixed(2)}MB`);
+      console.log(`[Ai Notice] PDF scan phase 2: extending to ${(extendedReadBytes / 1024 / 1024).toFixed(2)}MB`);
 
       const extendedSlice = file.slice(0, extendedReadBytes);
       const extendedBuffer = await extendedSlice.arrayBuffer();
@@ -212,7 +212,7 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
 
       // Use extended result if it's better
       if (extendedResult.text.length > initialResult.text.length) {
-        console.log(`[AgentGuard] PDF scan complete: ${extendedResult.text.length} chars, quality=${extendedResult.quality} (extended)`);
+        console.log(`[Ai Notice] PDF scan complete: ${extendedResult.text.length} chars, quality=${extendedResult.quality} (extended)`);
         // AG-PROMPT-303: partial inspection if not all bytes were read, or output was capped.
         const truncated = file.size > extendedReadBytes || extendedResult.text.length > MAX_BODY_TEXT_LENGTH;
         return {
@@ -224,7 +224,7 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
     }
 
     // Return initial result
-    console.log(`[AgentGuard] PDF scan complete: ${initialResult.text.length} chars, quality=${initialResult.quality}`);
+    console.log(`[Ai Notice] PDF scan complete: ${initialResult.text.length} chars, quality=${initialResult.quality}`);
     // AG-PROMPT-303: partial inspection if not all bytes were read, or output was capped.
     const truncated = file.size > initialReadBytes || initialResult.text.length > MAX_BODY_TEXT_LENGTH;
     return {
@@ -234,7 +234,7 @@ async function extractPdfBodyText(file: File): Promise<PdfBodyExtractionResult> 
     };
 
   } catch (e) {
-    console.warn('[AgentGuard] PDF body extraction error:', e);
+    console.warn('[Ai Notice] PDF body extraction error:', e);
     return { text: '', quality: 'blocked' };
   }
 }
@@ -409,7 +409,7 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
 
         // Step 2: If primary returns empty, try fallback (AG-PROMPT-073)
         if (!bodyText || bodyText.length === 0) {
-          console.log('[AgentGuard] PDF primary extraction empty, trying fallback...');
+          console.log('[Ai Notice] PDF primary extraction empty, trying fallback...');
           fallbackAttempted = true;
 
           const fallbackResult = await extractPdfTextFallback(file);
@@ -419,18 +419,18 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
             bodyText = fallbackResult.text;
             finalMethod = fallbackResult.method;
             reasonCode = PDF_EXTRACTION_REASON_CODES.FALLBACK_SUCCESS;
-            console.log(`[AgentGuard] PDF fallback succeeded: ${fallbackResult.textLength} chars via ${fallbackResult.method}`);
+            console.log(`[Ai Notice] PDF fallback succeeded: ${fallbackResult.textLength} chars via ${fallbackResult.method}`);
           } else {
             // Both extractors failed
             reasonCode = PDF_EXTRACTION_REASON_CODES.EXTRACT_EMPTY;
-            console.log(`[AgentGuard] PDF extraction failed: both primary and fallback returned empty (${fallbackResult.reasonCode})`);
+            console.log(`[Ai Notice] PDF extraction failed: both primary and fallback returned empty (${fallbackResult.reasonCode})`);
           }
         } else {
           finalMethod = 'primary';
           reasonCode = PDF_EXTRACTION_REASON_CODES.PRIMARY_SUCCESS;
         }
       } catch (e) {
-        console.warn('[AgentGuard] PDF body extraction error:', e);
+        console.warn('[Ai Notice] PDF body extraction error:', e);
         reasonCode = PDF_EXTRACTION_REASON_CODES.PRIMARY_ERROR;
         bodyText = '';
 
@@ -499,10 +499,10 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
 
       // Debug logging (counts only, no content - ADR-002)
       if (isDebugMode()) {
-        console.log(`[AgentGuard] PDF extraction status: primary=${primaryTextLength} chars, fallback=${fallbackAttempted ? fallbackTextLength + ' chars' : 'not attempted'}, final=${finalMethod}, quality=${extractionQuality}, reason=${reasonCode}, duration=${totalDurationMs.toFixed(0)}ms`);
+        console.log(`[Ai Notice] PDF extraction status: primary=${primaryTextLength} chars, fallback=${fallbackAttempted ? fallbackTextLength + ' chars' : 'not attempted'}, final=${finalMethod}, quality=${extractionQuality}, reason=${reasonCode}, duration=${totalDurationMs.toFixed(0)}ms`);
       }
     } else {
-      console.log(`[AgentGuard] PDF body scan skipped: file too large`);
+      console.log(`[Ai Notice] PDF body scan skipped: file too large`);
       pdfExtractionStatus = {
         extractionFailed: true,
         reasonCode: PDF_EXTRACTION_REASON_CODES.FILE_TOO_LARGE,
@@ -523,7 +523,7 @@ async function extractPdfMetadata(file: File): Promise<ExtractionResult> {
       pdfExtractionStatus,
     };
   } catch (e) {
-    console.warn('[AgentGuard] PDF metadata extraction failed:', e);
+    console.warn('[Ai Notice] PDF metadata extraction failed:', e);
     return { success: false, metadata: {}, fileType: 'pdf', error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }
@@ -613,7 +613,7 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
     // company/manager/creator = derived identity). Never log document metadata.
     const bodyText = docxResult.bodyText || undefined;
     if (bodyText) {
-      console.log(`[AgentGuard] Extracted ${bodyText.length} chars of body text`);
+      console.log(`[Ai Notice] Extracted ${bodyText.length} chars of body text`);
     }
 
     // Success if we got metadata or body text
@@ -628,7 +628,7 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
       partialInspection: docxResult.partialInspection,  // AG-PROMPT-304
     };
   } catch (e) {
-    console.warn('[AgentGuard] DOCX extraction failed:', e);
+    console.warn('[Ai Notice] DOCX extraction failed:', e);
     return { success: false, metadata: {}, fileType: 'docx', error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }
@@ -697,7 +697,7 @@ async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResul
       partialInspection: xlsxResult.metrics.budget_exceeded || xlsxResult.metrics.sampling_applied,
     };
   } catch (e) {
-    console.warn('[AgentGuard] XLSX selective extraction failed:', e);
+    console.warn('[Ai Notice] XLSX selective extraction failed:', e);
     return { success: false, metadata: {}, fileType: 'xlsx', error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }
@@ -759,7 +759,7 @@ async function extractPptxMetadataSelective(file: File): Promise<ExtractionResul
     // company/manager/creator = derived identity). Never log document metadata.
     const bodyText = pptxResult.bodyText || undefined;
     if (bodyText) {
-      console.log(`[AgentGuard] Extracted ${bodyText.length} chars of body text`);
+      console.log(`[Ai Notice] Extracted ${bodyText.length} chars of body text`);
     }
 
     const success = pptxResult.success || Object.keys(metadata).length > 1;
@@ -773,7 +773,7 @@ async function extractPptxMetadataSelective(file: File): Promise<ExtractionResul
       partialInspection: pptxResult.partialInspection,  // AG-PROMPT-305
     };
   } catch (e) {
-    console.warn('[AgentGuard] PPTX extraction failed:', e);
+    console.warn('[Ai Notice] PPTX extraction failed:', e);
     return { success: false, metadata: {}, fileType: 'pptx', error: e instanceof Error ? e.message : 'Unknown error' };
   }
 }
@@ -787,7 +787,7 @@ export async function extractMetadata(file: File): Promise<ExtractionResult> {
   const extension = file.name.split('.').pop()?.toLowerCase();
   const mimeType = file.type.toLowerCase();
 
-  console.log('[AgentGuard] Extracting metadata —', 'type:', mimeType, 'ext:', extension);
+  console.log('[Ai Notice] Extracting metadata —', 'type:', mimeType, 'ext:', extension);
 
   let fileType: ExtractionResult['fileType'] = 'unknown';
 
@@ -825,7 +825,7 @@ export async function extractMetadata(file: File): Promise<ExtractionResult> {
       const ext = '.' + (extension || '');
       const magicResult = sniffMagicBytes(headerBytes, ext);
       if (magicResult.extension_mismatch && magicResult.detected_type === 'ole2') {
-        console.warn(`[AgentGuard] Magic byte mismatch: OLE2 signature but ${ext} extension — skipping OOXML extraction`);
+        console.warn(`[Ai Notice] Magic byte mismatch: OLE2 signature but ${ext} extension — skipping OOXML extraction`);
         return {
           success: false,
           metadata: {},

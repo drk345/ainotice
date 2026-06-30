@@ -40,11 +40,11 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (deterministic; promoted AG-PROMPT-334):
+Current verified package (deterministic; promoted AG-PROMPT-348):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256 (deterministic, reproducible): `6ab462f513a5a4bf61531e42d6dd9a80df426d11a7a80ec44c2bd1e1fe45c438` (AG-333 calm freemium business-routing footer in the shipped popup; warning/decision paths remain commerce-free)
-- Supersession chain: `6ab462f5…c438` (AG-333, **current promoted**) supersedes `6c74369e…b0c1` (AG-331/332), which superseded `2432c09e…6a17` (AG-326/327), which superseded AG-325 `67dcf33f…2b14`, which superseded prior promoted release ZIP `ae34e757…0bb61` (AG-315).
-- **PROMOTED (AG-334):** governed dev→release re-promotion complete; release repo advanced from `56807b8`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Provenance source commit `1276ed1` (dev HEAD at promotion).
+- SHA-256 (deterministic, reproducible): `ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5` (includes AG-343 Copilot drag/drop fix, AG-344 diagnostic + paste-copy cleanup, AG-346 runtime leak cleanup, AG-347 agentguard-* → ainotice-* namespace migration)
+- Supersession chain: `ab11cf20…6ae5` (AG-348, **current promoted**) supersedes `6ab462f5…c438` (AG-333/334), `6c74369e…b0c1` (AG-331/332), `2432c09e…6a17` (AG-326/327), AG-325 `67dcf33f…2b14`, and prior promoted release ZIP `ae34e757…0bb61` (AG-315).
+- **PROMOTED (AG-348):** governed dev→release re-promotion complete; release repo advanced from `fc60e92`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Final ZIP hygiene clean (zero old-brand/prompt-ID/agentguard; 355 ainotice-* selectors). Provenance source commit `8739ba2` (dev HEAD at promotion).
 - Packaging is deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
 - The release allow-list includes `scripts/test-consumer-modal-no-admin-license-copy.ts` (fixed AG-329), so release-side `npm run build:chrome` runs clean (release gate 10/10).
 

@@ -25,7 +25,7 @@ import { DEFAULT_POLICY_SCHEMA } from './schema';
 // ============================================================================
 
 /** Log prefix for admin diagnostics */
-const LOG_PREFIX = '[AgentGuard][PolicyValidation]';
+const LOG_PREFIX = '[Ai Notice][PolicyValidation]';
 
 /** Enable debug logging (counts only, no content) */
 const DEBUG_VALIDATION = false;

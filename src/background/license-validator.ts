@@ -52,7 +52,7 @@ function isPlaceholderKey(key: Uint8Array): boolean {
   const allSame = key.every(b => b === firstByte);
 
   if (allSame) {
-    console.warn('[AgentGuard:CRYPTO-01] Placeholder public key detected - license validation will fail closed');
+    console.warn('[Ai Notice:CRYPTO-01] Placeholder public key detected - license validation will fail closed');
     return true;
   }
 
@@ -220,7 +220,7 @@ export async function validateLicense(): Promise<LicenseValidationResult> {
 function verifySignature(token: LicenseToken): boolean {
   // AG-SECURITY-HARDENING-CRYPTO-01: Fail closed if placeholder key
   if (IS_PLACEHOLDER_KEY) {
-    console.warn('[AgentGuard:CRYPTO-01] Signature verification rejected: placeholder public key');
+    console.warn('[Ai Notice:CRYPTO-01] Signature verification rejected: placeholder public key');
     return false;
   }
 

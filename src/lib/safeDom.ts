@@ -309,7 +309,7 @@ export function escapeHtml_DEPRECATED(str: string): string {
   // Log deprecation warning (only in dev)
   if (typeof console !== 'undefined' && console.warn) {
     console.warn(
-      '[AgentGuard:SEC-01] escapeHtml is deprecated. Use SafeDom utilities instead.',
+      '[Ai Notice:SEC-01] escapeHtml is deprecated. Use SafeDom utilities instead.',
       new Error().stack
     );
   }

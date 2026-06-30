@@ -106,7 +106,7 @@ export function deduplicateSignals(signals: RiskSignal[]): RiskSignal[] {
   if (DEBUG_DEDUPE) {
     const duplicatesRemoved = signals.length - result.length;
     if (duplicatesRemoved > 0) {
-      console.log(`[AgentGuard] SignalDedupe: removed ${duplicatesRemoved} duplicates (${signals.length} -> ${result.length})`);
+      console.log(`[Ai Notice] SignalDedupe: removed ${duplicatesRemoved} duplicates (${signals.length} -> ${result.length})`);
     }
   }
 

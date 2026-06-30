@@ -123,7 +123,7 @@ export function getRiskIcon(risk: string): string {
 export function escapeHtml(str: string): string {
   // SEC-01: Log deprecation warning in debug mode
   if (isDebugMode()) {
-    console.warn('[AgentGuard:SEC-01] escapeHtml is deprecated. Migrate to SafeDom utilities.');
+    console.warn('[Ai Notice:SEC-01] escapeHtml is deprecated. Migrate to SafeDom utilities.');
   }
   const div = document.createElement('div');
   div.textContent = str;
@@ -168,16 +168,16 @@ export function hasMetadataToShow(metadata: DocumentMetadata | undefined): boole
 export function renderMetadata(metadata: DocumentMetadata): string {
   const items: string[] = [];
   // Human-readable fields only - creator/producer are technical noise
-  if (isDisplayableMetadata(metadata.title)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Title:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.title!)}</span></div>`);
-  if (isDisplayableMetadata(metadata.author)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Author:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.author!)}</span></div>`);
-  if (isDisplayableMetadata(metadata.company)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Company:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.company!)}</span></div>`);
-  if (isDisplayableMetadata(metadata.lastModifiedBy)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Modified by:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.lastModifiedBy!)}</span></div>`);
-  if (isDisplayableMetadata(metadata.manager)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Manager:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.manager!)}</span></div>`);
-  if (isDisplayableMetadata(metadata.subject)) items.push(`<div class="agentguard-metadata-item"><span class="agentguard-metadata-label">Subject:</span><span class="agentguard-metadata-value">${escapeHtml(metadata.subject!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.title)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Title:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.title!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.author)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Author:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.author!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.company)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Company:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.company!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.lastModifiedBy)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Modified by:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.lastModifiedBy!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.manager)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Manager:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.manager!)}</span></div>`);
+  if (isDisplayableMetadata(metadata.subject)) items.push(`<div class="ainotice-metadata-item"><span class="ainotice-metadata-label">Subject:</span><span class="ainotice-metadata-value">${escapeHtml(metadata.subject!)}</span></div>`);
   // AG-PROMPT-085: Omit creator/producer - these are low-value technical details
   // that add noise without helping the user make a decision
   if (items.length === 0) return '';
-  return `<div class="agentguard-metadata"><div class="agentguard-metadata-title">Properties</div>${items.join('')}</div>`;
+  return `<div class="ainotice-metadata"><div class="ainotice-metadata-title">Properties</div>${items.join('')}</div>`;
 }
 
 /**
@@ -226,11 +226,11 @@ export function getPrimaryFinding(
  */
 export function renderPrimaryFinding(signal: RiskSignal): string {
   return `
-    <div class="agentguard-primary-finding">
-      <div class="agentguard-primary-finding-label">Primary finding</div>
-      <div class="agentguard-primary-finding-content">
-        <span class="agentguard-signal-badge ${signal.severity}">${signal.severity}</span>
-        <span class="agentguard-primary-finding-text">${escapeHtml(signal.description)}</span>
+    <div class="ainotice-primary-finding">
+      <div class="ainotice-primary-finding-label">Primary finding</div>
+      <div class="ainotice-primary-finding-content">
+        <span class="ainotice-signal-badge ${signal.severity}">${signal.severity}</span>
+        <span class="ainotice-primary-finding-text">${escapeHtml(signal.description)}</span>
       </div>
     </div>
   `;
@@ -239,36 +239,36 @@ export function renderPrimaryFinding(signal: RiskSignal): string {
 export function renderGroupedSignals(signals: RiskSignal[], showAll: boolean): string {
   // INSTRUMENT PANEL: Observational, structural language
   if (signals.length === 0) {
-    return '<div class="agentguard-no-signals">No patterns detected</div>';
+    return '<div class="ainotice-no-signals">No patterns detected</div>';
   }
 
   const limit = showAll ? signals.length : MAX_VISIBLE_SIGNALS;
   const { visible, hidden } = getTopSignals(signals, limit);
   const grouped = groupSignalsByType(visible);
 
-  let html = '<div class="agentguard-signals-section">';
-  html += `<div class="agentguard-signals-header">Detected patterns${signals.length > MAX_VISIBLE_SIGNALS && !showAll ? ` (${visible.length} of ${signals.length})` : ''}</div>`;
+  let html = '<div class="ainotice-signals-section">';
+  html += `<div class="ainotice-signals-header">Detected patterns${signals.length > MAX_VISIBLE_SIGNALS && !showAll ? ` (${visible.length} of ${signals.length})` : ''}</div>`;
 
   for (const [type, typeSignals] of grouped) {
-    html += `<div class="agentguard-signal-group"><div class="agentguard-signal-group-title">${getTypeLabel(type)}</div>`;
+    html += `<div class="ainotice-signal-group"><div class="ainotice-signal-group-title">${getTypeLabel(type)}</div>`;
     html += typeSignals.map(signal => `
-      <div class="agentguard-signal">
-        <div class="agentguard-signal-header">
-          <span class="agentguard-signal-badge ${signal.severity}">${signal.severity}</span>
-          <span class="agentguard-signal-title">${escapeHtml(signal.description)}</span>
-          <span class="agentguard-signal-source">${getSourceLabel(signal.source)}</span>
+      <div class="ainotice-signal">
+        <div class="ainotice-signal-header">
+          <span class="ainotice-signal-badge ${signal.severity}">${signal.severity}</span>
+          <span class="ainotice-signal-title">${escapeHtml(signal.description)}</span>
+          <span class="ainotice-signal-source">${getSourceLabel(signal.source)}</span>
         </div>
-        ${signal.detail ? `<div class="agentguard-signal-detail">${escapeHtml(signal.detail)}</div>` : ''}
+        ${signal.detail ? `<div class="ainotice-signal-detail">${escapeHtml(signal.detail)}</div>` : ''}
       </div>
     `).join('');
     html += '</div>';
   }
 
   if (hidden.length > 0 && !showAll) {
-    html += `<div class="agentguard-show-more" data-action="show-more">${hidden.length} more</div>`;
+    html += `<div class="ainotice-show-more" data-action="show-more">${hidden.length} more</div>`;
   }
 
-  html += '<div class="agentguard-confidence">Pattern matching is deterministic.</div>';
+  html += '<div class="ainotice-confidence">Pattern matching is deterministic.</div>';
   html += '</div>';
   return html;
 }

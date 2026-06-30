@@ -488,7 +488,7 @@ export function applyPolicy(
   const localeConfidence = ctx.localeConfidence ?? 'none';
   
   if (DEBUG_POLICY) {
-    console.log(`[AgentGuard] Policy context: emails=${ctx.emailCount}, phones=${ctx.phoneCount}, ssn=${ctx.ssnCount}, transactional=${isTransactional}, locale=${ctx.locale ?? 'unknown'} (confidence=${localeConfidence})`);
+    console.log(`[Ai Notice] Policy context: emails=${ctx.emailCount}, phones=${ctx.phoneCount}, ssn=${ctx.ssnCount}, transactional=${isTransactional}, locale=${ctx.locale ?? 'unknown'} (confidence=${localeConfidence})`);
   }
   
   // Check if co-occurrence escalation applies
@@ -505,7 +505,7 @@ export function applyPolicy(
   const phoneEscalationAllowed = shouldEscalatePhones(ctx.phoneCount, ctx.locale ?? 'unknown');
   
   if (DEBUG_POLICY) {
-    console.log(`[AgentGuard] Policy escalation: coOccurrence=${coOccurrenceTriggered}, density=${densityTriggered}`);
+    console.log(`[Ai Notice] Policy escalation: coOccurrence=${coOccurrenceTriggered}, density=${densityTriggered}`);
   }
   
   // Process each signal
@@ -518,7 +518,7 @@ export function applyPolicy(
     // If no config or disabled, check if we should filter
     if (config && !config.enabled) {
       if (DEBUG_POLICY) {
-        console.log(`[AgentGuard] Policy filtered: ${patternKey}`);
+        console.log(`[Ai Notice] Policy filtered: ${patternKey}`);
       }
       continue; // Skip disabled signals
     }
@@ -528,7 +528,7 @@ export function applyPolicy(
     // Non-US documents with this pattern are likely CPR, reference numbers, etc.
     if (patternKey === 'ssn' && ctx.locale && ctx.locale !== 'US' && ctx.locale !== 'unknown') {
       if (DEBUG_POLICY) {
-        console.log(`[AgentGuard] SSN filtered: locale=${ctx.locale} is not US`);
+        console.log(`[Ai Notice] SSN filtered: locale=${ctx.locale} is not US`);
       }
       // Downgrade to low with explanation instead of filtering entirely
       // This preserves visibility while reducing false positive impact
@@ -571,13 +571,13 @@ export function applyPolicy(
               const escalatedSeverity = config.escalationThresholds[threshold];
               newSeverity = maxSeverity(newSeverity, escalatedSeverity);
               if (DEBUG_POLICY) {
-                console.log(`[AgentGuard] Policy escalated ${patternKey}: count=${count} >= ${threshold} => ${escalatedSeverity}`);
+                console.log(`[Ai Notice] Policy escalated ${patternKey}: count=${count} >= ${threshold} => ${escalatedSeverity}`);
               }
               break;
             }
           }
         } else if (DEBUG_POLICY && patternKey === 'phone') {
-          console.log(`[AgentGuard] Phone escalation suppressed by locale ${ctx.locale}: count=${count} < threshold=${localeProfile.phoneEscalationThreshold}`);
+          console.log(`[Ai Notice] Phone escalation suppressed by locale ${ctx.locale}: count=${count} < threshold=${localeProfile.phoneEscalationThreshold}`);
         }
       }
       
@@ -591,7 +591,7 @@ export function applyPolicy(
           bumped = capSeverity(bumped, policy.escalation.coOccurrence.maxSeverity);
         }
         if (DEBUG_POLICY && bumped !== newSeverity) {
-          console.log(`[AgentGuard] Policy co-occurrence bump: ${patternKey} ${newSeverity} => ${bumped}`);
+          console.log(`[Ai Notice] Policy co-occurrence bump: ${patternKey} ${newSeverity} => ${bumped}`);
         }
         newSeverity = bumped;
       }
@@ -605,7 +605,7 @@ export function applyPolicy(
           bumped = capSeverity(bumped, policy.escalation.piiDensity!.maxSeverity);
         }
         if (DEBUG_POLICY && bumped !== newSeverity) {
-          console.log(`[AgentGuard] Policy density bump: ${patternKey} ${newSeverity} => ${bumped}`);
+          console.log(`[Ai Notice] Policy density bump: ${patternKey} ${newSeverity} => ${bumped}`);
         }
         newSeverity = bumped;
       }
@@ -614,7 +614,7 @@ export function applyPolicy(
       if (isTransactional && config.transactionalDowngrade && !config.hardFloor) {
         const reduced = reduceSeverity(newSeverity, 1);
         if (DEBUG_POLICY && reduced !== newSeverity) {
-          console.log(`[AgentGuard] Policy transactional downgrade: ${patternKey} ${newSeverity} => ${reduced}`);
+          console.log(`[Ai Notice] Policy transactional downgrade: ${patternKey} ${newSeverity} => ${reduced}`);
         }
         newSeverity = reduced;
       }
@@ -623,7 +623,7 @@ export function applyPolicy(
       if (config.maxSeverity) {
         const capped = capSeverity(newSeverity, config.maxSeverity);
         if (DEBUG_POLICY && capped !== newSeverity) {
-          console.log(`[AgentGuard] Policy capped ${patternKey} severity: count=${ctx.phoneCount} => ${capped}`);
+          console.log(`[Ai Notice] Policy capped ${patternKey} severity: count=${ctx.phoneCount} => ${capped}`);
         }
         newSeverity = capped;
       }
@@ -786,7 +786,7 @@ export function applyPolicyContract(
   const effectivePolicy = getEffectivePolicy(context.locale, policy);
 
   if (DEBUG_POLICY) {
-    console.log(`[AgentGuard] PolicyContract v${effectivePolicy.version}: locale=${context.locale}, phones=${context.counts.phone}, emails=${context.counts.email}, transactional=${context.isTransactional}`);
+    console.log(`[Ai Notice] PolicyContract v${effectivePolicy.version}: locale=${context.locale}, phones=${context.counts.phone}, emails=${context.counts.email}, transactional=${context.isTransactional}`);
   }
 
   // 2. Check cooccurrence rules
@@ -799,7 +799,7 @@ export function applyPolicyContract(
     if (allConditionsMet) {
       rule.affects.forEach(id => cooccurrenceTriggered.add(id));
       if (DEBUG_POLICY) {
-        console.log(`[AgentGuard] Cooccurrence rule triggered: ${rule.id}`);
+        console.log(`[Ai Notice] Cooccurrence rule triggered: ${rule.id}`);
       }
     }
   }
@@ -816,7 +816,7 @@ export function applyPolicyContract(
     const isMandatory = signalId && effectivePolicy.invariants.mandatorySignals.includes(signalId);
     if (config && !config.enabled && !isMandatory) {
       if (DEBUG_POLICY) {
-        console.log(`[AgentGuard] Signal filtered by policy: ${signalId}`);
+        console.log(`[Ai Notice] Signal filtered by policy: ${signalId}`);
       }
       continue;
     }
@@ -843,7 +843,7 @@ export function applyPolicyContract(
           if (count >= threshold) {
             newSeverity = config.densityThresholds[threshold] as Severity;
             if (DEBUG_POLICY) {
-              console.log(`[AgentGuard] Density escalation: ${signalId} count=${count} >= ${threshold} -> ${newSeverity}`);
+              console.log(`[Ai Notice] Density escalation: ${signalId} count=${count} >= ${threshold} -> ${newSeverity}`);
             }
             break;
           }
@@ -857,7 +857,7 @@ export function applyPolicyContract(
           newSeverity = bumpSeverity(newSeverity, rule.severityBump);
           newSeverity = capSeverity(newSeverity, rule.maxSeverity as Severity);
           if (DEBUG_POLICY) {
-            console.log(`[AgentGuard] Cooccurrence bump: ${signalId} -> ${newSeverity}`);
+            console.log(`[Ai Notice] Cooccurrence bump: ${signalId} -> ${newSeverity}`);
           }
         }
       }
@@ -866,7 +866,7 @@ export function applyPolicyContract(
       if (context.isTransactional && config.transactionalDowngrade && !config.mandatory) {
         const reduced = reduceSeverity(newSeverity, 1);
         if (DEBUG_POLICY && reduced !== newSeverity) {
-          console.log(`[AgentGuard] Transactional downgrade: ${signalId} ${newSeverity} -> ${reduced}`);
+          console.log(`[Ai Notice] Transactional downgrade: ${signalId} ${newSeverity} -> ${reduced}`);
         }
         newSeverity = reduced;
       }

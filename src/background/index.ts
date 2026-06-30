@@ -1,12 +1,12 @@
 import { handleMessage } from './message-handler';
 import { validateLicense } from './license-validator';
 
-console.log('AgentGuard background service worker started');
+console.log('Ai Notice background service worker started');
 
 // Initialize on installation
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
-    console.log('AgentGuard installed');
+    console.log('Ai Notice installed');
     
     // Validate license on first install
     const licenseResult = await validateLicense();
@@ -23,7 +23,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         }
       });
     } catch (e) {
-      console.warn('[AgentGuard] storage.set(settings) failed on install:', (e as Error).message);
+      console.warn('[Ai Notice] storage.set(settings) failed on install:', (e as Error).message);
     }
   }
 });

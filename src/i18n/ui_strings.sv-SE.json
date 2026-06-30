@@ -1,7 +1,7 @@
 {
   "$schema": "ui_strings",
   "$locale": "sv-SE",
-  "$description": "AG-PROMPT-168/WS-02: Swedish (Sweden) stub. Translators: replace English values with Swedish equivalents.",
+  "$description": "Swedish (Sweden) stub. Translators: replace English values with Swedish equivalents.",
 
   "brand": "Ai Notice",
   "modal.uploadingTo": "Laddar upp till",

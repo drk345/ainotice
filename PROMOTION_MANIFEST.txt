@@ -1,7 +1,7 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: 1276ed1318551b233a53db86ecfadadb3bf54325
-# generated_at:  2026-06-28T15:36:54.340Z
-# prompt_id:     AG-PROMPT-334
+# source_commit: 8739ba25672070f714973fef7725624517201d04
+# generated_at:  2026-06-30T20:39:26.610Z
+# prompt_id:     AG-PROMPT-348
 
 ## Copied (allow-listed):
 PRIVACY.md
@@ -42,6 +42,7 @@ src/config/featureFlags.ts
 src/content/activationGate.ts
 src/content/decisionQualityBlocks.ts
 src/content/dom-observer.ts
+src/content/dropFiles.ts
 src/content/index.ts
 src/content/metadataExtractor.ts
 src/content/modalRenderHelpers.ts
@@ -181,4 +182,4 @@ PROMOTION_MANIFEST.txt
 README.md
 RELEASE_PROVENANCE.json
 
-## Totals: 169 copied, 5 generated
+## Totals: 170 copied, 5 generated

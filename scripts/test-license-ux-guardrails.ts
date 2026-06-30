@@ -40,7 +40,7 @@ function assert(condition: boolean, message: string): void {
 
 // Load source files
 // index.ts: interception, orchestration, getLicenseNoticeHtml, guardrail comments
-// modalStyles.ts: CSS for .agentguard-license-status (moved out of index.ts in AG-PROMPT-134 refactor)
+// modalStyles.ts: CSS for .ainotice-license-status (moved out of index.ts in AG-PROMPT-134 refactor)
 // uiComponents.ts: buildLicenseNotice + licenseNotice DOM composition (moved in same refactor)
 const contentScriptPath = path.join(rootDir, 'src', 'content', 'index.ts');
 const contentScript = fs.readFileSync(contentScriptPath, 'utf-8');
@@ -57,9 +57,9 @@ console.log('===================================================================
 
 console.log('Test Suite: No Host-Page License Banner Injection');
 {
-  test('No element with id "agentguard-license-banner" created', () => {
-    // The old code created: banner.id = 'agentguard-license-banner'
-    const hasLicenseBannerId = /['"]agentguard-license-banner['"]/.test(contentScript);
+  test('No element with id "ainotice-license-banner" created', () => {
+    // The old code created: banner.id = 'ainotice-license-banner'
+    const hasLicenseBannerId = /['"]ainotice-license-banner['"]/.test(contentScript);
     // Allow it in comments but not in actual code
     const lines = contentScript.split('\n');
     const codeLines = lines.filter(line => {
@@ -67,8 +67,8 @@ console.log('Test Suite: No Host-Page License Banner Injection');
       return !trimmed.startsWith('//') && !trimmed.startsWith('*') && !trimmed.startsWith('/*');
     });
     const codeWithoutComments = codeLines.join('\n');
-    const hasInCode = /\.id\s*=\s*['"]agentguard-license-banner['"]/.test(codeWithoutComments);
-    assert(!hasInCode, 'Found agentguard-license-banner ID assignment in code');
+    const hasInCode = /\.id\s*=\s*['"]ainotice-license-banner['"]/.test(codeWithoutComments);
+    assert(!hasInCode, 'Found ainotice-license-banner ID assignment in code');
   });
 
   test('No document.body.appendChild for license banner', () => {
@@ -97,9 +97,9 @@ console.log('\nTest Suite: License Status Inside Modal Only');
     assert(hasFunction, 'Missing getLicenseNoticeHtml function');
   });
 
-  test('License status uses agentguard-license-status class (demoted styling)', () => {
-    const hasStatusClass = /agentguard-license-status/.test(contentScript);
-    assert(hasStatusClass, 'Missing agentguard-license-status class');
+  test('License status uses ainotice-license-status class (demoted styling)', () => {
+    const hasStatusClass = /ainotice-license-status/.test(contentScript);
+    assert(hasStatusClass, 'Missing ainotice-license-status class');
   });
 
   test('License status inserted into modal HTML', () => {
@@ -112,10 +112,10 @@ console.log('\nTest Suite: License Status Inside Modal Only');
   });
 
   test('License status CSS has no background or border (status indicator, not warning)', () => {
-    // After AG-PROMPT-134 refactor, .agentguard-license-status CSS lives in modalStyles.ts
-    const cssMatch = modalStyles.match(/\.agentguard-license-status\s*\{[^}]+\}/);
+    // After AG-PROMPT-134 refactor, .ainotice-license-status CSS lives in modalStyles.ts
+    const cssMatch = modalStyles.match(/\.ainotice-license-status\s*\{[^}]+\}/);
     if (!cssMatch) {
-      throw new Error('Could not find .agentguard-license-status CSS in modalStyles.ts');
+      throw new Error('Could not find .ainotice-license-status CSS in modalStyles.ts');
     }
     const css = cssMatch[0];
     const hasBackground = /background\s*:/.test(css);
@@ -129,16 +129,16 @@ console.log('\nTest Suite: Visual Hierarchy Invariant');
 {
   test('INVARIANT comment about license not competing with document classification', () => {
     // After AG-PROMPT-134 refactor, this INVARIANT comment lives in modalStyles.ts
-    // alongside the .agentguard-license-status CSS block.
+    // alongside the .ainotice-license-status CSS block.
     const hasInvariant = /INVARIANT:.*license.*never.*compete.*document.*classification/is.test(modalStyles);
     assert(hasInvariant, 'Missing INVARIANT comment about license not competing with document classification (expected in modalStyles.ts)');
   });
 
   test('License status font-size is smaller than headline (11px)', () => {
     // After AG-PROMPT-134 refactor, CSS lives in modalStyles.ts
-    const cssMatch = modalStyles.match(/\.agentguard-license-status\s*\{[^}]+\}/);
+    const cssMatch = modalStyles.match(/\.ainotice-license-status\s*\{[^}]+\}/);
     if (!cssMatch) {
-      throw new Error('Could not find .agentguard-license-status CSS in modalStyles.ts');
+      throw new Error('Could not find .ainotice-license-status CSS in modalStyles.ts');
     }
     const fontSizeMatch = cssMatch[0].match(/font-size:\s*(\d+)px/);
     assert(fontSizeMatch !== null, 'License status should have explicit font-size');
@@ -150,9 +150,9 @@ console.log('\nTest Suite: Visual Hierarchy Invariant');
     // After AG-PROMPT-134 refactor, CSS lives in modalStyles.ts
     // Color may be a hex literal (#64748b) or a CSS variable reference (var(--ag-text-label))
     // that resolves to a muted slate color — both are acceptable.
-    const cssMatch = modalStyles.match(/\.agentguard-license-status\s*\{[^}]+\}/);
+    const cssMatch = modalStyles.match(/\.ainotice-license-status\s*\{[^}]+\}/);
     if (!cssMatch) {
-      throw new Error('Could not find .agentguard-license-status CSS in modalStyles.ts');
+      throw new Error('Could not find .ainotice-license-status CSS in modalStyles.ts');
     }
     const css = cssMatch[0];
     // Hex muted slate colors (#64748b, #475569, etc.) OR CSS variable referencing design-system text label

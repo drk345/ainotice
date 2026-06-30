@@ -236,7 +236,7 @@ export function runDictionaryDetections(
   }
 
   if (DEBUG_DICTIONARIES && matchedEntries > 0) {
-    console.log(`[AgentGuard] Dictionary match: department=${context.department || 'default'} entries=${matchedEntries}/${totalEntries}`);
+    console.log(`[Ai Notice] Dictionary match: department=${context.department || 'default'} entries=${matchedEntries}/${totalEntries}`);
   }
 
   return signals;

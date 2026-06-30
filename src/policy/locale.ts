@@ -520,7 +520,7 @@ export function detectLikelyLocale(context: LocaleContext): LocaleDetectionResul
   }
   
   if (DEBUG_LOCALE) {
-    console.log(`[AgentGuard] Locale detected: ${detectedLocale} (confidence=${confidence})`);
+    console.log(`[Ai Notice] Locale detected: ${detectedLocale} (confidence=${confidence})`);
   }
   
   return {

@@ -76,7 +76,7 @@ function getPdfJsLibFromGlobal(): PdfJsLibLike | null {
   const candidate = (globalThis as unknown as { pdfjsLib?: PdfJsLibLike }).pdfjsLib;
   if (!candidate || typeof candidate.getDocument !== 'function') {
     // S3-03: Warn when pdf.js is unavailable (diagnostic observability)
-    console.warn('[AgentGuard] pdf.js library not available — encrypted PDF probing disabled');
+    console.warn('[Ai Notice] pdf.js library not available — encrypted PDF probing disabled');
     return null;
   }
   return candidate;

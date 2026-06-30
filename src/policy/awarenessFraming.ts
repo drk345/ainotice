@@ -294,7 +294,7 @@ export function enforceEpistemicHeadlinePolicy(
   if (hasForbiddenPattern) {
     // Log the violation for debugging (non-blocking)
     console.warn(
-      `[AgentGuard] AG-PROMPT-020 epistemic violation caught: "${headline}" → "${SAFE_FALLBACK_HEADLINE}"`
+      `[Ai Notice] epistemic violation caught: "${headline}" → "${SAFE_FALLBACK_HEADLINE}"`
     );
     return SAFE_FALLBACK_HEADLINE;
   }
@@ -1268,15 +1268,15 @@ export function assertFrameComplete(
 ): asserts explanation is { frameId: string; headline: string; summary: string; guidance: string } {
   // AG-PROMPT-097: Check for both missing and whitespace-only strings
   if (!explanation.frameId || !explanation.frameId.trim()) {
-    throw new Error('AG-PROMPT-087: DecisionExplanation missing frameId - frames-only contract violated');
+    throw new Error('Frame contract violation: DecisionExplanation missing frameId');
   }
   if (!explanation.headline || !explanation.headline.trim()) {
-    throw new Error('AG-PROMPT-087: DecisionExplanation missing headline - frames-only contract violated');
+    throw new Error('Frame contract violation: DecisionExplanation missing headline');
   }
   if (!explanation.summary || !explanation.summary.trim()) {
-    throw new Error('AG-PROMPT-087: DecisionExplanation missing summary - frames-only contract violated');
+    throw new Error('Frame contract violation: DecisionExplanation missing summary');
   }
   if (!explanation.guidance || !explanation.guidance.trim()) {
-    throw new Error('AG-PROMPT-091: DecisionExplanation missing guidance - frames-only contract violated');
+    throw new Error('Frame contract violation: DecisionExplanation missing guidance');
   }
 }

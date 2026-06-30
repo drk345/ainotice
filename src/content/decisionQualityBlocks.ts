@@ -184,7 +184,7 @@ const FRAME_WHY_MATTERS: Record<string, string> = {
   FRAME_LEGAL: 'Legal documents may contain confidential terms or obligations affecting you or your organization.',
   FRAME_REGULATED_SENSITIVE: 'Government-issued identifiers can be used to verify identity and should be protected.',
   FRAME_PERSONAL_DATA_AWARENESS: 'Personal contact information may be subject to privacy laws in your region.',
-  FRAME_GENERAL_SENSITIVE: 'Some content in this file may not be intended for external sharing.',
+  FRAME_GENERAL_SENSITIVE: 'Some of this content may not be intended for external sharing.',
   FRAME_PDF_UNREADABLE: 'Text extraction was limited, so the full content of this file could not be assessed.',
   FRAME_INSURANCE: 'Insurance documents may contain personal health or financial information.',
   FRAME_INVOICE: 'Invoices and receipts often contain billing, payment, or personal contact details.',  // AG-PROMPT-326
@@ -211,7 +211,7 @@ const FRAME_SAFER_OPTION: Record<string, string> = {
   FRAME_LEGAL: 'If you need AI help with this document, share just the relevant clause rather than the full file.',
   FRAME_REGULATED_SENSITIVE: 'Remove or redact the identifier before uploading.',
   FRAME_PERSONAL_DATA_AWARENESS: 'Consider whether the contact details need to be included.',
-  FRAME_GENERAL_SENSITIVE: 'Upload only the relevant section, or ask without attaching the file.',
+  FRAME_GENERAL_SENSITIVE: 'Share only the relevant part, or ask without including the sensitive content.',
   FRAME_PDF_UNREADABLE: 'Try exporting a text-readable version of the PDF and scan it before sharing.',
   FRAME_INSURANCE: 'Share only the relevant policy section rather than the full document.',
   FRAME_INVOICE: 'Share only the line items you need, or remove names, addresses, and payment details first.',  // AG-PROMPT-326
@@ -284,13 +284,13 @@ export function deriveDecisionQualityBlocks(
   const whyThisMatters =
     signalCopy?.why ||
     FRAME_WHY_MATTERS[frameId] ||
-    'Some content in this file may not be intended for external sharing.';
+    'Some of this content may not be intended for external sharing.';
 
   // Safer option: signal suggestedAction > frame safer option > generic
   const saferOption =
     signalCopy?.suggestedAction ||
     FRAME_SAFER_OPTION[frameId] ||
-    'Upload only the relevant section, or ask without attaching the file.';
+    'Share only the relevant part, or ask without including the sensitive content.';
 
   // Confidence derived from explanation semantics
   const confidence = getConfidenceDisplay(
