@@ -899,7 +899,17 @@ const globalPatterns: DetectionPattern[] = [
   {
     id: 'global-ma-terms',
     name: 'M&A Terminology',
-    pattern: /\b(acquisition|merger|due\s+diligence|letter\s+of\s+intent|term\s+sheet|target\s+company)\b/i,
+    // AG-PROMPT-350: precision fix. The ambiguous single words "acquisition",
+    // "merger", and "due diligence" appear constantly in resumes/CVs and general
+    // business text (customer/talent acquisition, KYC/vendor due diligence, "led
+    // post-merger integration"), so they previously produced a critical
+    // "M&A content detected" FALSE POSITIVE on a lone occurrence. They now escalate
+    // only WITH corroborating M&A context (deal/transaction/target company/buyer/
+    // seller/shareholders/term sheet/LOI/purchase agreement/share purchase/equity
+    // stake/divestiture) within a bounded window — mirroring global-ma-valuation-context.
+    // Strongly-specific M&A phrases (term sheet / target company / letter of intent)
+    // still fire standalone.
+    pattern: /\b(?:term\s+sheet|target\s+company|letter\s+of\s+intent|(?:acquisition|merger|due\s+diligence)\s+(?:\w+\s+){0,8}?(?:deal|transaction|buyer|seller|shareholders?|purchase\s+agreement|share\s+purchase|equity\s+stake|divestiture|target\s+company|term\s+sheet|letter\s+of\s+intent)|(?:deal|transaction|buyer|seller|shareholders?|purchase\s+agreement|share\s+purchase|equity\s+stake|divestiture|target\s+company|term\s+sheet|letter\s+of\s+intent)\s+(?:\w+\s+){0,8}?(?:acquisition|merger|due\s+diligence))\b/i,
     type: 'confidential',
     defaultSeverity: 'critical',
     description: 'M&A content detected',
@@ -978,7 +988,7 @@ const globalPatterns: DetectionPattern[] = [
     // RO: cont bancar, transfer bancar, extras de cont, număr de cont, titular de cont, sold bancar
     // CZ: bankovní účet, bankovní převod, výpis z účtu, číslo účtu, zůstatek | SK: bankový účet, bankový prevod, zostatok
     // HU: bankszámla, átutalás, számlakivonat, számlaszám, egyenleg
-    pattern: /(?<!\p{L})(bank\s+account|routing\s+number|swift\s*(?:code|bic)|iban|wire\s+transfer|account\s+number|kontonummer|bankverbindung|[uü]berweisung|kontoauszug|bankleitzahl|compte\s+bancaire|virement|relev[eé]\s+de\s+compte|num[eé]ro\s+de\s+compte|titulaire\s+du\s+compte|solde\s+bancaire|pr[eé]l[eè]vement\s+automatique|domiciliation\s+bancaire|encaissement|facturation|conto\s+corrente|bonifico|estratto\s+conto|numero\s+di\s+conto|fatturazione|partita\s+iva|ricevuta\s+bancaria|addebito\s+diretto|titolare\s+del\s+conto|saldo\s+contabile|bankrekening|rekeningnummer|overschrijving|rekeningoverzicht|cuenta\s+bancaria|transferencia\s+bancaria|n[uú]mero\s+de\s+cuenta|extracto\s+bancario|domiciliaci[oó]n\s+bancaria|titular\s+de\s+cuenta|saldo\s+(?:bancario|disponible|pendiente)|facturaci[oó]n|recibo\s+bancario|conta\s+banc[aá]ria|transfer[eê]ncia\s+banc[aá]ria|n[uú]mero\s+de\s+conta|extracto\s+banc[aá]rio|titular\s+da\s+conta|saldo\s+banc[aá]rio|konto\s+bankowe|przelew\s+bankowy|numer\s+konta|wyci[aą]g\s+bankowy|posiadacz\s+konta|saldo\s+konta|boleto\s+banc[aá]rio|boleto|comprovante\s+de\s+pagamento|CFDI|comprobante\s+fiscal|cont\s+bancar|transfer\s+bancar|extras\s+de\s+cont|num[aă]r\s+de\s+cont|titular\s+de\s+cont|sold\s+bancar|bankovn[ií]\s+[uú][cč]et|bankovn[ií]\s+p[rř]evod|v[yý]pis\s+z\s+[uú][cč]tu|[cč][ií]slo\s+[uú][cč]tu|z[uů]statek|bankov[yý]\s+[uú][cč]et|bankov[yý]\s+prevod|zostatok|banksz[aá]mla|[aá]tutal[aá]s|sz[aá]mlakivonat|sz[aá]mlasz[aá]m|egyenleg)(?!\p{L})/giu,
+    pattern: /(?<!\p{L})(routing\s+number|swift\s*(?:code|bic)|iban|wire\s+transfer|account\s+number|kontonummer|bankverbindung|[uü]berweisung|kontoauszug|bankleitzahl|compte\s+bancaire|virement|relev[eé]\s+de\s+compte|num[eé]ro\s+de\s+compte|titulaire\s+du\s+compte|solde\s+bancaire|pr[eé]l[eè]vement\s+automatique|domiciliation\s+bancaire|encaissement|facturation|conto\s+corrente|bonifico|estratto\s+conto|numero\s+di\s+conto|fatturazione|partita\s+iva|ricevuta\s+bancaria|addebito\s+diretto|titolare\s+del\s+conto|saldo\s+contabile|bankrekening|rekeningnummer|overschrijving|rekeningoverzicht|cuenta\s+bancaria|transferencia\s+bancaria|n[uú]mero\s+de\s+cuenta|extracto\s+bancario|domiciliaci[oó]n\s+bancaria|titular\s+de\s+cuenta|saldo\s+(?:bancario|disponible|pendiente)|facturaci[oó]n|recibo\s+bancario|conta\s+banc[aá]ria|transfer[eê]ncia\s+banc[aá]ria|n[uú]mero\s+de\s+conta|extracto\s+banc[aá]rio|titular\s+da\s+conta|saldo\s+banc[aá]rio|konto\s+bankowe|przelew\s+bankowy|numer\s+konta|wyci[aą]g\s+bankowy|posiadacz\s+konta|saldo\s+konta|boleto\s+banc[aá]rio|boleto|comprovante\s+de\s+pagamento|CFDI|comprobante\s+fiscal|cont\s+bancar|transfer\s+bancar|extras\s+de\s+cont|num[aă]r\s+de\s+cont|titular\s+de\s+cont|sold\s+bancar|bankovn[ií]\s+[uú][cč]et|bankovn[ií]\s+p[rř]evod|v[yý]pis\s+z\s+[uú][cč]tu|[cč][ií]slo\s+[uú][cč]tu|z[uů]statek|bankov[yý]\s+[uú][cč]et|bankov[yý]\s+prevod|zostatok|banksz[aá]mla|[aá]tutal[aá]s|sz[aá]mlakivonat|sz[aá]mlasz[aá]m|egyenleg)(?!\p{L})/giu,
     type: 'financial',
     defaultSeverity: 'high',
     description: 'Banking information',
@@ -986,6 +996,12 @@ const globalPatterns: DetectionPattern[] = [
     rationale: 'Banking keywords (EN/DE/FR/IT/NL/ES/PT/PL/BR/MX/RO/CZ/SK/HU) indicate financial document context.',
     pack: 'global',
     countMatches: true,
+    // AG-PROMPT-350: the generic English phrase "bank account" was REMOVED from
+    // the alternation above — on its own it is ambiguous and previously produced a
+    // High-Risk warning by itself. Strong account identifiers (IBAN, SWIFT/BIC,
+    // routing number, account number, …) and real IBAN VALUES (global-iban) still
+    // warn on a single match. A doc that names an actual account/identifier or
+    // multiple banking terms is unaffected.
     minCount: 1,
     tags: ['financial', 'banking', 'keywords'],
   },
@@ -1046,7 +1062,10 @@ const globalPatterns: DetectionPattern[] = [
     rationale: 'HR keywords (EN/ES/DE/FR/IT/NL/PT/PL/BR/MX/RO/CZ/SK/HU) indicate employee personal data.',
     pack: 'global',
     countMatches: true,
-    minCount: 1,
+    // AG-PROMPT-350: require 2+ corroborating HR keywords so a lone generic term
+    // (e.g. "salary") no longer produces a High-Risk warning by itself. Payroll/HR
+    // documents contain multiple such terms; standalone mentions do not escalate.
+    minCount: 2,
     tags: ['hr', 'pii', 'keywords'],
   },
 

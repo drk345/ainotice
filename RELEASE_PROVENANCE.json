@@ -1,18 +1,18 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "8739ba25672070f714973fef7725624517201d04",
+  "source_commit": "20ed0bd1289e405e4b2c5c5b3e121a89e33a82db",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-06-30T20:39:26.610Z",
-  "prompt_id": "AG-PROMPT-348",
+  "generated_at": "2026-07-01T11:46:28.235Z",
+  "prompt_id": "AG-PROMPT-351",
   "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5",
+  "promoted_zip_sha256": "0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "6ab462f513a5a4bf61531e42d6dd9a80df426d11a7a80ec44c2bd1e1fe45c438",
+  "supersedes_release_zip_sha256": "ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
   "github_release": "NONE — no GitHub Release created by this promotion",
-  "note": "Governed dev→release promotion of the clean Chrome candidate (AG-PROMPT-348). Includes AG-343 (Copilot drag/drop fix), AG-344 (AG-PROMPT-093 diagnostic cleanup + paste-copy cleanup), AG-346 (runtime old-brand/prompt-ID leak cleanup), and AG-347 (agentguard-* → ainotice-* shipped DOM/CSS/runtime namespace migration). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5 from source_commit 8739ba2 (release gate 10/10). Final ZIP artifact hygiene: zero AgentGuard/agentguard/AG-PROMPT/AG_PROMPT/PROMPT-/No DecisionExplanation/applied FRAME/'Sensitive content was found in this file'/localhost/127.0.0.1/chrome-extension://; 355 ainotice-* selectors present; MV3 valid; storage-only permission; connect-src 'none'. Supersedes the AG-333/334-promoted 6ab462f5… ZIP. No store upload; no GitHub Release."
+  "note": "Governed dev→release promotion of the keyword-precision Chrome candidate (AG-PROMPT-351). Includes AG-350: readable resume/CV PDFs no longer receive a false 'M&A content detected' critical label, and standalone generic keywords (bank account / salary / merger / acquisition / due diligence) no longer independently produce High/Critical warnings; strong M&A context, strong financial identifiers, SSN, credit-card, IBAN-value and secrets behavior are unchanged. The only shipped source change vs the AG-348 candidate is src/detection/packs/global.ts (three keyword-evidence precision fixes). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628 from source_commit 20ed0bd (release gate 10/10). Final ZIP artifact hygiene: zero AgentGuard/agentguard/AG-PROMPT/AG_PROMPT/PROMPT-/No DecisionExplanation/applied FRAME/stale-paste-copy/localhost/127.0.0.1/chrome-extension://; 355 ainotice-* selectors present; MV3 valid; storage-only permission; connect-src 'none'. Supersedes the AG-348-promoted ab11cf20… ZIP. No store upload; no GitHub Release."
 }

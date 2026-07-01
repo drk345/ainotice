@@ -40,11 +40,11 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (deterministic; promoted AG-PROMPT-348):
+Current verified package (deterministic; promoted AG-PROMPT-351):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256 (deterministic, reproducible): `ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5` (includes AG-343 Copilot drag/drop fix, AG-344 diagnostic + paste-copy cleanup, AG-346 runtime leak cleanup, AG-347 agentguard-* → ainotice-* namespace migration)
-- Supersession chain: `ab11cf20…6ae5` (AG-348, **current promoted**) supersedes `6ab462f5…c438` (AG-333/334), `6c74369e…b0c1` (AG-331/332), `2432c09e…6a17` (AG-326/327), AG-325 `67dcf33f…2b14`, and prior promoted release ZIP `ae34e757…0bb61` (AG-315).
-- **PROMOTED (AG-348):** governed dev→release re-promotion complete; release repo advanced from `fc60e92`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Final ZIP hygiene clean (zero old-brand/prompt-ID/agentguard; 355 ainotice-* selectors). Provenance source commit `8739ba2` (dev HEAD at promotion).
+- SHA-256 (deterministic, reproducible): `0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628` (AG-350 keyword-evidence precision: readable resume/CV PDFs no longer receive a false "M&A content detected" label; standalone generic keywords no longer independently trigger High/Critical; strong M&A/financial identifiers, SSN, credit-card, IBAN-value and secrets unchanged. Also includes AG-343 Copilot drag/drop, AG-344 diagnostic + paste-copy cleanup, AG-346 runtime leak cleanup, AG-347 ainotice-* namespace)
+- Supersession chain: `0051f199…c628` (AG-350/351, **current promoted**) supersedes `ab11cf20…6ae5` (AG-343/344/346/347/348), `6ab462f5…c438` (AG-333/334), `6c74369e…b0c1` (AG-331/332), `2432c09e…6a17` (AG-326/327), AG-325 `67dcf33f…2b14`, and prior promoted release ZIP `ae34e757…0bb61` (AG-315).
+- **PROMOTED (AG-351):** governed dev→release re-promotion complete; release repo advanced from `382026c`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Final ZIP hygiene clean (zero old-brand/prompt-ID/agentguard; 355 ainotice-* selectors). Provenance source commit `20ed0bd` (dev HEAD at promotion).
 - Packaging is deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
 - The release allow-list includes `scripts/test-consumer-modal-no-admin-license-copy.ts` (fixed AG-329), so release-side `npm run build:chrome` runs clean (release gate 10/10).
 

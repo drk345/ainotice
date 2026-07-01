@@ -1,7 +1,7 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: 8739ba25672070f714973fef7725624517201d04
-# generated_at:  2026-06-30T20:39:26.610Z
-# prompt_id:     AG-PROMPT-348
+# source_commit: 20ed0bd1289e405e4b2c5c5b3e121a89e33a82db
+# generated_at:  2026-07-01T11:46:28.235Z
+# prompt_id:     AG-PROMPT-351
 
 ## Copied (allow-listed):
 PRIVACY.md
