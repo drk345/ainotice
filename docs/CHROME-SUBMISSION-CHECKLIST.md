@@ -40,11 +40,11 @@ Expected output confirms 11 files packaged, no maps, no source files.
 **ZIP path (release repo, relative):** `release/ainotice-chrome.zip`
 **ZIP path (release repo, absolute):** `C:\DEV\ainotice-release\release\ainotice-chrome.zip`
 
-Current verified package (deterministic; promoted AG-PROMPT-351):
+Current verified package (deterministic; promoted AG-PROMPT-361):
 - 11 files, `manifest.json` at ZIP root, no maps, no source
-- SHA-256 (deterministic, reproducible): `0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628` (AG-350 keyword-evidence precision: readable resume/CV PDFs no longer receive a false "M&A content detected" label; standalone generic keywords no longer independently trigger High/Critical; strong M&A/financial identifiers, SSN, credit-card, IBAN-value and secrets unchanged. Also includes AG-343 Copilot drag/drop, AG-344 diagnostic + paste-copy cleanup, AG-346 runtime leak cleanup, AG-347 ainotice-* namespace)
-- Supersession chain: `0051f199…c628` (AG-350/351, **current promoted**) supersedes `ab11cf20…6ae5` (AG-343/344/346/347/348), `6ab462f5…c438` (AG-333/334), `6c74369e…b0c1` (AG-331/332), `2432c09e…6a17` (AG-326/327), AG-325 `67dcf33f…2b14`, and prior promoted release ZIP `ae34e757…0bb61` (AG-315).
-- **PROMOTED (AG-351):** governed dev→release re-promotion complete; release repo advanced from `382026c`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Final ZIP hygiene clean (zero old-brand/prompt-ID/agentguard; 355 ainotice-* selectors). Provenance source commit `20ed0bd` (dev HEAD at promotion).
+- SHA-256 (deterministic, reproducible): `786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d` (AG-352 readable PDF explanation, AG-353 visible warning copy, AG-356 XLSX browser extraction fix, AG-360 paste precision — ICD context gating, loopback URL downgrade, legacy fallback inversion removal. Also includes all prior: AG-350/351 keyword precision, AG-343 Copilot drag/drop, AG-344 diagnostic + paste-copy cleanup, AG-346 runtime leak cleanup, AG-347 ainotice-* namespace)
+- Supersession chain: `786e465d…0dd9d` (AG-352/353/356/360/361, **current promoted**) supersedes `0051f199…c628` (AG-350/351), `ab11cf20…6ae5` (AG-343/344/346/347/348), `6ab462f5…c438` (AG-333/334), `6c74369e…b0c1` (AG-331/332), `2432c09e…6a17` (AG-326/327), AG-325 `67dcf33f…2b14`, and prior promoted release ZIP `ae34e757…0bb61` (AG-315).
+- **PROMOTED (AG-361):** governed dev→release re-promotion complete; release repo advanced from `62dd471`. Release-side `build:chrome` + `package:chrome` independently reproduced the SHA above (release gate 10/10). Dev CORE 49/49. Final ZIP hygiene clean (zero old-brand/prompt-ID/agentguard; ainotice-* namespace present; MV3 valid; storage-only; connect-src 'none'). Provenance source commit `3ac37a9` (dev HEAD at promotion). Privacy: `https://www.ainotice.app/privacy/`. Screenshot set: AG-338.
 - Packaging is deterministic (AG-311): `npm run package:chrome` reproduces this exact SHA from identical `dist/chrome`.
 - The release allow-list includes `scripts/test-consumer-modal-no-admin-license-copy.ts` (fixed AG-329), so release-side `npm run build:chrome` runs clean (release gate 10/10).
 
@@ -88,13 +88,11 @@ Or check via the packaging script output — it fails on maps automatically.
 > The upload is a **manual, human action**. It has **not** occurred. Do not imply
 > publication or Google approval has happened.
 
-### Current upload blockers (as of AG-282)
+### Current upload blockers (as of AG-361)
 
-- **Google developer account approval — not confirmed.** No upload may proceed until confirmed.
-- **Screenshots — not prepared.** At least one (1280×800) is required for submission.
-- **Canonical privacy-policy URL — not yet confirmed.** Usable fallback now:
-  `https://github.com/drk345/ainotice/blob/main/PRIVACY.md`; prefer
-  `https://ainotice.app/privacy` once it is live and verified.
+- **Google developer account approval — status provided by operator.** No upload may proceed until confirmed.
+- **Screenshots — AG-338 production-quality screenshot set approved.** Operator must confirm set is available before upload.
+- **Privacy policy URL:** `https://www.ainotice.app/privacy/` — confirmed in AG-361 provenance.
 
 ---
 

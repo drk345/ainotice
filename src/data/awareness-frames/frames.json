@@ -27,7 +27,7 @@
       "headline": "This file contains medical or health information",
       "noClassHeadline": "Indicators that may relate to health information were found",
       "inferredHeadline": "Patterns suggest possible medical content",
-      "noClassInferredHeadline": "Some patterns may relate to health information",
+      "noClassInferredHeadline": "This may include health information",
       "summary": "Some patterns are consistent with health records or clinical data.",
       "lowSeveritySummary": "A few patterns may relate to health information.",
       "guidance": "Review before sharing externally."
@@ -37,7 +37,7 @@
       "headline": "This file contains financial or payroll data",
       "noClassHeadline": "Indicators that may relate to financial information were found",
       "inferredHeadline": "Patterns suggest possible payroll or compensation content",
-      "noClassInferredHeadline": "Some patterns may relate to financial information",
+      "noClassInferredHeadline": "This may include financial information",
       "summary": "Some patterns are consistent with salary or payment details.",
       "lowSeveritySummary": "A few patterns may relate to payment information.",
       "guidance": "Review before sharing externally."
@@ -47,7 +47,7 @@
       "headline": "This file contains employee or HR records",
       "noClassHeadline": "Indicators that may relate to employment information were found",
       "inferredHeadline": "Patterns suggest possible HR or employment content",
-      "noClassInferredHeadline": "Some patterns may relate to employment information",
+      "noClassInferredHeadline": "This may include employment information",
       "summary": "Some patterns are consistent with employee records.",
       "lowSeveritySummary": "A few patterns may relate to employee information.",
       "guidance": "Review before sharing externally."
@@ -57,7 +57,7 @@
       "headline": "This file contains legal agreement language",
       "noClassHeadline": "Indicators related to legal language were found",
       "inferredHeadline": "Patterns suggest possible legal content",
-      "noClassInferredHeadline": "Some patterns may relate to legal terminology",
+      "noClassInferredHeadline": "This may include legal terminology",
       "summary": "Some patterns are consistent with contracts or agreements.",
       "lowSeveritySummary": "A few patterns may relate to legal terminology.",
       "guidance": "Review before sharing externally."
@@ -77,7 +77,7 @@
       "headline": "This file contains personal contact information",
       "noClassHeadline": "Indicators that may relate to individuals were found",
       "inferredHeadline": "Patterns suggest information that could identify a person",
-      "noClassInferredHeadline": "Some patterns may relate to identifiable information",
+      "noClassInferredHeadline": "This may include identifiable information",
       "summary": "Some patterns may relate to an identifiable individual.",
       "lowSeveritySummary": "A few patterns may relate to personal details.",
       "guidance": "Review before sharing externally."
@@ -155,7 +155,7 @@
       "headline": "This file appears to be an invoice or receipt",
       "noClassHeadline": "Indicators related to invoices were found",
       "inferredHeadline": "Patterns suggest possible invoice content",
-      "noClassInferredHeadline": "Some patterns may relate to billing or invoices",
+      "noClassInferredHeadline": "This may include billing or invoices",
       "summary": "This document contains billing or payment information that may include personal or financial details.",
       "lowSeveritySummary": "A few patterns may relate to billing or invoice information.",
       "guidance": "Review before sharing externally."
@@ -165,7 +165,7 @@
       "headline": "This file appears to be a health certificate",
       "noClassHeadline": "Indicators related to health records were found",
       "inferredHeadline": "Patterns suggest possible health or vaccination content",
-      "noClassInferredHeadline": "Some patterns may relate to health documentation",
+      "noClassInferredHeadline": "This may include health documentation",
       "summary": "This document contains health-related information that may include personal identifiers.",
       "lowSeveritySummary": "A few patterns may relate to health documentation.",
       "guidance": "Health documents typically contain sensitive personal data. Review before sharing."
@@ -175,9 +175,9 @@
       "headline": "This file may contain commercially sensitive information",
       "noClassHeadline": "Indicators related to business-sensitive content were found",
       "inferredHeadline": "Patterns suggest possible commercially sensitive content",
-      "noClassInferredHeadline": "Some patterns may relate to business-sensitive information",
+      "noClassInferredHeadline": "This may include business-sensitive information",
       "summary": "Some patterns are consistent with business-sensitive or transaction-related content.",
-      "lowSeveritySummary": "A few patterns may relate to commercially sensitive information.",
+      "lowSeveritySummary": "This may include commercially sensitive or transaction-related material.",
       "guidance": "Business-sensitive documents may contain material non-public information. Review before sharing externally."
     },
     {

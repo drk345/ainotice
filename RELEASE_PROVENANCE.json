@@ -1,18 +1,18 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "20ed0bd1289e405e4b2c5c5b3e121a89e33a82db",
+  "source_commit": "3ac37a9e870d225dd67429ef19028ba555734b33",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-07-01T11:46:28.235Z",
-  "prompt_id": "AG-PROMPT-351",
+  "generated_at": "2026-07-02T21:00:00Z",
+  "prompt_id": "AG-PROMPT-361",
   "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628",
+  "promoted_zip_sha256": "786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "ab11cf20ff37162cf88e22c263e06e1cc62a1601a35ff57d6bb5a55c855e6ae5",
+  "supersedes_release_zip_sha256": "0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
   "github_release": "NONE — no GitHub Release created by this promotion",
-  "note": "Governed dev→release promotion of the keyword-precision Chrome candidate (AG-PROMPT-351). Includes AG-350: readable resume/CV PDFs no longer receive a false 'M&A content detected' critical label, and standalone generic keywords (bank account / salary / merger / acquisition / due diligence) no longer independently produce High/Critical warnings; strong M&A context, strong financial identifiers, SSN, credit-card, IBAN-value and secrets behavior are unchanged. The only shipped source change vs the AG-348 candidate is src/detection/packs/global.ts (three keyword-evidence precision fixes). Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628 from source_commit 20ed0bd (release gate 10/10). Final ZIP artifact hygiene: zero AgentGuard/agentguard/AG-PROMPT/AG_PROMPT/PROMPT-/No DecisionExplanation/applied FRAME/stale-paste-copy/localhost/127.0.0.1/chrome-extension://; 355 ainotice-* selectors present; MV3 valid; storage-only permission; connect-src 'none'. Supersedes the AG-348-promoted ab11cf20… ZIP. No store upload; no GitHub Release."
+  "note": "Governed dev→release promotion of the paste-precision Chrome candidate (AG-PROMPT-361). Includes AG-352 (readable PDF explanation: security proposal / pentesting / due-diligence fixture routes to business-sensitive framing; genuine resume no longer receives false M&A; extraction-limited PDF safe-fallbacks), AG-353 (visible warning copy: business-sensitive Critical/Confirmed modal no longer uses 'Some patterns may relate'; 'noClassInferred' headline framing improved), AG-356 (XLSX browser extraction: Uint8Array/ArrayBuffer path; Buffer.from(arrayBuffer) absent from content script; corrupt/malformed XLSX safe-fallback; popup inline onerror absent), and AG-360 (paste precision: ICD-10 context gating — version tokens V20.11/A12.3 no longer produce medical warnings without medical vocabulary; loopback/dev-host token= URL no longer CRITICAL; legacy keyword fallback inversion removed). Secrets, credentials, SSNs, credit cards, IBANs, CPR/national IDs, strong M&A context, strong financial identifiers, and public-host credentials all still warn. AG-357/358/359 chat-only reviews reconciled in dev state.yaml. Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d from source_commit 3ac37a9 (release gate 10/10). Dev CORE 49/49 suites passed. Final ZIP artifact hygiene: zero AgentGuard/agentguard/AG-PROMPT/AG_PROMPT/PROMPT-/No DecisionExplanation/applied FRAME/stale-paste-copy; ainotice-* selector namespace present; MV3 valid; storage-only permission; connect-src 'none'. Supersedes the AG-351-promoted 0051f199… ZIP. No store upload; no GitHub Release. Privacy policy: https://www.ainotice.app/privacy/ — Screenshot set: AG-338 production-quality screenshots."
 }

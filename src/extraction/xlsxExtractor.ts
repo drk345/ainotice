@@ -181,7 +181,7 @@ function decodeXmlEntities(s: string): string {
  * @param buffer Raw XLSX file bytes
  * @returns Extraction result with bodyText and metrics
  */
-export async function extractXlsxWithBudgets(buffer: Buffer): Promise<XlsxExtractionResult> {
+export async function extractXlsxWithBudgets(buffer: Uint8Array | ArrayBuffer): Promise<XlsxExtractionResult> {
   const totalStart = performance.now();
 
   const coverage: XlsxCoverageTelemetry = {

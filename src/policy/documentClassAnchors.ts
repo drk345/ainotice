@@ -742,32 +742,31 @@ function hasBankTransferContext(textContent: string): boolean {
  * When these are present, M&A signals (e.g., "acquisition" in "talent acquisition")
  * should be vetoed to prevent false positives on job resumes.
  */
+// AG-PROMPT-352: tightened to STRONG resume/CV-identity markers only. The prior
+// list included generic business/proposal terms ("experience", "skills",
+// "certifications", "managed/led/developed/implemented", "years of experience",
+// "proficient in", bare "education") that a readable security/pentesting/business
+// PROPOSAL naturally contains — so a non-resume document falsely matched "resume
+// context" and its genuine M&A signal was vetoed, collapsing the explanation to
+// "We couldn't determine what this file contains". AG-350 already gates the M&A
+// pattern on real M&A context, so lone resume phrases ("talent acquisition",
+// "due diligence") no longer fire it; this veto now only needs to catch documents
+// that are unambiguously resumes/CVs.
 const RESUME_CONTEXT_MARKERS = [
-  // Section headers
-  /\b(?:work\s+)?experience\b/i,
-  /\beducation\b/i,
-  /\bskills?\b/i,
-  /\bcertifications?\b/i,
-  /\bqualifications?\b/i,
-  /\bprofessional\s+(?:summary|profile|experience)\b/i,
-  /\bcareer\s+(?:summary|objective|highlights?)\b/i,
-  /\bemployment\s+history\b/i,
-  /\bwork\s+history\b/i,
-  // Resume/CV identifiers
+  // Explicit resume/CV identifiers
   /\bresume\b/i,
   /\bcurriculum\s*vitae\b/i,
   /\b(?:cv|c\.v\.)\b/i,
-  // Common resume phrases
-  /\b(?:responsible\s+for|managed|led|developed|implemented)\b/i,
-  /\byears?\s+(?:of\s+)?experience\b/i,
-  /\bproficient\s+in\b/i,
-  // Non-English resume markers
+  // Strong resume section headers (rare in non-resume business/technical docs)
+  /\bemployment\s+history\b/i,
+  /\bwork\s+history\b/i,
+  /\bprofessional\s+(?:summary|profile)\b/i,
+  /\bcareer\s+(?:summary|objective|highlights?)\b/i,
+  // Non-English CV identifiers
   /\blebenslauf\b/i,          // German CV
   /\bberufserfahrung\b/i,     // German work experience
-  /\bausbildung\b/i,          // German education
   /\bmeritförteckning\b/i,    // Swedish CV
   /\barbejdserfaring\b/i,     // Danish work experience
-  /\buddannelse\b/i,          // Danish education
 ];
 
 /**
@@ -821,8 +820,14 @@ const GENERIC_KEYWORD_SIGNAL_IDS = new Set([
   'global-swift',
   'english-financial-statement',
   'nordic-financial-terms',
-  'global-ma-terms',
-  'global-ma-valuation-context',
+  // AG-PROMPT-352: `global-ma-terms` / `global-ma-valuation-context` REMOVED from
+  // the generic-keyword veto. AG-350 made these patterns require genuine M&A
+  // CONTEXT (they no longer fire on lone generic governance terms like "due
+  // diligence"), so treating them as suppressible generic keywords is now
+  // over-aggressive: it dropped the sole surviving M&A signal on a readable
+  // security/M&A due-diligence document, collapsing the explanation to
+  // "We couldn't determine what this file contains". They remain covered by the
+  // narrower resume-specific MA_SIGNAL_IDS_FOR_RESUME_VETO above.
 ]);
 
 /**

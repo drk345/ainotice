@@ -641,7 +641,7 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
 async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = new Uint8Array(arrayBuffer);
 
     const xlsxResult = await extractXlsxWithBudgets(buffer);
 

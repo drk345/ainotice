@@ -51,6 +51,8 @@ import {
   assessUrlCredentialMatchQuality,
   CONFIDENTIAL_PATTERN_IDS,
   assessConfidentialMatchQuality,
+  ICD_PATTERN_IDS,
+  assessIcd10MatchQuality,
 } from './qualityGates';
 
 // AG-PROMPT-SIGNAL-VALIDATION-GATES-024: Payment card validation gates
@@ -656,6 +658,8 @@ function runPattern(
   const isUrlCredentialPattern = URL_CREDENTIAL_PATTERN_IDS.has(pattern.id);
   // AG-PROMPT-CONFIDENTIAL-QUALITY-007: Check if this pattern needs confidentiality quality assessment
   const isConfidentialPattern = CONFIDENTIAL_PATTERN_IDS.has(pattern.id);
+  // AG-PROMPT-360 (FQ-1): ICD-10 patterns need medical context corroboration
+  const isIcdPattern = ICD_PATTERN_IDS.has(pattern.id);
 
   if (pattern.countMatches) {
     // Count all matches - need to iterate with exec for URL credential quality checks
@@ -681,6 +685,22 @@ function runPattern(
           if (!qualityResult.shouldReject) {
             rawMatches.push(execMatch[0]);
           }
+        }
+      }
+    } else if (isIcdPattern) {
+      // AG-PROMPT-360 (FQ-1): Only count ICD-like codes that have medical vocabulary nearby.
+      // Version tokens (V20.11, A12.3) share the regex but lack clinical context and are rejected.
+      if (pattern.pattern.global) {
+        let execMatch: RegExpExecArray | null;
+        while ((execMatch = pattern.pattern.exec(text)) !== null) {
+          if (!assessIcd10MatchQuality(execMatch[0], text, execMatch.index).shouldReject) {
+            rawMatches.push(execMatch[0]);
+          }
+        }
+      } else {
+        const execMatch = pattern.pattern.exec(text);
+        if (execMatch && !assessIcd10MatchQuality(execMatch[0], text, execMatch.index).shouldReject) {
+          rawMatches.push(execMatch[0]);
         }
       }
     } else {

@@ -74,6 +74,22 @@ export interface UrlCredentialMatchQualityResult {
  * @param matchString - The matched URL credential string
  * @returns Quality assessment result
  */
+// FQ-2 (AG-PROMPT-360): Loopback/dev host helpers for URL credential quality assessment.
+// Token-class query params on localhost/127.0.0.1/[::1]/*.local/*.test are dev
+// session/preview tokens — not real secrets. Password-class params are NOT exempted.
+function isLoopbackOrDevHost(url: string): boolean {
+  if (/^https?:\/\/\[::1\][/:?#]?/i.test(url)) return true;
+  const hostMatch = /^https?:\/\/([^/?#:]+)/i.exec(url);
+  if (!hostMatch) return false;
+  const host = hostMatch[1].toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local') || host.endsWith('.test');
+}
+
+function hasInlineAuthCredentials(url: string): boolean {
+  const authMatch = /^https?:\/\/([^/?#]+)/i.exec(url);
+  return authMatch ? authMatch[1].includes('@') : false;
+}
+
 export function assessUrlCredentialMatchQuality(
   matchString: string
 ): UrlCredentialMatchQualityResult {
@@ -170,6 +186,21 @@ export function assessUrlCredentialMatchQuality(
       shouldReject: false, // Conservative - don't reject
       metrics,
     };
+  }
+
+  // FQ-2 (AG-PROMPT-360): Token-class query params on loopback/dev hosts are dev-workflow
+  // artifacts, not real secrets (preview tokens, session keys, etc.). Password-class params
+  // (password=, passwd=, pwd=, pass=) are NOT exempted — they warn even on loopback.
+  // Inline user:pass@ credentials are also NOT exempted regardless of host.
+  if (!hasInlineAuthCredentials(matchString) && isLoopbackOrDevHost(matchString)) {
+    if (/[?&](token|secret|api_key|apikey)=[^&\s]{4,}/i.test(matchString)) {
+      return {
+        quality: 'noise',
+        reason: 'loopback_dev_query_token',
+        shouldReject: true,
+        metrics,
+      };
+    }
   }
 
   // Default: Plausible URL credential
@@ -532,4 +563,52 @@ export function assessConfidentialMatchQuality(
     shouldReject: false,
     metrics,
   };
+}
+
+// ============================================================================
+// ICD-10 / MEDICAL CODE MATCH QUALITY HEURISTICS (AG-PROMPT-360 FQ-1)
+// ============================================================================
+
+/**
+ * ICD-10 pattern IDs that require medical context corroboration before firing.
+ * The ICD-like regex (/\b[A-Z]\d{2}\.\d{1,2}\b/) also matches software version
+ * tokens (V20.11, A12.3). Context gating prevents false positives in dev text.
+ */
+export const ICD_PATTERN_IDS = new Set([
+  'registry-icd10-code',
+]);
+
+/** Medical vocabulary terms used to corroborate ICD-like code matches. */
+const MEDICAL_CONTEXT_TERMS = /\b(patient|diagnosis|diagnosed|clinical|prescription|medication|prognosis|treatment|symptom|disease|disorder|syndrome|pathology|laboratory|specimen|physician|hospital|surgery|dosage|chronic|acute|comorbidity|medical\s+record|health\s+record|diagnostic|therapy|therapist|nurse|doctor|ailment|morbidity|biopsy|radiology|oncology|cardiology|neurology|pediatric|anesthesia|pharmacology|immunology|hematology|psychiatry|dermatology)\b/i;
+
+export interface Icd10MatchQualityResult {
+  quality: 'medical_context' | 'no_medical_context';
+  reason: string;
+  shouldReject: boolean;
+}
+
+/**
+ * AG-PROMPT-360 (FQ-1): ICD-10 context corroboration quality gate.
+ *
+ * Rejects matches that lack nearby medical vocabulary. Prevents software version
+ * tokens (e.g. V20.11, A12.3) from triggering the ICD-10 / medical-code signal.
+ * Clinical documents contain medical vocabulary adjacent to ICD codes and pass.
+ *
+ * @param matchString - The matched code token (e.g. "V20.11")
+ * @param fullText - Full document text for context scanning
+ * @param matchIndex - Position of the match within fullText
+ */
+export function assessIcd10MatchQuality(
+  matchString: string,
+  fullText: string,
+  matchIndex: number
+): Icd10MatchQualityResult {
+  const contextRadius = 200;
+  const contextStart = Math.max(0, matchIndex - contextRadius);
+  const contextEnd = Math.min(fullText.length, matchIndex + matchString.length + contextRadius);
+  const contextWindow = fullText.slice(contextStart, contextEnd);
+  if (MEDICAL_CONTEXT_TERMS.test(contextWindow)) {
+    return { quality: 'medical_context', reason: 'medical_vocabulary_nearby', shouldReject: false };
+  }
+  return { quality: 'no_medical_context', reason: 'no_medical_vocabulary', shouldReject: true };
 }

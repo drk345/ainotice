@@ -567,21 +567,11 @@ function analyzeTextContentLegacy(content: string, source: SignalSource): RiskSi
   }
   // NOTE: Phone detection removed from here - now handled by locale-aware detection packs
   // See src/detection/packs/nordic.ts for conservative phone patterns
-  if (/\b(confidential|secret|classified|internal\s+only|restricted|proprietary)\b/i.test(content)) {
-    signals.push({ type: 'confidential', description: 'Confidentiality marker in text', severity: 'high', detail: 'Document text contains confidentiality markers.', source, detectedAt: Date.now(), evidence: legacyEvidence(/\b(confidential|secret|classified|internal\s+only|restricted|proprietary)\b/i, 'legacy.confidential') });
-  }
-  if (/\b(bank\s+account|routing\s+number|swift|iban|wire\s+transfer)\b/i.test(content)) {
-    signals.push({ type: 'financial', description: 'Banking information', severity: 'high', detail: 'File contains banking or wire transfer details.', source, detectedAt: Date.now(), evidence: legacyEvidence(/\b(bank\s+account|routing\s+number|swift|iban|wire\s+transfer)\b/i, 'legacy.banking') });
-  }
-  if (/\b(whereas|hereby|indemnify|liability|jurisdiction|arbitration|governing\s+law)\b/i.test(content)) {
-    signals.push({ type: 'legal', description: 'Legal language detected', severity: 'medium', detail: 'File contains legal contract language.', source, detectedAt: Date.now(), evidence: legacyEvidence(/\b(whereas|hereby|indemnify|liability|jurisdiction|arbitration|governing\s+law)\b/i, 'legacy.legal') });
-  }
-  if (/\b(acquisition|merger|due\s+diligence|letter\s+of\s+intent|term\s+sheet|valuation)\b/i.test(content)) {
-    signals.push({ type: 'confidential', description: 'M&A content detected', severity: 'critical', detail: 'File contains merger/acquisition-related content.', source, detectedAt: Date.now(), evidence: legacyEvidence(/\b(acquisition|merger|due\s+diligence|letter\s+of\s+intent|term\s+sheet|valuation)\b/i, 'legacy.ma') });
-  }
-  if (/\b(salary|compensation|performance\s+review|termination|disciplinary)\b/i.test(content)) {
-    signals.push({ type: 'pii', description: 'HR/Employee data', severity: 'high', detail: 'File contains HR or employee-related information.', source, detectedAt: Date.now(), evidence: legacyEvidence(/\b(salary|compensation|performance\s+review|termination|disciplinary)\b/i, 'legacy.hr') });
-  }
+  // AG-PROMPT-360 (FQ-5): Keyword-based patterns (confidential, banking, legal, M&A, HR) removed.
+  // These classes are now covered by governed packs with quality gates and evidence thresholds.
+  // This fallback is STRUCTURAL-ONLY: format-identifiable secrets and high-density identifiers.
+  // Adding keyword classes here would invert the pack quality gates (which correctly suppress
+  // narrative uses of these words) and re-introduce false positives on benign text.
 
   return signals;
 }
