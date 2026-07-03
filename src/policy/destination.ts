@@ -45,10 +45,6 @@ const PUBLIC_AI_EXACT_HOSTS = new Set([
   'gemini.google.com',
   'aistudio.google.com',
   'copilot.microsoft.com',
-  'perplexity.ai',
-  'poe.com',
-  'v0.dev',
-  'cursor.com',
 ]);
 
 /**
@@ -60,12 +56,7 @@ const PUBLIC_AI_EXACT_HOSTS = new Set([
  * - *.microsoft.com (would match Office, Azure, etc.)
  * - *.amazon.com (would match AWS Console, etc.)
  */
-const PUBLIC_AI_SUFFIX_PATTERNS = [
-  '.openai.com',      // api.openai.com, platform.openai.com
-  '.anthropic.com',   // console.anthropic.com, api.anthropic.com
-  '.perplexity.ai',   // labs.perplexity.ai
-  '.bing.com',        // copilot.bing.com, chat.bing.com (Bing AI)
-];
+const PUBLIC_AI_SUFFIX_PATTERNS: string[] = [];
 
 /**
  * Authentication and login pages that should ALWAYS return 'unknown'

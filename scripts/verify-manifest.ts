@@ -132,10 +132,35 @@ console.log('Test Suite: Chrome Manifest (MV3)');
       `Chrome must not request forbidden permissions (found: ${present.join(', ')})`);
   });
 
-  test('Chrome host_permissions include broad HTTPS', () => {
+  test('Chrome host_permissions do NOT include wildcard https://*/* (AG-363)', () => {
     const hp: string[] = chromeManifest.host_permissions || [];
-    assert(hp.includes('https://*/*'),
-      `Chrome host_permissions should include https://*/* (got: ${JSON.stringify(hp)})`);
+    assert(!hp.includes('https://*/*'),
+      `Chrome host_permissions must NOT include https://*/* — use explicit AI site patterns (AG-363 narrowing)`);
+    assert(!hp.includes('<all_urls>'),
+      `Chrome host_permissions must NOT include <all_urls>`);
+  });
+
+  test('Chrome host_permissions contain all launch-supported AI site patterns (AG-363)', () => {
+    const hp: string[] = chromeManifest.host_permissions || [];
+    const required = [
+      'https://chatgpt.com/*',
+      'https://chat.openai.com/*',
+      'https://claude.ai/*',
+      'https://gemini.google.com/*',
+      'https://aistudio.google.com/*',
+      'https://copilot.microsoft.com/*',
+    ];
+    for (const p of required) {
+      assert(hp.includes(p), `Chrome host_permissions must include ${p} (AG-363)`);
+    }
+  });
+
+  test('Chrome content_scripts.matches do NOT include wildcard (AG-363)', () => {
+    const matches: string[] = (chromeManifest.content_scripts?.[0]?.matches) || [];
+    assert(!matches.includes('https://*/*'),
+      `Chrome content_scripts.matches must NOT include https://*/* (AG-363 narrowing)`);
+    assert(!matches.includes('<all_urls>'),
+      `Chrome content_scripts.matches must NOT include <all_urls>`);
   });
 
   test("Chrome CSP connect-src is 'none'", () => {
@@ -188,9 +213,27 @@ console.log('\nTest Suite: Firefox Manifest (MV2)');
       'Firefox web_accessible_resources should be absent/empty (AG-299) or, if present, MV2 string array');
   });
 
-  test('Firefox permissions include host patterns (MV2 style)', () => {
-    assert(firefoxManifest.permissions.includes('https://*/*'),
-      'Firefox MV2 should include host patterns in permissions');
+  test('Firefox permissions do NOT include wildcard https://*/* (AG-363)', () => {
+    const perms: string[] = firefoxManifest.permissions || [];
+    assert(!perms.includes('https://*/*'),
+      `Firefox permissions must NOT include https://*/* — use explicit AI site patterns (AG-363 narrowing)`);
+    assert(!perms.includes('<all_urls>'),
+      `Firefox permissions must NOT include <all_urls>`);
+  });
+
+  test('Firefox permissions contain all launch-supported host patterns (MV2 style, AG-363)', () => {
+    const perms: string[] = firefoxManifest.permissions || [];
+    const required = [
+      'https://chatgpt.com/*',
+      'https://chat.openai.com/*',
+      'https://claude.ai/*',
+      'https://gemini.google.com/*',
+      'https://aistudio.google.com/*',
+      'https://copilot.microsoft.com/*',
+    ];
+    for (const p of required) {
+      assert(perms.includes(p), `Firefox permissions must include ${p} (AG-363)`);
+    }
   });
 }
 

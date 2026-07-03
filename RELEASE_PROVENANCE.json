@@ -1,18 +1,28 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "3ac37a9e870d225dd67429ef19028ba555734b33",
+  "source_commit": "ddad0a7fb298a301505f161203ae4b62f4166d1b",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-07-02T21:00:00Z",
-  "prompt_id": "AG-PROMPT-361",
-  "promotion_tool": "scripts/release-export.ts (governed dev→release promotion)",
+  "generated_at": "2026-07-03T10:00:00Z",
+  "prompt_id": "AG-PROMPT-364",
+  "promotion_tool": "governed dev→release promotion (copy allow-listed changed files + ZIP)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d",
+  "promoted_zip_sha256": "f698e55bd3546dd3928072ab9b75949a432b654ef5c882ab6a0442ff3147cbad",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "0051f199a4d339628d7bf6a1ddce03f1f5fa85437cd739dcce2fc6a2e56dc628",
+  "supersedes_release_zip_sha256": "786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
   "github_release": "NONE — no GitHub Release created by this promotion",
-  "note": "Governed dev→release promotion of the paste-precision Chrome candidate (AG-PROMPT-361). Includes AG-352 (readable PDF explanation: security proposal / pentesting / due-diligence fixture routes to business-sensitive framing; genuine resume no longer receives false M&A; extraction-limited PDF safe-fallbacks), AG-353 (visible warning copy: business-sensitive Critical/Confirmed modal no longer uses 'Some patterns may relate'; 'noClassInferred' headline framing improved), AG-356 (XLSX browser extraction: Uint8Array/ArrayBuffer path; Buffer.from(arrayBuffer) absent from content script; corrupt/malformed XLSX safe-fallback; popup inline onerror absent), and AG-360 (paste precision: ICD-10 context gating — version tokens V20.11/A12.3 no longer produce medical warnings without medical vocabulary; loopback/dev-host token= URL no longer CRITICAL; legacy keyword fallback inversion removed). Secrets, credentials, SSNs, credit cards, IBANs, CPR/national IDs, strong M&A context, strong financial identifiers, and public-host credentials all still warn. AG-357/358/359 chat-only reviews reconciled in dev state.yaml. Release-side build:chrome + package:chrome independently reproduced promoted_zip_sha256 786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d from source_commit 3ac37a9 (release gate 10/10). Dev CORE 49/49 suites passed. Final ZIP artifact hygiene: zero AgentGuard/agentguard/AG-PROMPT/AG_PROMPT/PROMPT-/No DecisionExplanation/applied FRAME/stale-paste-copy; ainotice-* selector namespace present; MV3 valid; storage-only permission; connect-src 'none'. Supersedes the AG-351-promoted 0051f199… ZIP. No store upload; no GitHub Release. Privacy policy: https://www.ainotice.app/privacy/ — Screenshot set: AG-338 production-quality screenshots."
+  "release_commit_before_promotion": "cb6dcf2360a9db8e958f944e4eea514ad0d5f144",
+  "exact_host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://aistudio.google.com/*",
+    "https://copilot.microsoft.com/*"
+  ],
+  "wildcard_host_permissions": "NONE — AG-363 removed https://*/* from manifest.chrome.json and manifest.firefox.json",
+  "note": "Governed dev→release promotion of the manifest-scope-narrowed Chrome candidate (AG-PROMPT-364). Includes AG-352 (readable PDF explanation), AG-353 (visible warning copy), AG-356 (XLSX browser extraction), AG-360 (paste precision: ICD-10 context gating, loopback URL credential gate, legacy keyword fallback inversion removed), and AG-363 (manifest scope narrowing: host_permissions and content_scripts.matches now use 6 explicit launch-supported AI site patterns only — no wildcard https://*/*, no <all_urls>, no broad suffix patterns). Launch-supported sites: chatgpt.com, chat.openai.com, claude.ai, gemini.google.com, aistudio.google.com, copilot.microsoft.com. Removed: perplexity.ai, poe.com, v0.dev, cursor.com, and broad suffix patterns (openai.com, anthropic.com, perplexity.ai, bing.com). Extension now only activates on the 6 explicitly supported sites. tsc 0 errors; CORE 49/49; verify-manifest 28/28; activation-gate 35/35; Chrome build 20/20; Firefox build 25/25; release gate 10/10. Final ZIP artifact hygiene: clean — no wildcard host access, no AgentGuard/AG-PROMPT/AG_PROMPT/PROMPT- branding leaks, no inline onerror=, no dev URL artifacts (http://127.0.0.1/http://localhost), Ai Notice product name present, chatgpt.com/claude.ai/gemini.google.com/copilot.microsoft.com present, connect-src present. The string '127.0.0.1' appears in content.js as the isLoopbackOrDevHost detection pattern string (AG-360 FQ-2 quality gate), not as a dev artifact URL — confirmed legitimate. Permissions: ['storage'] only (Chrome); no wildcard host access; connect-src 'none'. No store upload; no GitHub Release. Privacy policy: https://www.ainotice.app/privacy/ — Screenshot set: AG-338 production-quality screenshots."
 }

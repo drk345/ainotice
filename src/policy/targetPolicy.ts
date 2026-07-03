@@ -145,10 +145,6 @@ export const BUILTIN_TARGETS_EXACT = new Set([
   'gemini.google.com',
   'aistudio.google.com',
   'copilot.microsoft.com',
-  'perplexity.ai',
-  'poe.com',
-  'v0.dev',
-  'cursor.com',
 ]);
 
 /**
@@ -156,12 +152,7 @@ export const BUILTIN_TARGETS_EXACT = new Set([
  * These allow subdomains like api.openai.com.
  * Matches PUBLIC_AI_SUFFIX_PATTERNS from destination.ts.
  */
-export const BUILTIN_TARGETS_SUFFIX = [
-  'openai.com',
-  'anthropic.com',
-  'perplexity.ai',
-  'bing.com',
-];
+export const BUILTIN_TARGETS_SUFFIX: string[] = [];
 
 /**
  * Authentication pages - always excluded from scanning.
