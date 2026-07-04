@@ -1,16 +1,20 @@
 /**
  * AG-PROMPT-SIGNAL-SWIFT-FALSEPOS-FIX-032: SWIFT/BIC Validation Gates
  * AG-PROMPT-NATIONAL-ID-ARCHITECTURE-035: Gate 4 — Common word exclusion
+ * AG-PROMPT-365: Gate 3 promoted from SOFT to HARD — a bare BIC-structured
+ * token with a structurally valid country code (e.g. ALMAVIVA -> VI,
+ * BASELINE -> LI) was previously accepted with zero financial context,
+ * producing user-facing SWIFT/BIC warnings on ordinary uppercase prose.
  *
  * Four-gate validation to prevent false positives from random uppercase
  * sequences that match the SWIFT/BIC pattern but aren't real bank codes.
  *
  * Gate 1: ISO 3166-1 country code validation (HARD)
  * Gate 2: PDF substrate guard (HARD)
- * Gate 3: Financial context proximity (SOFT — informational only)
+ * Gate 3: Financial context proximity (HARD — AG-PROMPT-365)
  * Gate 4: Common word exclusion (HARD)
  *
- * Decision: isValidBic = countryCode AND substrateClean AND commonWordClean
+ * Decision: isValidBic = countryCode AND substrateClean AND commonWordClean AND hasFinancialContext
  *
  * Privacy: No raw content is ever logged or returned in results.
  */
@@ -30,6 +34,7 @@ export interface SwiftBicValidationResult {
   gatesPassed: {
     countryCode: boolean;
     substrateClean: boolean;
+    /** AG-PROMPT-365: now a HARD gate — false means the match is rejected */
     contextProximity: boolean;
     commonWordClean: boolean;
   };
@@ -109,9 +114,12 @@ const PDF_SUBSTRATE_TOKENS = [
 /**
  * Financial context keywords for proximity check.
  * English + common Nordic/German variants.
+ * AG-PROMPT-365: added payment, account, invoice, sepa — required so this
+ * gate (now HARD) doesn't reject genuine BIC mentions phrased with those words.
  */
 const FINANCIAL_CONTEXT_KEYWORDS = [
   'swift', 'bic', 'iban', 'bank', 'routing', 'wire', 'transfer',
+  'payment', 'account', 'invoice', 'sepa',
   'konto', 'bankforbindelse', 'bankverbindung', 'kontonummer',
   'overforsel', 'remittance', 'beneficiary',
 ];
@@ -193,12 +201,15 @@ function checkPdfSubstrate(
 }
 
 // ============================================================================
-// GATE 3: FINANCIAL CONTEXT PROXIMITY (SOFT)
+// GATE 3: FINANCIAL CONTEXT PROXIMITY (HARD — AG-PROMPT-365)
 // ============================================================================
 
 /**
  * Check if financial keywords exist near the match.
- * This is a soft gate — informational only, not used for rejection.
+ * AG-PROMPT-365: promoted to a HARD gate — a bare BIC-structured token
+ * (e.g. an ordinary all-caps word whose positions 4-5 happen to form a
+ * valid ISO country code) must not be treated as a bank identifier unless
+ * nearby text supports a banking/payment interpretation.
  */
 function checkFinancialContext(
   fullText: string,
@@ -254,7 +265,7 @@ export function validateSwiftBic(
   const hasPdfSubstrate = checkPdfSubstrate(fullText, matchIndex, matchString.length);
   const substrateClean = !hasPdfSubstrate;
 
-  // Gate 3: Financial context proximity (SOFT)
+  // Gate 3: Financial context proximity (HARD — AG-PROMPT-365)
   const hasFinancialContext = checkFinancialContext(fullText, matchIndex, matchString.length);
 
   // Gate 4: Common word exclusion (HARD)
@@ -262,7 +273,7 @@ export function validateSwiftBic(
   const commonWordClean = !isCommonWord;
 
   // Decision: all hard gates must pass
-  const isValidBic = countryCheck.valid && substrateClean && commonWordClean;
+  const isValidBic = countryCheck.valid && substrateClean && commonWordClean && hasFinancialContext;
 
   // Determine rejection reason
   let rejectionReason: string | null = null;
@@ -272,6 +283,8 @@ export function validateSwiftBic(
     rejectionReason = 'Match found in PDF substrate context';
   } else if (!commonWordClean) {
     rejectionReason = `Common word exclusion: ${matchString}`;
+  } else if (!hasFinancialContext) {
+    rejectionReason = 'No financial/banking context nearby';
   }
 
   return {

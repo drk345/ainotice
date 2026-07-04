@@ -1,20 +1,20 @@
 {
   "source_repo_path": "C:\\dev\\agentguard",
   "source_repo": "agentguard (dev)",
-  "source_commit": "ddad0a7fb298a301505f161203ae4b62f4166d1b",
+  "source_commit": "0c6566fc85c94e05026fed5a5907b0c4837d78f0",
   "source_branch": "main",
   "source_version": "1.0.0",
   "extension_name": "Ai Notice",
-  "generated_at": "2026-07-03T10:00:00Z",
-  "prompt_id": "AG-PROMPT-364",
+  "generated_at": "2026-07-04T00:00:00Z",
+  "prompt_id": "AG-PROMPT-366",
   "promotion_tool": "governed dev→release promotion (copy allow-listed changed files + ZIP)",
   "allow_list_version": "AG-269-plan-v1",
-  "promoted_zip_sha256": "f698e55bd3546dd3928072ab9b75949a432b654ef5c882ab6a0442ff3147cbad",
+  "promoted_zip_sha256": "e990b72e9ea8d50df099ffd45f75b521e8cb83e695e7abfa839d4465df4ca7ad",
   "promoted_zip_path": "release/ainotice-chrome.zip",
-  "supersedes_release_zip_sha256": "786e465d9f8f2219140d87ad59326c08e7c316fbcbaeefe4b66edbacc500dd9d",
+  "supersedes_release_zip_sha256": "f698e55bd3546dd3928072ab9b75949a432b654ef5c882ab6a0442ff3147cbad",
   "store_upload": "NONE — no Chrome Web Store upload performed by this promotion",
   "github_release": "NONE — no GitHub Release created by this promotion",
-  "release_commit_before_promotion": "cb6dcf2360a9db8e958f944e4eea514ad0d5f144",
+  "release_commit_before_promotion": "4c134321f162a81e3be0028c5276852ce4ab385e",
   "exact_host_permissions": [
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
@@ -23,6 +23,6 @@
     "https://aistudio.google.com/*",
     "https://copilot.microsoft.com/*"
   ],
-  "wildcard_host_permissions": "NONE — AG-363 removed https://*/* from manifest.chrome.json and manifest.firefox.json",
-  "note": "Governed dev→release promotion of the manifest-scope-narrowed Chrome candidate (AG-PROMPT-364). Includes AG-352 (readable PDF explanation), AG-353 (visible warning copy), AG-356 (XLSX browser extraction), AG-360 (paste precision: ICD-10 context gating, loopback URL credential gate, legacy keyword fallback inversion removed), and AG-363 (manifest scope narrowing: host_permissions and content_scripts.matches now use 6 explicit launch-supported AI site patterns only — no wildcard https://*/*, no <all_urls>, no broad suffix patterns). Launch-supported sites: chatgpt.com, chat.openai.com, claude.ai, gemini.google.com, aistudio.google.com, copilot.microsoft.com. Removed: perplexity.ai, poe.com, v0.dev, cursor.com, and broad suffix patterns (openai.com, anthropic.com, perplexity.ai, bing.com). Extension now only activates on the 6 explicitly supported sites. tsc 0 errors; CORE 49/49; verify-manifest 28/28; activation-gate 35/35; Chrome build 20/20; Firefox build 25/25; release gate 10/10. Final ZIP artifact hygiene: clean — no wildcard host access, no AgentGuard/AG-PROMPT/AG_PROMPT/PROMPT- branding leaks, no inline onerror=, no dev URL artifacts (http://127.0.0.1/http://localhost), Ai Notice product name present, chatgpt.com/claude.ai/gemini.google.com/copilot.microsoft.com present, connect-src present. The string '127.0.0.1' appears in content.js as the isLoopbackOrDevHost detection pattern string (AG-360 FQ-2 quality gate), not as a dev artifact URL — confirmed legitimate. Permissions: ['storage'] only (Chrome); no wildcard host access; connect-src 'none'. No store upload; no GitHub Release. Privacy policy: https://www.ainotice.app/privacy/ — Screenshot set: AG-338 production-quality screenshots."
+  "wildcard_host_permissions": "NONE — AG-363 removed https://*/* from manifest.chrome.json and manifest.firefox.json (unchanged by this promotion)",
+  "note": "Governed dev→release promotion of the AG-PROMPT-365 SWIFT/BIC context-gate fix (AG-PROMPT-366). Only allow-listed file changed since the AG-364 promotion: src/detection/swiftBicValidation.ts. AG-365 promoted the financial-context-proximity gate (Gate 3) from SOFT/informational to HARD — a bare 8/11-char uppercase token whose positions 4-5 structurally form a valid ISO 3166-1 country code (e.g. ALMAVIVA -> VI, BASELINE -> LI) no longer produces a user-facing global-swift signal unless nearby text supports a banking/payment interpretation (keywords: swift, bic, iban, bank, routing, wire, transfer, payment, account, invoice, sepa, remittance, beneficiary, + Nordic/German variants). Explicit labels (SWIFT: DEUTDEFF, BIC DEUTDEFFXXX, Beneficiary bank BIC: NEDSZAJJ) still trigger. No manifest, permission, or host-scope change in this promotion (AG-363 scope narrowing carried forward unchanged). tsc 0 errors; CORE 49/49 (incl. test-swift-validation-gates 29/29); Chrome build 34/34 + 20/20 consumer-copy; Firefox build 25/25; release gate 10/10. Pre-existing unrelated failure test-ticket-suppression B.1 (not in CORE tier, not release-gated, confirmed present on unmodified dev HEAD via git stash in AG-365) does not block this promotion. Final ZIP artifact hygiene: clean — no wildcard host access, no <all_urls>, no AgentGuard/agentguard/AG-PROMPT branding leaks, no .map/.ts files, no debugger; statement, no dev URL artifacts (http://127.0.0.1/http://localhost); the single 'onerror=' occurrence in content.js is a FileReader.onerror JS property assignment (not an inline HTML handler) — benign. Ai Notice product name present; chatgpt.com/claude.ai/gemini.google.com/copilot.microsoft.com present; connect-src present. Permissions: ['storage'] only (Chrome); no wildcard host access; connect-src 'none'. No store upload; no GitHub Release."
 }

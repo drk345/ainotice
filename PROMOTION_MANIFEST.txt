@@ -1,9 +1,9 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: ddad0a7fb298a301505f161203ae4b62f4166d1b
-# generated_at:  2026-07-03T10:00:00Z
-# prompt_id:     AG-PROMPT-364
-# supersedes:    AG-PROMPT-361 (source_commit 3ac37a9e, ZIP SHA 786e465d…)
-# change:        AG-363 manifest scope narrowing — host_permissions narrowed to 6 explicit launch sites
+# source_commit: 0c6566fc85c94e05026fed5a5907b0c4837d78f0
+# generated_at:  2026-07-04T00:00:00Z
+# prompt_id:     AG-PROMPT-366
+# supersedes:    AG-PROMPT-364 (source_commit ddad0a7f, ZIP SHA f698e55b…)
+# change:        AG-365 SWIFT/BIC financial-context gate promoted SOFT -> HARD (src/detection/swiftBicValidation.ts only)
 
 ## Copied (allow-listed):
 PRIVACY.md
