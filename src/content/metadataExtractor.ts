@@ -561,10 +561,30 @@ function parseXmlDate(xml: string, tagName: string): Date | undefined {
  * Uses selective ZIP entry reading with hard budgets — never hangs.
  * Replaces the previous JSZip full-load path for DOCX files.
  */
+/**
+ * AG-PROMPT-370/371: Deep-copy an ArrayBuffer-backed view into a fresh, same-realm
+ * Uint8Array before handing bytes to a ZIP parser (JSZip). Firefox can hand back a
+ * foreign-realm (Xray-wrapped) ArrayBuffer/Uint8Array from Blob.arrayBuffer() on a
+ * File that crossed the content-script/page boundary; JSZip's internal
+ * `instanceof Uint8Array` / `instanceof ArrayBuffer` checks (utils.getTypeOf) then
+ * fail across realms, throwing "Can't read the data of..." — silently converted by
+ * the caller's fail-open try/catch into success:false (no signals, no warning),
+ * while the identical bytes parse fine on Chrome (no Xray wrappers). A fresh,
+ * same-realm copy sidesteps this regardless of the buffer's origin. Mirrors the
+ * pattern already used for PDF extraction (see extractPdfBodyText above). Shared
+ * by all ZIP-based Office extractors (DOCX/XLSX/PPTX) so the defense lives in one
+ * place instead of being re-derived per format.
+ */
+function toRealmSafeBytes(view: Uint8Array): Uint8Array {
+  const copy = new Uint8Array(view.length);
+  copy.set(view);
+  return copy;
+}
+
 async function extractDocxMetadataSelective(file: File): Promise<ExtractionResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
+    const uint8Array = toRealmSafeBytes(new Uint8Array(arrayBuffer));
 
     const docxResult = await extractDocxSelectiveWithTimeout(uint8Array, DOCX_HARD_TIMEOUT_MS);
 
@@ -641,7 +661,10 @@ async function extractDocxMetadataSelective(file: File): Promise<ExtractionResul
 async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
+    // AG-PROMPT-371: same-realm copy before ANY use — this buffer is passed to
+    // JSZip.loadAsync() twice below (once inside extractXlsxWithBudgets, once
+    // directly for metadata). See toRealmSafeBytes doc comment above.
+    const buffer = toRealmSafeBytes(new Uint8Array(arrayBuffer));
 
     const xlsxResult = await extractXlsxWithBudgets(buffer);
 
@@ -710,7 +733,9 @@ async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResul
 async function extractPptxMetadataSelective(file: File): Promise<ExtractionResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
+    // AG-PROMPT-371: same-realm copy before handing bytes to JSZip.loadAsync()
+    // inside extractPptxSelective. See toRealmSafeBytes doc comment above.
+    const uint8Array = toRealmSafeBytes(new Uint8Array(arrayBuffer));
 
     const pptxResult = await extractPptxSelectiveWithTimeout(uint8Array, PPTX_HARD_TIMEOUT_MS);
 

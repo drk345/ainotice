@@ -1,9 +1,14 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: 0c6566fc85c94e05026fed5a5907b0c4837d78f0
-# generated_at:  2026-07-04T00:00:00Z
-# prompt_id:     AG-PROMPT-366
-# supersedes:    AG-PROMPT-364 (source_commit ddad0a7f, ZIP SHA f698e55b…)
-# change:        AG-365 SWIFT/BIC financial-context gate promoted SOFT -> HARD (src/detection/swiftBicValidation.ts only)
+# source_commit: a50cb005a4bfeee5cdb9155573110130933dfe83
+# generated_at:  2026-07-05T03:00:00Z
+# prompt_id:     AG-PROMPT-372
+# supersedes:    AG-PROMPT-366 (source_commit 0c6566fc, ZIP SHA e990b72e…)
+# change:        AG-369 Copilot drag/drop Cancel fix (src/content/index.ts:
+#                event.stopPropagation() -> event.stopImmediatePropagation())
+#                + AG-370/371 Firefox Office-ZIP realm-copy fix
+#                (src/content/metadataExtractor.ts: shared toRealmSafeBytes()
+#                helper applied to DOCX/XLSX/PPTX extraction). Only these two
+#                allow-listed files changed.
 
 ## Copied (allow-listed):
 PRIVACY.md

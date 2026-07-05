@@ -2534,10 +2534,27 @@ async function handleDrop(event: DragEvent): Promise<void> {
   const files = extractDropFiles(event.dataTransfer);
   if (files.length === 0) return;
 
-  // Prevent default browser behavior (open file) and stop propagation to other frames
+  // Prevent default browser behavior (open file) and stop propagation.
+  //
+  // AG-PROMPT-369: Use stopImmediatePropagation(), not stopPropagation().
+  // Root cause of the Copilot "Cancel doesn't stop the attach" bug: Copilot's
+  // own drop handling is itself registered on window/capture (the same
+  // same-node pattern already documented for ChatGPT's Lexical paste handler,
+  // see PASTE-RC6 below) — a fast SPA registering globally to catch drops
+  // reliably regardless of internal DOM structure. Because AG-343 made us
+  // register FIRST (module scope, document_start), we now run before it, but
+  // plain stopPropagation() only blocks propagation to OTHER nodes — it does
+  // NOT stop additional listeners already registered on the SAME node/phase
+  // (window/capture). Copilot's own handler was therefore still invoked
+  // synchronously in the same dispatch and attached the file regardless of
+  // the user's later async Cancel/Continue choice — Cancel could only ever
+  // dismiss our modal, never retract something that already happened.
+  // stopImmediatePropagation() additionally suppresses same-node listeners
+  // registered after ours, closing that gap. (Precedent already in this file
+  // at the untrusted-synthetic-click guard, ~line 1868.)
   event.preventDefault();
-  event.stopPropagation();
-  
+  event.stopImmediatePropagation();
+
   if (isProcessingUpload) return;
   isProcessingUpload = true;
   showLoadingModal();
