@@ -456,11 +456,20 @@ export async function extractPptxSelective(
   // ------------------------------------------------------------------
   const bodyText = textParts.join(' ').substring(0, PPTX_MAX_TEXT_LENGTH);
 
+  // AG-PROMPT-374: require actual extracted body text, not merely that
+  // docProps/core.xml was readable. The previous `|| coreXml !== undefined`
+  // fallback meant `success` could be true with a completely empty bodyText,
+  // silently masking a real text-extraction gap. The outer wrapper
+  // (extractPptxMetadataSelective in metadataExtractor.ts) already has its own
+  // legitimate `pptxResult.success || Object.keys(metadata).length > 1`
+  // fallback for when real metadata fields were actually parsed, so removing
+  // this inner vacuous-existence check does not remove real-metadata success —
+  // it removes only the weaker "core.xml happened to be readable" path.
   return makeResult({
     bodyText,
     coreXml,
     appXml,
-    success: bodyText.length > 0 || coreXml !== undefined,
+    success: bodyText.length > 0,
   });
 }
 

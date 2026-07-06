@@ -1,14 +1,19 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: a50cb005a4bfeee5cdb9155573110130933dfe83
-# generated_at:  2026-07-05T03:00:00Z
-# prompt_id:     AG-PROMPT-372
-# supersedes:    AG-PROMPT-366 (source_commit 0c6566fc, ZIP SHA e990b72e…)
-# change:        AG-369 Copilot drag/drop Cancel fix (src/content/index.ts:
-#                event.stopPropagation() -> event.stopImmediatePropagation())
-#                + AG-370/371 Firefox Office-ZIP realm-copy fix
-#                (src/content/metadataExtractor.ts: shared toRealmSafeBytes()
-#                helper applied to DOCX/XLSX/PPTX extraction). Only these two
-#                allow-listed files changed.
+# source_commit: f4a421c4d31b996255aeb7eeacac2992f019453c
+# generated_at:  2026-07-06T02:00:00Z
+# prompt_id:     AG-PROMPT-375
+# supersedes:    AG-PROMPT-372 (source_commit a50cb00, ZIP SHA 10c6a168…)
+# change:        AG-374 Office extraction success-semantics fix. XLSX/PPTX
+#                inner extractors (src/extraction/xlsxExtractor.ts,
+#                src/extraction/pptxSelectiveExtractor.ts) now require
+#                bodyText.length > 0 strictly instead of a vacuous
+#                sharedStrings.xml/core.xml-exists fallback; XLSX's outer
+#                wrapper (src/content/metadataExtractor.ts) gained the
+#                legitimate Object.keys(metadata).length > 1 metadata
+#                fallback DOCX/PPTX already had. Only these three
+#                allow-listed files changed. AG-369/370/371 (Copilot fix +
+#                Firefox Office-ZIP realm-copy) remain included unchanged
+#                from the AG-372 promotion.
 
 ## Copied (allow-listed):
 PRIVACY.md

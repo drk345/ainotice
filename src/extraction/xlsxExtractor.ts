@@ -409,7 +409,17 @@ export async function extractXlsxWithBudgets(buffer: Uint8Array | ArrayBuffer): 
   metrics.timings.parse_xml_ms = performance.now() - parseStart;
   metrics.timings.total_xlsx_ms = performance.now() - totalStart;
 
-  const success = bodyText.length > 0 || metrics.has_shared_strings;
+  // AG-PROMPT-374: require actual extracted evidence, not merely that a
+  // sharedStrings.xml entry exists in the ZIP. The previous
+  // `|| metrics.has_shared_strings` fallback meant `success` could be true
+  // with a completely empty bodyText — silently masking a real text-extraction
+  // gap as if extraction had succeeded, which in turn (via metadataExtractor.ts
+  // always returning a truthy `{ raw: {} }`) suppressed even the low-severity
+  // info.unscanned_file_type fallback signal in index.ts. Matches
+  // docxSelectiveExtractor.ts's stricter `bodyText.length > 0` pattern; a
+  // legitimate metadata-fields-present fallback is added one layer up in
+  // extractXlsxMetadataSelective, mirroring extractDocxMetadataSelective.
+  const success = bodyText.length > 0;
   if (!success && !metrics.failure_reason) {
     metrics.failure_reason = 'XLSX_NO_CONTENT';
   }

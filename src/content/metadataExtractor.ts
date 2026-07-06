@@ -710,12 +710,18 @@ async function extractXlsxMetadataSelective(file: File): Promise<ExtractionResul
       // Metadata parse failure is non-fatal — bodyText extraction is the priority
     }
 
+    // AG-PROMPT-374: mirror extractDocxMetadataSelective's/extractPptxMetadataSelective's
+    // success determination — fall back to "did we find real structured metadata
+    // fields" when body text is genuinely empty, instead of xlsxExtractor.ts's old
+    // (now-removed) mere sharedStrings-entry-exists fallback. Object.keys(metadata)
+    // .length > 1 because `metadata` always has the `raw` key.
+    const success = xlsxResult.success || Object.keys(metadata).length > 1;
     return {
-      success: xlsxResult.success,
+      success,
       metadata,
       bodyText: xlsxResult.bodyText || undefined,
       fileType: 'xlsx',
-      error: xlsxResult.success ? undefined : (xlsxResult.metrics.failure_reason ?? 'XLSX extraction failed'),
+      error: !success ? (xlsxResult.metrics.failure_reason ?? 'XLSX extraction failed') : undefined,
       // AG-PROMPT-304: thread existing XLSX budget/sample facts into partial-inspection.
       partialInspection: xlsxResult.metrics.budget_exceeded || xlsxResult.metrics.sampling_applied,
     };
