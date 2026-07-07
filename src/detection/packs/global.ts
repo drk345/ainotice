@@ -1153,9 +1153,14 @@ const globalPatterns: DetectionPattern[] = [
     id: 'global-dob',
     name: 'Date of Birth',
     // Context-gated: only matches date formats preceded by DOB keywords.
-    // Handles: DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY, YYYY-MM-DD, and spaced variants like "01 - 12 - 2007"
+    // Handles: DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY, and spaced variants like "01 - 12 - 2007",
+    // plus (AG-PROMPT-378) spelled-out month names in DD Month YYYY or Month DD, YYYY order
+    // (e.g. "22 April 2010", "22nd April 2010", "April 22, 2010", "Apr 22 2010").
+    // AG-PROMPT-378: pre-existing numeric branch does NOT actually match YYYY-MM-DD despite
+    // the prior comment claiming it did (first \d{1,2} group can't consume a 4-digit year) —
+    // this is a separate, out-of-scope gap, flagged as a follow-up, not fixed here.
     // AG-PROMPT-4: Unicode-safe boundary for Nordic DOB labels (ø in fødselsdato, ö in födelsedatum)
-    pattern: /(?<!\p{L})(?:date\s+of\s+birth|dob|birth\s*date|fødselsdato|födelsedatum|geboortedatum|geburtsdatum)\s*[:\-]?\s*\d{1,2}\s*[\-\/\.,]\s*\d{1,2}\s*[\-\/\.,]\s*\d{2,4}(?!\p{N})/giu,
+    pattern: /(?<!\p{L})(?:date\s+of\s+birth|dob|birth\s*date|fødselsdato|födelsedatum|geboortedatum|geburtsdatum)\s*[:\-]?\s*(?:\d{1,2}\s*[\-\/\.,]\s*\d{1,2}\s*[\-\/\.,]\s*\d{2,4}|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?,?\s+\d{2,4}|(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{2,4})(?!\p{N})/giu,
     type: 'pii',
     defaultSeverity: 'high',
     description: 'Date of birth',

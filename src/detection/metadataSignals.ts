@@ -19,21 +19,45 @@ import { AG_DEBUG_EVIDENCE, createEvidence } from './evidenceCapture';
 export function analyzeMetadataForRisks(metadata: DocumentMetadata): RiskSignal[] {
   const signals: RiskSignal[] = [];
 
+  // AG-PROMPT-379: `author`, `lastModifiedBy`, `creator`, and `producer` are
+  // deliberately EXCLUDED from this keyword-matching blend. Root cause
+  // (FIELD_BLIND_METADATA_CONFIDENTIAL, found during AG-378): these four
+  // fields record WHO/WHAT TOOL touched the file — they are commonly
+  // auto-filled by the authoring application (a person's OS username, or a
+  // literal tool name like "Microsoft Word") and are not a place a document
+  // author deliberately writes a content-classification label. Before this
+  // fix, a keyword anywhere in any of these four fields (e.g. an unusual but
+  // plausible Author value containing the word "Confidential") could trigger
+  // ANY of the checks below at their full severity — including the
+  // CRITICAL-severity meta.confidential and meta.ma_deal checks — with no
+  // relation to the document's actual visible content or genuine classification.
+  // Title/Subject/Company/Manager/Description/Category/Keywords remain in the
+  // blend: these ARE fields a document author deliberately fills with
+  // descriptive/classification information (e.g. a Title of "Confidential Q4
+  // Finance Review" is a genuine, intentional classification signal), so they
+  // stay eligible — matching this prompt's explicit "Title/Subject/Keywords
+  // metadata may warn only if source-aware and justified" requirement.
+  // `author`/`lastModifiedBy` retain their OWN dedicated, separately-gated
+  // signal below (meta.author, AG-PROMPT-378) — this change does not affect that.
   const allText = [
     metadata.title,
-    metadata.author,
     metadata.subject,
     metadata.company,
     metadata.manager,
-    metadata.lastModifiedBy,
     metadata.description,
     metadata.category,
-    metadata.creator,
-    metadata.producer,
     ...(metadata.keywords || []),
   ].filter(Boolean).join(' ');
 
-  if (!allText) return signals;
+  // AG-PROMPT-379: the previous unconditional `if (!allText) return signals;`
+  // early-return was removed. It predates this prompt's change, but became a
+  // real bug once author/lastModifiedBy left `allText`: a metadata object
+  // with ONLY an author/lastModifiedBy value (no title/subject/etc.) now
+  // produces an empty `allText`, and the early return would have skipped the
+  // separate, unrelated meta.author name check further below before it ever
+  // ran. Safe to remove outright: every check below either tests `allText`
+  // with a regex (an empty string simply never matches — no behavior change
+  // for genuinely empty metadata) or reads a specific field directly.
 
   // AG-PROMPT-031: Helper for metadata evidence capture
   function metaEvidence(regex: RegExp, signalId: string, field: string | null): EvidenceItem[] | undefined {
@@ -181,9 +205,33 @@ export function analyzeMetadataForRisks(metadata: DocumentMetadata): RiskSignal[
       'anonymous', 'unknown', 'user', 'admin', 'administrator',
       'author', 'default', 'owner', 'test', 'system',
     ]);
+    // AG-PROMPT-378: the blocklist above only excluded a handful of literal
+    // placeholder strings — any other value (a bare 2-letter abbreviation, a
+    // software/tool name auto-filled by the authoring application) still
+    // produced a "personal name" PII signal. Root cause: AUTHOR_ABBREVIATION_
+    // FALSE_POSITIVE. Extended with two additional, low-risk checks:
+    //  1. Require 2+ whitespace-separated tokens — rejects bare initials/
+    //     abbreviations ("AC", "OR") that carry no real name-like structure,
+    //     while still accepting "J. Smith" (2 tokens) and normal full names.
+    //  2. Reject known, commonly auto-filled document-tool names — these are
+    //     not personal names and were previously flagged as if they were.
+    const KNOWN_TOOL_AUTHORS = new Set([
+      'microsoft word', 'microsoft office', 'adobe acrobat', 'adobe indesign',
+      'adobe photoshop', 'libreoffice', 'openoffice', 'apache openoffice',
+      'google docs', 'pages', 'pdfcreator', 'pdf24', 'wkhtmltopdf', 'latex',
+      'canva', 'wps office', 'foxit', 'nitro pdf',
+    ]);
+    function looksLikePersonalName(value: string): boolean {
+      const trimmed = value.trim();
+      const lower = trimmed.toLowerCase();
+      if (ANONYMOUS_AUTHORS.has(lower)) return false;
+      if (KNOWN_TOOL_AUTHORS.has(lower)) return false;
+      const tokens = trimmed.split(/\s+/).filter(Boolean);
+      return tokens.length >= 2;
+    }
     const names = [metadata.author, metadata.lastModifiedBy]
       .filter(Boolean)
-      .filter(name => !ANONYMOUS_AUTHORS.has(name!.toLowerCase().trim()));
+      .filter(name => looksLikePersonalName(name!));
     if (names.length > 0) {
       signals.push({
         type: 'pii',
