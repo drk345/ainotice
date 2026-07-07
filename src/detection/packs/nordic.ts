@@ -191,7 +191,19 @@ const nordicPatterns: DetectionPattern[] = [
     id: 'nordic-financial-terms',
     name: 'Financial Terms (Nordic)',
     // AG-PROMPT-4: Unicode-safe boundary for Nordic (å in årsrapport, ø in resultatopgørelse, æ in omsætning)
-    pattern: /(?<!\p{L})(regnskab|årsrapport|balance|resultatopgørelse|omsætning|driftsresultat)(?!\p{L})/iu,
+    // AG-PROMPT-376: bare English "balance" REMOVED from this alternation. It has an
+    // extremely common non-financial meaning (equilibrium/proportion — "visual balance",
+    // "the right balance") that fired this Nordic-specific pack on English layout/design
+    // prose containing no actual Nordic-language or financial content (root cause:
+    // FINANCIAL_ANCHOR_TOO_WEAK — a bare ambiguous word used as a financial anchor).
+    // Genuine "balance sheet" mentions remain covered by english.ts's
+    // english-financial-statement pattern, which correctly requires the full phrase
+    // "balance sheet" (not bare "balance"). Real Nordic financial documents are still
+    // caught by the remaining genuinely Nordic-specific terms below (regnskab,
+    // årsrapport, resultatopgørelse, omsætning, driftsresultat have no ambiguous
+    // English meaning), confirmed via the existing nordic-financial-report-paste gold
+    // fixture (fires via regnskab/omsætning/driftsresultat/resultatopgørelse alone).
+    pattern: /(?<!\p{L})(regnskab|årsrapport|resultatopgørelse|omsætning|driftsresultat)(?!\p{L})/iu,
     type: 'financial',
     defaultSeverity: 'medium',
     description: 'Financial document',
@@ -201,7 +213,7 @@ const nordicPatterns: DetectionPattern[] = [
     tags: ['financial', 'nordic'],
     minLocaleConfidence: 'medium',
   },
-  
+
   // Note: Danish CPR numbers, Swedish personnummer, etc. are NOT included here
   // They belong in CountryPacks and require explicit enablement + high confidence
 ];
