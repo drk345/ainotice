@@ -1,31 +1,33 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: 332f4c10b23db50531b0d662f63a2f8cd6067ef2
-# generated_at:  2026-07-07T06:00:00Z
-# prompt_id:     AG-PROMPT-380
-# supersedes:    AG-PROMPT-377 (source_commit aa69a52, ZIP SHA bd1d446e…)
-# change:        AG-378 + AG-379 PDF/metadata detection fixes.
-#                src/detection/packs/global.ts: global-dob now also matches
-#                spelled-out month-name dates ("22 April 2010"), not just
-#                numeric formats -- previously this format produced zero
-#                content signals, leaving a low-severity Author metadata
-#                signal as the only (trivially "winning") signal.
-#                src/detection/metadataSignals.ts: (1) meta.author now
-#                requires 2+ tokens and excludes known document-tool names
-#                (rejects "AC", "Microsoft Word"); (2) the keyword-matching
-#                blend used by meta.confidential/meta.department/meta.ma_deal/
-#                meta.hr_employee/meta.legal/meta.financial/meta.ip no longer
-#                includes author/lastModifiedBy/creator/producer (provenance
-#                fields, commonly auto-filled) -- title/subject/company/
-#                manager/description/category/keywords remain eligible.
-#                Only these two allow-listed files changed. AG-369/370/371/
-#                374/376 (Copilot fix, Firefox Office-ZIP realm-copy, Office
-#                success-semantics, nordic financial-terms false-positive)
-#                remain included unchanged from the AG-377 promotion --
-#                confirmed via byte-identical content.js/background.js
-#                comparison against a same-session dev Chrome build. Local
-#                real-world reproduction files (docs/test-files/1-3.txt)
-#                remain uncommitted and are not part of this promotion;
-#                AG-378/379 used only synthetic fixtures.
+# source_commit: c591ec293c3181b87b87d903e3668a0cc374bdbd
+# generated_at:  2026-07-08T01:00:00Z
+# prompt_id:     AG-PROMPT-382
+# supersedes:    AG-PROMPT-380 (source_commit 332f4c1, ZIP SHA 3c3926f3…)
+#                -- AG-380 already promoted AG-378 + AG-379; those are NOT
+#                pending, they remain shipped and unchanged in this release.
+# change:        AG-381 HR/Employee false-positive fix.
+#                src/detection/packs/english.ts: english-hr-compensation and
+#                english-hr-performance now require minCount:2 (matching the
+#                AG-350 registry-hr-employee precedent) plus the regex `g`
+#                flag both patterns were missing (required for minCount to
+#                be enforceable via String.match()). Previously a single
+#                common, polysemous word (e.g. "bonus" used generically, or
+#                "termination" in a non-HR sense) fired a High "HR/Employee
+#                data" warning alone -- reproduced on a real operator
+#                engineering/CSS-QA report (local-only, never committed).
+#                Genuine compensation/performance/roster/employee-ID/staff-
+#                list documents remain fully detected (positive-control
+#                tests added). Only this one allow-listed file changed.
+#                AG-369/370/371/374/376/378/379 (Copilot fix, Firefox
+#                Office-ZIP realm-copy, Office success-semantics, nordic
+#                financial-terms false-positive, PDF Author metadata
+#                precedence, field-aware metadata confidential) remain
+#                included unchanged from the AG-380 promotion -- confirmed
+#                via byte-identical content.js/background.js comparison
+#                against a same-session dev Chrome build. Local real-world
+#                reproduction files (docs/test-files/1-4.txt) remain
+#                uncommitted and are not part of this promotion; AG-381 used
+#                only synthetic fixtures in its committed tests.
 
 ## Copied (allow-listed):
 PRIVACY.md

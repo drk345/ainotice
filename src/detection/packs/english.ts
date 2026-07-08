@@ -127,26 +127,49 @@ const englishPatterns: DetectionPattern[] = [
   {
     id: 'english-hr-compensation',
     name: 'Compensation Data',
-    pattern: /\b(salary|compensation|annual\s+pay|hourly\s+rate|bonus|commission|stock\s+options|equity\s+grant)\b/i,
+    // AG-PROMPT-381: added the `g` flag — countMatches/minCount below use
+    // String.match(), which without `g` only returns the first match,
+    // making a minCount > 1 threshold impossible to ever satisfy.
+    pattern: /\b(salary|compensation|annual\s+pay|hourly\s+rate|bonus|commission|stock\s+options|equity\s+grant)\b/gi,
     type: 'pii',
     defaultSeverity: 'high',
     description: 'HR/Employee data',
     detail: 'File contains compensation or HR information.',
     rationale: 'Compensation data is sensitive employee PII.',
     pack: 'english',
+    // AG-PROMPT-381: several of these keywords are common, polysemous English
+    // words outside an HR context (e.g. "bonus" as in "a bonus fix/feature",
+    // "commission" as in "commission a report") — a single incidental match
+    // previously fired a High-Risk "HR/Employee data" warning on ordinary
+    // engineering/QA prose with zero actual employee data. Mirrors the same
+    // fix already applied to the sibling registry-hr-employee signal in
+    // AG-PROMPT-350: require 2+ corroborating keywords so a lone generic term
+    // no longer escalates by itself. Genuine compensation documents (offer
+    // letters, payroll communications) naturally contain multiple such terms
+    // together.
+    countMatches: true,
+    minCount: 2,
     tags: ['hr', 'pii', 'compensation'],
     minLocaleConfidence: 'medium',
   },
   {
     id: 'english-hr-performance',
     name: 'Performance Review',
-    pattern: /\b(performance\s+review|annual\s+review|performance\s+rating|disciplinary|termination|severance)\b/i,
+    // AG-PROMPT-381: added the `g` flag for the same reason as
+    // english-hr-compensation above (countMatches/minCount require it).
+    pattern: /\b(performance\s+review|annual\s+review|performance\s+rating|disciplinary|termination|severance)\b/gi,
     type: 'pii',
     defaultSeverity: 'high',
     description: 'HR/Employee data',
     detail: 'File contains employee performance or HR information.',
     rationale: 'Performance data is sensitive HR information.',
     pack: 'english',
+    // AG-PROMPT-381: same rationale as english-hr-compensation above —
+    // "termination" (e.g. process/connection termination) and "disciplinary"
+    // can appear in non-HR technical or procedural writing. Require 2+
+    // corroborating keywords, matching the AG-PROMPT-350 precedent.
+    countMatches: true,
+    minCount: 2,
     tags: ['hr', 'pii', 'performance'],
     minLocaleConfidence: 'medium',
   },
