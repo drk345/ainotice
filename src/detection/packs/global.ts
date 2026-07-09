@@ -1111,13 +1111,25 @@ const globalPatterns: DetectionPattern[] = [
   {
     id: 'registry-medical-content',
     name: 'Medical Content',
-    // EN: diagnosis, patient journal, medical record, health record, clinical note, lab result, blood test, prescription, medication, prognosis
+    // EN: patient journal, medical record, health record, clinical note, lab result, blood test, prescription, medication, prognosis
     // Nordic: anamnese, epikrise, journalnummer, labsvar, blodprøve, sundhedsdata, patientdata, undersøgelse, behandling
     // DE: Patientenakte, Krankenakte, Befund, Arztbrief, Laborergebnis, Blutbild, Rezept, Medikament
     // FR: dossier médical, ordonnance, résultat de laboratoire, antécédents médicaux
     // IT: cartella clinica, referto, ricetta medica, risultato di laboratorio
     // NL: patiëntendossier, medisch dossier, laboratoriumresultaat, recept, bloedonderzoek
-    pattern: /(?<!\p{L})(diagnosis|diagnose|patient\s*journal|patientjournal|medical\s*record|health\s*record|clinical\s*note|lab\s*result|blood\s*test|prescription|medication|prognosis|anamnese|epikrise|journal\s*nr|journalnummer|labsvar|laboratoriesvar|laboratorieresultat|blodprøve|laboratorium|sundhedsdata|helbredsoplysninger|patientdata|undersøgelse|prøvesvar|behandling|patientenakte|krankenakte|befund|arztbrief|laborergebnis|blutbild|rezept|medikament|dossier\s+m[eé]dical|ordonnance|r[eé]sultat\s+de\s+laboratoire|ant[eé]c[eé]dents\s+m[eé]dicaux|cartella\s+clinica|referto|ricetta\s+medica|risultato\s+di\s+laboratorio|pati[eë]ntendossier|medisch\s+dossier|laboratoriumresultaat|bloedonderzoek)(?!\p{L})/giu,
+    // AG-PROMPT-383: "diagnosis"/"diagnose" removed from this alternation.
+    // minCount:2 (below) was originally meant to require 2+ corroborating
+    // keywords so a lone mention doesn't escalate — but it counts RAW
+    // matches, not distinct keyword variety, so a technical document that
+    // says "diagnosis"/"diagnose" two or more times (e.g. a software
+    // "root cause diagnosis" report) could satisfy minCount:2 using only
+    // that one ambiguous, non-clinical word repeated, with zero genuine
+    // clinical corroboration. The remaining keywords are all specific,
+    // unambiguous clinical phrases; genuine clinical diagnosis mentions
+    // remain covered whenever they co-occur with any of them, which real
+    // clinical documents essentially always do (see
+    // english-phi-note-paste.clipboard.json).
+    pattern: /(?<!\p{L})(patient\s*journal|patientjournal|medical\s*record|health\s*record|clinical\s*note|lab\s*result|blood\s*test|prescription|medication|prognosis|anamnese|epikrise|journal\s*nr|journalnummer|labsvar|laboratoriesvar|laboratorieresultat|blodprøve|laboratorium|sundhedsdata|helbredsoplysninger|patientdata|undersøgelse|prøvesvar|behandling|patientenakte|krankenakte|befund|arztbrief|laborergebnis|blutbild|rezept|medikament|dossier\s+m[eé]dical|ordonnance|r[eé]sultat\s+de\s+laboratoire|ant[eé]c[eé]dents\s+m[eé]dicaux|cartella\s+clinica|referto|ricetta\s+medica|risultato\s+di\s+laboratorio|pati[eë]ntendossier|medisch\s+dossier|laboratoriumresultaat|bloedonderzoek)(?!\p{L})/giu,
     type: 'pii',
     defaultSeverity: 'high',
     description: 'Medical content detected',

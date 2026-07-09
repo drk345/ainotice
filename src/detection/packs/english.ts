@@ -206,7 +206,18 @@ const englishPatterns: DetectionPattern[] = [
   {
     id: 'english-health-phi',
     name: 'Protected Health Information',
-    pattern: /\b(medical\s+record|patient\s+id|diagnosis|treatment\s+plan|prescription|health\s+insurance|hipaa)\b/i,
+    // AG-PROMPT-383: bare "diagnosis" removed from this alternation. This
+    // signal is critical severity with hardFloor:true (its severity cannot
+    // be reduced by policy) and previously had NO count/corroboration
+    // requirement at all — a single occurrence of "diagnosis" in ANY
+    // context (root cause diagnosis, CSS diagnosis, deployment diagnosis)
+    // fired a critical PHI warning. "Diagnosis" is common, ordinary English
+    // outside medicine; the remaining keywords (medical record, patient id,
+    // treatment plan, prescription, health insurance, hipaa) are far more
+    // specific/unambiguous and are unaffected. Genuine PHI documents
+    // essentially always contain at least one of those in addition to any
+    // clinical diagnosis mention (see english-phi-note-paste.clipboard.json).
+    pattern: /\b(medical\s+record|patient\s+id|treatment\s+plan|prescription|health\s+insurance|hipaa)\b/i,
     type: 'pii',
     defaultSeverity: 'critical',
     description: 'Health information',
