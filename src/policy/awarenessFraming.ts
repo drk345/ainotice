@@ -381,8 +381,13 @@ function hasLegalSignals(signalIds: string[]): boolean {
  * M&A signals (global-ma-terms, global-ma-valuation-context) indicate material
  * non-public information that deserves its own calm frame rather than falling
  * through to generic FRAME_GENERAL_SENSITIVE.
+ * AG-PROMPT-386: Added global-financial-report so corroborated financial-report
+ * content (balance sheet, margins, EBITDA, P&L) surfaces as business-sensitive
+ * instead of being hidden behind a co-occurring generic confidentiality marker,
+ * or falling through to the less specific FRAME_GENERAL_SENSITIVE when no
+ * confidentiality marker is present.
  */
-const BUSINESS_SENSITIVE_PATTERNS = ['global-ma-terms', 'global-ma-valuation'];
+const BUSINESS_SENSITIVE_PATTERNS = ['global-ma-terms', 'global-ma-valuation', 'global-financial-report'];
 function hasBusinessSensitiveSignals(signalIds?: string[]): boolean {
   if (!signalIds) return false;
   return signalIds.some(id => {
@@ -446,6 +451,15 @@ export function hasOnlyDistributionSignals(signalIds?: string[]): boolean {
   // Must NOT have any legal patterns
   const hasLegal = hasLegalSignals(signalIds);
   if (hasLegal) return false;
+
+  // AG-PROMPT-386: Must NOT have any business-sensitive/financial content
+  // patterns. Without this check, a confidential finance report (e.g.
+  // global-confidential-en + global-financial-report) was incorrectly
+  // treated as "distribution-only", hiding the financial content behind a
+  // generic "internal sharing restrictions" headline instead of surfacing
+  // it as business-sensitive.
+  const hasBusinessSensitive = hasBusinessSensitiveSignals(signalIds);
+  if (hasBusinessSensitive) return false;
 
   return true;
 }

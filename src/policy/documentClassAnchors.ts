@@ -820,6 +820,7 @@ const GENERIC_KEYWORD_SIGNAL_IDS = new Set([
   'global-swift',
   'english-financial-statement',
   'nordic-financial-terms',
+  'global-financial-report',  // AG-PROMPT-386: same generic-keyword veto treatment as its siblings above
   // AG-PROMPT-352: `global-ma-terms` / `global-ma-valuation-context` REMOVED from
   // the generic-keyword veto. AG-350 made these patterns require genuine M&A
   // CONTEXT (they no longer fire on lone generic governance terms like "due

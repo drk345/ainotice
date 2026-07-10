@@ -115,6 +115,8 @@ export const SIG_EMAIL = 'global-email' as const;
 export const SIG_CREDIT_CARD = 'global-credit-card' as const;
 /** Spaced/dashed credit card format (migrated from registry) */
 export const SIG_CREDIT_CARD_SPACED = 'registry-credit-card-spaced' as const;
+/** Corroborated financial report terminology: balance sheet, margins, EBITDA, P&L, etc. (AG-PROMPT-386) */
+export const SIG_GLOBAL_FINANCIAL_REPORT = 'global-financial-report' as const;
 export const SIG_IBAN = 'global-iban' as const;
 export const SIG_SWIFT = 'global-swift' as const;
 /** Banking keyword terms (migrated from registry) */

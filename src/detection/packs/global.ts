@@ -1106,6 +1106,41 @@ const globalPatterns: DetectionPattern[] = [
     tags: ['pii', 'hr', 'roster', 'people-list'],
   },
 
+  // === FINANCIAL REPORT KEYWORDS (AG-PROMPT-386) ===
+  // Root cause: english-financial-statement (english.ts) is gated by
+  // minLocaleConfidence:'medium', which requires 8+ DISTINCT English function
+  // words. Realistic, terse financial-report prose (heavy with numbers,
+  // proper nouns, and domain terms like "EBITDA"/"SEK" that aren't function
+  // words) can plausibly fall one or two words short of that threshold even
+  // at high function-word DENSITY — confirmed empirically on a synthetic
+  // finance report reproducing an operator smoke failure. Separately, several
+  // explicitly-expected finance anchors (revenue, gross margin, net margin,
+  // EBITDA, cost of goods sold, operating expenses, supplier costs) had NO
+  // pattern coverage anywhere in this codebase at all. This pattern lives in
+  // the always-on global pack (minLocaleConfidence:'low', bypassing the
+  // locale-gate issue) and adds the missing anchors, alongside the terms
+  // english-financial-statement already covers, as a redundant safety net.
+  // Deliberately excludes bare "balance"/"margin" as standalone matches (only
+  // "balance sheet", "gross margin", "net margin" as compound phrases) to
+  // avoid reintroducing the AG-PROMPT-376 visual-balance/layout false
+  // positive; "budget" and "revenue" are included as single words (per this
+  // prompt's own listed strong anchors) but require 2+ total matches via
+  // minCount, so a single ambiguous mention cannot trigger this signal alone.
+  {
+    id: 'global-financial-report',
+    name: 'Financial Report',
+    pattern: /(?<!\p{L})(balance\s+sheet|profit\s+and\s+loss|p&l|gross\s+margin|net\s+margin|ebitda|cost\s+of\s+goods\s+sold|operating\s+expenses?|revenue|profitability|supplier\s+costs?|budget)(?!\p{L})/giu,
+    type: 'financial',
+    defaultSeverity: 'high',
+    description: 'Financial report content detected',
+    detail: 'File contains corroborated financial report terminology (e.g. balance sheet, revenue, margins, EBITDA, P&L).',
+    rationale: 'Multiple distinct financial-report anchors together indicate genuine business-sensitive financial content, not incidental mentions.',
+    pack: 'global',
+    countMatches: true,
+    minCount: 2,
+    tags: ['financial', 'business-sensitive', 'keywords'],
+  },
+
   // === MEDICAL CONTENT KEYWORDS (migrated from registry — AG-PHASE-2-046) ===
   // AG-PROMPT-102: Added DE/FR/IT/NL medical keywords for EU SME parity
   {
