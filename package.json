@@ -29,6 +29,7 @@
     "test:forensics": "npx tsx scripts/forensics/test-forensics-determinism.ts",
     "test:ui-parity": "npx tsx scripts/test-ui-parity.ts",
     "test:build-artifacts": "npx tsx scripts/test-firefox-build-artifacts.ts",
+    "test:icon-integrity": "npx tsx scripts/test-extension-icon-integrity.ts",
     "firefox:manifest:prove": "npx tsx scripts/copy-manifest.ts firefox",
     "clean": "rimraf dist",
     "preview": "vite preview",

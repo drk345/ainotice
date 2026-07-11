@@ -1,51 +1,43 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: 3b38c9e78d1f470f711ba599e1c8f77525d408c2
-# generated_at:  2026-07-10T00:00:00Z
-# prompt_id:     AG-PROMPT-387
-# supersedes:    AG-PROMPT-384 (source_commit 861c939, ZIP SHA 1c43ddfc…)
-#                -- AG-384 already promoted AG-383; AG-382 (before that)
-#                already promoted AG-381; AG-380 already promoted AG-378 +
-#                AG-379. None of these are pending, they remain shipped and
-#                unchanged in this release.
-# change:        AG-386 finance report false-negative fix.
-#                src/detection/packs/global.ts: new signal
-#                global-financial-report (always-on global pack, type
-#                'financial', severity 'high', minCount:2) covers balance
-#                sheet, profit and loss/P&L, gross margin, net margin,
-#                EBITDA, cost of goods sold, operating expenses, revenue,
-#                profitability, supplier costs, budget -- deliberately
-#                excluding bare "balance"/"margin" to preserve the AG-376
-#                visual-balance fix. Root cause: english-financial-statement
-#                is gated by the English pack's locale-confidence check (8+
-#                distinct function words), which realistic finance prose can
-#                fail by one word despite high function-word density, so the
-#                pack never activates; separately, several finance anchors
-#                had zero pattern coverage anywhere. src/detection/
-#                signalManifest.ts: registered SIG_GLOBAL_FINANCIAL_REPORT.
-#                src/policy/awarenessFraming.ts: added the new signal to
-#                BUSINESS_SENSITIVE_PATTERNS and fixed hasOnlyDistribution
-#                Signals() to exclude business-sensitive signals, so a
-#                confidential finance report now correctly surfaces as
-#                business-sensitive instead of being masked behind a generic
-#                distribution-restriction frame. src/policy/
-#                documentClassAnchors.ts: added the new signal to
-#                GENERIC_KEYWORD_SIGNAL_IDS for consistency with sibling
-#                financial signals. Confidential and non-confidential finance
-#                reports both now surface business-sensitive framing; layout/
-#                design "visual balance" text remains clean; a single
-#                ambiguous finance word cannot trigger alone. Signal-manifest
-#                count changed by exactly +1 (93->94 pack pattern IDs,
-#                101->102 manifest constants). Only these four allow-listed
-#                files changed. AG-369/370/371/374/376/378/379/381/383
-#                (Copilot fix, Firefox Office-ZIP realm-copy, Office
-#                success-semantics, nordic financial-terms false-positive,
-#                PDF Author metadata precedence, field-aware metadata
-#                confidential, HR/employee precision, medical diagnosis
-#                precision) remain included unchanged from the AG-384
-#                promotion -- confirmed via byte-identical content.js/
-#                background.js comparison against a same-session dev Chrome
-#                build. docs/test-files/1-4.txt remain uncommitted and are
-#                not part of this promotion; no raw operator content used.
+# source_commit: a88a74f5ad237a682c5a9495d8aa625e87bc0dd3
+# generated_at:  2026-07-11T00:00:00Z
+# prompt_id:     AG-PROMPT-390
+# supersedes:    AG-PROMPT-387 (source_commit 3b38c9e, ZIP SHA 3fdde48b…)
+#                -- AG-387 already promoted AG-386; AG-384 already promoted
+#                AG-383; AG-382 already promoted AG-381; AG-380 already
+#                promoted AG-378 + AG-379. None of these are pending, they
+#                remain shipped and unchanged in this release.
+# change:        AG-390 canonical extension icon release promotion (ships
+#                the AG-389 icon replacement). Exactly five allow-listed
+#                files changed since AG-387 (source commit 3b38c9e):
+#                public/icons/icon{16,32,48,128}.png replaced byte-for-byte
+#                with the approved canonical Ai Notice mark derivatives
+#                (icon16 e562af70..., icon32 02cf5879..., icon48
+#                6fad62a2..., icon128 5a3f08a1...) -- all four old icons
+#                were flat single-color placeholders (icon16/icon48 were
+#                byte-identical: icon48 was mislabeled 16x16 art, not real
+#                48px art). package.json gained one new npm script entry
+#                ("test:icon-integrity") that points at a dev-only test
+#                script intentionally NOT on this release allow-list; it is
+#                not invoked by build:chrome/package:chrome/release-verify.ts
+#                so it has zero effect on the shipped ZIP (follow-up:
+#                consider adding the script to the allow-list in a future,
+#                separately-scoped prompt). No manifest, permission, host,
+#                or CSP change; version reused as 1.0.0 (no Web Store draft
+#                exists to conflict with). content.js, background.js,
+#                manifest.json, popup.html, warning-modal.css/html, and
+#                messages.json are byte-identical to the superseded ZIP --
+#                confirmed by full file-by-file comparison. Two OTHER
+#                allow-listed files (docs/CHROME-SUBMISSION-CHECKLIST.md,
+#                scripts/test-chrome-build-artifacts.ts) were found stale in
+#                this release repo relative to current dev, but that drift
+#                predates source commit 3b38c9e (i.e. a gap left by an
+#                earlier promotion, not caused by AG-389/AG-390) and neither
+#                file is part of dist/chrome or the shipped ZIP -- left
+#                untouched to preserve this prompt's icon-only scope and
+#                flagged as a follow-up. docs/test-files/1-4.txt remain
+#                uncommitted and are not part of this promotion; no raw
+#                operator content used.
 
 ## Copied (allow-listed):
 PRIVACY.md
