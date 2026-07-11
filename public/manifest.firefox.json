@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Ai Notice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Privacy-first local warnings before sharing files with AI platforms.",
   "default_locale": "en",
   "icons": {
