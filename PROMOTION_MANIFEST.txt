@@ -1,21 +1,24 @@
 # Ai Notice Release Promotion Manifest
-# source_commit: ad7a272acda88bdaf1179f7a292949911ba7b41a
+# source_commit: 2c580fe4d56a0a0c613f20fbf2e078c18c0d2484
 # generated_at:  2026-07-11T00:00:00Z
-# prompt_id:     AG-PROMPT-391
-# supersedes:    AG-PROMPT-390 (source_commit 9102f82, ZIP SHA c3a60a73...)
-# change:        AG-391 Chrome Web Store version correction. AG-390 reused
-#                version 1.0.0 on an incorrect "no CWS draft" inference;
-#                operator confirmed 1.0.0 was already uploaded to the existing
-#                draft, so the canonical-icon package must not reuse 1.0.0.
-#                Approved target 1.0.1. Exactly four allow-listed files changed
-#                vs AG-390: public/manifest.chrome.json, public/manifest.firefox.json,
-#                package.json, package-lock.json (root version metadata only, no
-#                dependency/integrity/resolved/tree change). No icon/permission/
-#                host/CSP/runtime/UI change. Chrome ZIP differs from the superseded
-#                AG-390 ZIP in exactly one file -- manifest.json -- and only in the
-#                version string (1.0.0 -> 1.0.1); all other entries byte-identical.
-#                ZIP SHA c3a60a73... (v1.0.0, superseded for upload) -> 8cb7de15...
-#                (v1.0.1). No Chrome Web Store upload; no GitHub Release; no git tag.
+# prompt_id:     AG-PROMPT-392
+# supersedes:    AG-PROMPT-391 (source_commit ad7a272, ZIP SHA 8cb7de15...)
+# change:        AG-392 canonical extension-description alignment (executes the
+#                AG-391-deferred DEFER_DESCRIPTION_ALIGNMENT). Version 1.0.1 is
+#                preserved (no 1.0.1 package uploaded to the Chrome Web Store). One
+#                approved canonical description (129 ASCII chars, <=132 limit) was
+#                applied to four sources: public/manifest.chrome.json,
+#                public/manifest.firefox.json, public/_locales/en/messages.json
+#                (extensionDescription), and package.json. Legacy public/manifest.json
+#                (v0.2.0, wildcard hosts) left unchanged and proven dead/excluded. A
+#                dev-only description-consistency test was added in AgentGuard and is
+#                NOT promoted here. No icon/permission/host/CSP/runtime/UI change.
+#                Chrome ZIP differs from the superseded AG-391 ZIP in exactly two
+#                files -- manifest.json (.description only; version still 1.0.1) and
+#                _locales/en/messages.json (extensionDescription only); all other
+#                entries byte-identical. ZIP SHA 8cb7de15... (v1.0.1, superseded for
+#                upload) -> 42aeed96... (v1.0.1). No Chrome Web Store upload; no
+#                GitHub Release; no git tag.
 
 ## Copied (allow-listed):
 PRIVACY.md

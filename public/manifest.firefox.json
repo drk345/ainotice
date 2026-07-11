@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Ai Notice",
   "version": "1.0.1",
-  "description": "Privacy-first local warnings before sharing files with AI platforms.",
+  "description": "Warns before sharing sensitive text or files with supported AI chat sites. Runs locally in your browser. No account or telemetry.",
   "default_locale": "en",
   "icons": {
     "16": "icons/icon16.png",

@@ -1,7 +1,7 @@
 {
   "name": "ainotice",
   "version": "1.0.1",
-  "description": "Enterprise-grade risk awareness for AI tool uploads",
+  "description": "Warns before sharing sensitive text or files with supported AI chat sites. Runs locally in your browser. No account or telemetry.",
   "type": "module",
   "scripts": {
     "dev": "npm run build:chrome && npm run build:background:chrome -- --watch",
